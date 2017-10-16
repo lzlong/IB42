@@ -1,0 +1,170 @@
+Android证书别名：yyjtkey
+Android证书密钥：yyjtxmib42
+制作一个移动终端的在线播放音频平台（模仿考拉、喜马拉雅等），能不卡顿的在2G/3G/4G/wifi等网络情况播放，且具备以下基本功能：
+
+获取服务器上mp3音频资源，实现在线播放、自动缓存、下载离线播放；
+音频播放历史记录（频道记录，播放时间点记录）；
+通过关键字搜索播放（关键字搜索筛选由服务器完成，提供数据到服务器即可）；
+QQ微信分享；
+获取服务版本信息，实现自动更新（有更新提示用户，可选是否更新，更新安装后覆盖原文件，删除上个版本遗留不用的文件，保留用户端信息）
+三、 接口数据：
+栏目获取地址：http://xm.ib42.com/?json=1&include=title,url,thumbnail
+          Count：总栏目数
+             Title：栏目名称
+                ID：该栏目ID
+             URL：该栏目图片
+
+栏目子项音频获取地址：http://xm.ib42.com/?p= ID&json=1
+解析出所有后缀带MP3的音频播放\下载地址
+
+栏目关键字搜索地址：http://xm.ib42.com/?json=get_search_result&s=关键字
+解析出所有后缀带MP3的音频播放\下载地址
+
+更新版本地址：http://app.webfuwu.com/up.asp?appid=1696
+{{版本号}
+mess:更新说明
+urls:APP下载地址（在此地址前加http://app.webfuwu.com）
+
+QQ/微信分享连接地址：http://app.webfuwu.com/?appid=1696
+分享标题：欢迎使用「印心讲堂」
+分享图标：
+
+
+对api做了一些调整
+1、专辑列表获取方式
+http://g1.124000.org/?json=1
+{
+    "status": "ok",
+    "count_total": 3,
+    "count_page": 1,
+    "current_page": 1,
+    "posts": [
+        {
+            "id": 1,
+            "title": "《乙亥讲演录》参学汇报",
+            "url": "http://g1.124000.org/uploadfile/image/20170920/20170920191856935693.jpg"
+        },
+        {
+            "id": 2,
+            "title": "《心经抉隐》参学汇报",
+            "url": "http://g1.124000.org/uploadfile/image/20170920/20170920191856935693.jpg"
+        },
+        {
+            "id": 3,
+            "title": "《佛法修证心要》",
+            "url": "http://g1.124000.org/uploadfile/image/20170920/20170920191856935693.jpg"
+        }
+    ]
+}
+2、单个专辑音频列表获取方式
+http://g1.124000.org/?json=1&p=1
+{
+    "status": "ok",
+    "count_total": 4,
+    "count_page": 1,
+    "current_page": 1,
+    "posts": [
+        {
+            "id": 65,
+            "title": "001论佛教八大宗1J",
+            "url": "http://g1.124000.org/uploadfile/max/2017/9/001论佛教八大宗1J.mp3"
+        },
+        {
+            "id": 69,
+            "title": "002论佛教八大宗2J",
+            "url": "http://g1.124000.orgUpLoadFile/max/2017/9/002论佛教八大宗2J.mp3"
+        },
+        {
+            "id": 70,
+            "title": "003学佛第一要知见正",
+            "url": "http://g1.124000.orgUpLoadFile/max/2017/9/003学佛第一要知见正.mp3"
+        },
+        {
+            "id": 71,
+            "title": "004佛法修证心要01",
+            "url": "http://g1.124000.orgUpLoadFile/max/2017/9/004佛法修证心要01.mp3"
+        }
+    ]
+}
+url参数说明：
+1、json：获取专辑列表和单个专辑音频列表都需要有json这个参数，而且值必须为1
+2、p：p为专辑ID号获取单个专辑音频列表需要
+3、page：page为当前分页，获取专辑列表和单个专辑音频列表都可用到;如：http://g1.124000.org/?json=1&page=2
+4、keyword：关键词，可以在专辑列表和单个专辑音频列表用于搜索;如：http://g1.124000.org/?json=1&page=2&keyword=佛
+返回值参数说明：
+1、status：状态，ok为成功，err为出错
+2、count_total：为总记录数
+3、count_page：为总记录分页数，第页10条记录
+4、current_page：当前分页
+5、posts：列表
+6、id：专辑或音频ID
+7、title：专辑或音频标题，全部unicode编码,
+8、url：专辑的图片地址或音频的音频文件地址，全部unicode编码
+9、yp_zt：音频所属专辑id，只有p不为空返回关于搜索
+1、搜专辑：http://g1.124000.org/?json=1&page=2&keyword=佛
+1、搜音频：http://g1.124000.org/?json=1&page=2&p=2&keyword=佛
+说明：搜音频需要加个参数p，也就是专辑ID号，如果p=0搜所有专辑，如果p>0 搜指定专辑。
+==============================升级==============================2017-10-13
+ 1、增加了新的返回值参数（yp_zt：音频所属专辑id）2、增加了p=0返回所专辑的音频
+
+
+
+标题栏
+页面布局
+
+
+activity 初始化service 信息 和 播放信息
+
+
+首页
+点击->数据库->跳转播放页面->播放查看本地是否下载过
+搜索->点击同上
+
+播放
+ 首页点击->网络播放
+ 本地播放->获取本地音频地址->播放
+ 播放历史->是否为网络音频->播放
+
+我的
+数据库查询播放历史->点击->跳转播放页面-查看本地是否下载过->播放
+
+离线
+查询本地音频文件夹
+点击-跳转播放页面->播放本地音频
+
+
+播放服务
+启动->初始化->查看上次播放列表
+收到播放请求->查询数据库->播放
+
+
+我:
+AppID:wx146a438a7e069ff1
+AppSecret:f3f9a116cd1c117d262af930fcbb5231
+我:
+名称：印心讲堂
+Android包名：com .xm.ib42
+ISO AppID：com .xm.ib42
+Android证书别名：yyjtkey
+Android证书密钥：yyjtxmib42
+Android证书文件：见附件“yyjt.keystore”
+微信分享key：待审核
+迅飞语音安卓：APPID：59c0e02d
+迅飞语音IOS：APPID：59c0e1b5
+
+
+
+播放列表
+全局列表
+service
+
+搜索
+列表
+分类
+更新
+
+
+数据库
+专辑列表
+下载列表
+收听历史

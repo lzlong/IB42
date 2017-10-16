@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/drawable/setting.png",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/drawable/setting.png"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/drawable/setting_p.png",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/drawable/setting_p.png"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/drawable/list_bg_color.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/drawable/list_bg_color.xml"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/drawable/main_setting_btn_np.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/drawable/main_setting_btn_np.xml"
+    }
+]

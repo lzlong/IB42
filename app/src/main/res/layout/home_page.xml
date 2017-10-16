@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/background"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical" >
+
+    <include layout="@layout/title"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp">
+        <EditText
+            android:id="@+id/home_search"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="@color/color_FFFFFFFF"
+            android:layout_margin="5dp"
+            android:paddingStart="5dp"
+            android:hint="请输入栏目名称"
+            />
+        <ImageButton
+            android:id="@+id/mkf_button"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="5dp"
+            android:background="@mipmap/mkf"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"/>
+    </RelativeLayout>
+
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="10dp">
+
+        <com.handmark.pulltorefresh.library.PullToRefreshGridView
+            android:id="@+id/home_gv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:numColumns="3"/>
+
+        <LinearLayout
+            android:id="@+id/home_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:padding="7dp"
+            android:gravity="center"
+            android:background="@drawable/home_page_play_bg">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="继续上次收听："
+                android:textColor="@color/color_FFFFFFFF"/>
+            <TextView
+                android:id="@+id/home_play_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/color_FFFFFFFF"
+                android:text="继续上次收听："/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

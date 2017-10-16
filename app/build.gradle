@@ -1,0 +1,53 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        debug {
+            keyAlias 'yyjtkey'
+            keyPassword 'yyjtxmib42'
+            storeFile file('/home/long/AndroidStudioProjects/IB422/app/yyjt.keystore')
+            storePassword 'yyjtxmib42'
+        }
+    }
+    compileSdkVersion 23
+    buildToolsVersion '25.0.0'
+    defaultConfig {
+        applicationId "com.xm.ib42"
+        minSdkVersion 16
+        targetSdkVersion 22
+        versionCode 1
+        versionName "1.0"
+        signingConfig signingConfigs.debug
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+    productFlavors {
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
+    compile 'com.android.support:appcompat-v7:24.2.1'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+    compile 'org.greenrobot:eventbus:3.0.0'
+    compile 'org.wlf:FileDownloader:0.3.2'
+    compile files('libs/Msc.jar')
+    compile files('libs/org.apache.http.legacy.jar')
+    compile files('libs/Sunflower.jar')
+    compile project(':Library')
+    compile 'com.tencent.bugly:crashreport:latest.release'
+    compile 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+'
+}

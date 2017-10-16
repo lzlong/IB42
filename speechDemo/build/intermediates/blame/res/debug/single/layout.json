@@ -1,0 +1,34 @@
+[
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/layout/list_items.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/layout/list_items.xml"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/layout/isedemo.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/layout/isedemo.xml"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/layout/ttsdemo.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/layout/ttsdemo.xml"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/layout/title.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/layout/title.xml"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/layout/iatdemo.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/layout/iatdemo.xml"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/layout/understander.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/layout/understander.xml"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/layout/isrdemo.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/layout/isrdemo.xml"
+    },
+    {
+        "merged": "/home/long/AndroidStudioProjects/IB42/speechDemo/build/intermediates/res/merged/debug/layout/main.xml",
+        "source": "/home/long/AndroidStudioProjects/IB42/speechDemo/src/main/res/layout/main.xml"
+    }
+]

@@ -590,6 +590,22 @@ public class AudioDao {
 	/**
 	 * 判断下载任务是否存在
 	 * */
+	public boolean isExist(int id) {
+		int rs = 0;
+		SQLiteDatabase db = dbHpler.getReadableDatabase();
+		Cursor cr = db.rawQuery("SELECT COUNT(*) FROM " + DBData.SONG_TABLENAME
+				+ " WHERE " + DBData.SONG_ID + "=?", new String[] {id+""});
+		while (cr.moveToNext()) {
+			rs = cr.getInt(0);
+		}
+		cr.close();
+		db.close();
+		return rs > 0;
+	}
+
+	/**
+	 * 判断下载任务是否存在
+	 * */
 	public boolean isExist(String url) {
 		int rs = 0;
 		SQLiteDatabase db = dbHpler.getReadableDatabase();

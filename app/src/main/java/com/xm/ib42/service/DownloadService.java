@@ -24,7 +24,6 @@ import com.xm.ib42.util.Utils;
 public class DownloadService extends Service {
 	private SparseArray<Download> mDownloads = new SparseArray<Download>();
     private AudioDao audioDao;
-	private DownLoadInfoDao downLoadInfoDao;
 
 	public class DownloadBinder extends Binder {
 		public DownloadService getService() {
@@ -41,12 +40,11 @@ public class DownloadService extends Service {
 	public void onCreate() {
 		super.onCreate();
         audioDao = new AudioDao(this);
-        downLoadInfoDao = new DownLoadInfoDao(this);
 	}
 
 	public void download(final Audio audio) {
 		Utils.logD("download"+audio.getNetUrl());
-		Download d = new Download(audio, downLoadInfoDao);
+		Download d = new Download(audio);
 		d.setOnDownloadListener(mDownloadListener).start(false);
 		mDownloads.put(audio.getId(), d);
 	}

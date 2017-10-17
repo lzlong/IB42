@@ -27,15 +27,11 @@ import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
 import com.xm.ib42.adapter.PlayListAdapter;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Audio;
-import com.xm.ib42.message.CommonMessage;
 import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.util.Common;
 import com.xm.ib42.util.SystemSetting;
 import com.xm.ib42.util.Utils;
 
-import org.greenrobot.eventbus.EventBus;
-
-import static com.xm.ib42.constant.Constants.MSG_SONG_PLAY_OVER;
 import static com.xm.ib42.service.MediaPlayerManager.STATE_PLAYER;
 
 /**
@@ -405,7 +401,6 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             }else if(flag==MediaPlayerManager.FLAG_LIST){
                 //自动切歌播放，更新前台歌曲列表
                 //modi 发送更新歌词界面消息
-                EventBus.getDefault().post(new CommonMessage(MSG_SONG_PLAY_OVER,null));
             }else if(flag==MediaPlayerManager.FLAG_BUFFERING){
 //                aty.showLoadDialog(true);
 //                play_time.setText("00:00");

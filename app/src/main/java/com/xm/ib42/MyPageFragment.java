@@ -11,6 +11,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.xm.ib42.adapter.MyAdapter;
+import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Album;
@@ -80,14 +81,14 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        aty.playAlbum = (Album) parent.getAdapter().getItem(position);
-        if (aty.playAlbum != null){
+        Constants.playAlbum = (Album) parent.getAdapter().getItem(position);
+        if (Constants.playAlbum != null){
             aty.showLoadDialog(true);
-            aty.audioList = audioDao.searchByAlbum(aty.playAlbum.getId()+"");
-            if (aty.audioList != null){
+            Constants.playList.addAll(audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+            if (Constants.playList != null){
                 aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
-                aty.mediaPlayerManager.setPlayerList(aty.audioList);
-                aty.mediaPlayerManager.player(aty.playAlbum.getId(), aty.playAlbum.getAudioId());
+//                aty.mediaPlayerManager.setPlayerList(aty.audioList);
+                aty.mediaPlayerManager.player(Constants.playAlbum.getId());
                 aty.showLoadDialog(false);
                 aty.changePlay();
             }

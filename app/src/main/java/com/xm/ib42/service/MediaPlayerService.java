@@ -126,16 +126,39 @@ public class MediaPlayerService extends Service {
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
 			if (msg.what == 0){
-				//			for (int i = 0; i < list.size(); i++) {
-				//				if (audioId == list.get(i).getId()){
-				//					audio = list.get(i);
-				//					break;
-				//				}
-				//			}
-				currentDuration = audio.getCurrDurationTime();
+				for (int i = 0; i < Constants.playList.size(); i++) {
+					if (audioId == Constants.playList.get(i).getId()){
+						audio = Constants.playList.get(i);
+						break;
+					}
+				}
+				if (audioId == 0){
+					audio = Constants.playList.get(0);
+				}
+				if (audio != null){
+					if (audioDao.isExist(audio.getId())){
+						audio = audioDao.searchById(audio.getId(), true);
+					}
+					currentDuration = audio.getCurrDurationTime();
+					playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
+				} else {
+					Constants.playPage++;
+					getData(0);
+				}
 			} else if (msg.what == 1){
 				for (int i = 0; i < Constants.playList.size(); i++) {
-
+					if (audioId == Constants.playList.get(i).getId()){
+						audio = Constants.playList.get(i);
+						break;
+					}
+				}
+				if (audio != null){
+					audio = audioDao.searchById(audio.getId(), true);
+					currentDuration = audio.getCurrDurationTime();
+					playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
+				} else {
+					Constants.playPage++;
+					getData(1);
 				}
 			}
 
@@ -256,7 +279,7 @@ public class MediaPlayerService extends Service {
 	private void prepare(String path) {
 		try {
 			mPlayer.setDataSource(path);
-			mPlayer.prepare();
+			mPlayer.prepareAsync();
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

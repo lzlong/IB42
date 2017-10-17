@@ -7,7 +7,6 @@ import android.os.Message;
 
 import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Audio;
-import com.xm.ib42.service.DownLoadManager;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -76,16 +75,16 @@ public class CacheUtil implements Serializable {
 		mLocalPath = localPath.replaceAll("\"|\\(|\\)", "");
 
 		// 包装成下载任务类
-		DownLoadInfo downLoadInfo = new DownLoadInfo();
-		downLoadInfo.setAlbum(audio.getAlbum().getTitle());
-		downLoadInfo.setCompleteSize(0);
-		downLoadInfo.setDurationTime(audio.getDurationTime());
-		downLoadInfo.setDisplayName(audio.getDisplayName());
-		downLoadInfo.setFileSize(audio.getSize());
-		downLoadInfo.setName(audio.getTitle());
-		downLoadInfo.setUrl(audio.getNetUrl());
-		downLoadInfo.setFilePath(mLocalPath);
-		downLoadInfo.setState(DownLoadManager.STATE_WAIT);// 设置等待下载
+//		DownLoadInfo downLoadInfo = new DownLoadInfo();
+//		downLoadInfo.setAlbum(audio.getAlbum().getTitle());
+//		downLoadInfo.setCompleteSize(0);
+//		downLoadInfo.setDurationTime(audio.getDurationTime());
+//		downLoadInfo.setDisplayName(audio.getDisplayName());
+//		downLoadInfo.setFileSize(audio.getSize());
+//		downLoadInfo.setName(audio.getTitle());
+//		downLoadInfo.setUrl(audio.getNetUrl());
+//		downLoadInfo.setFilePath(mLocalPath);
+//		downLoadInfo.setState(DownLoadManager.STATE_WAIT);// 设置等待下载
 	}
 	
 

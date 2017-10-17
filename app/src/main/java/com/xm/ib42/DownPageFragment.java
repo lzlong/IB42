@@ -123,7 +123,6 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
                 deletePop.dismiss();
             }
             if (deleteAlbum != null){
-                aty.downLoadInfoDao.deleteByAlbum(deleteAlbum.getTitle());
                 audioDao.deleteByAlbum(deleteAlbum.getId());
             }
         } else if (v == cancel){
@@ -137,13 +136,13 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Constants.playAlbum = (Album) parent.getAdapter().getItem(position);
         if (Constants.playAlbum != null){
-            Constants.showLoadDialog(true);
-            Constants.audioList = audioDao.searchByAlbum(Constants.playAlbum.getId()+"");
-			if (Constants.audioList != null){
-                Constants.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
-				Constants.mediaPlayerManager.setPlayerList(Constants.audioList);
-                Constants.mediaPlayerManager.player(Constants.playAlbum.getId(), Constants.playAlbum.getAudioId());
-                Constants.showLoadDialog(false);
+            aty.showLoadDialog(true);
+            Constants.playList.addAll(audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+			if (Constants.playList != null){
+                aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
+//				aty.mediaPlayerManager.setPlayerList(Constants.audioList);
+                aty.mediaPlayerManager.player(Constants.playAlbum.getId());
+                aty.showLoadDialog(false);
                 aty.changePlay();
 			}
         }

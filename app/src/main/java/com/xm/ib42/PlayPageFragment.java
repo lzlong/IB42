@@ -118,9 +118,9 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         play_bar.setMax(aty.duration);
         play_name.setText(aty.playName);
 
-        if (aty.playAlbum != null && aty.playAlbum.getImageUrl() != null){
+        if (Constants.playAlbum != null && Constants.playAlbum.getImageUrl() != null){
             Glide.with(aty)
-                    .load(aty.playAlbum.getImageUrl())
+                    .load(Constants.playAlbum.getImageUrl())
                     .placeholder(R.mipmap.kaiping2)
                     .error(R.mipmap.kaiping2)
                     .override(100, 100)
@@ -146,7 +146,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     @Override
 	public void onClick(View v) {
         if (v == play_down){
-            if (aty.playAlbum == null
+            if (Constants.playAlbum == null
                     ||aty.mediaPlayerManager.getAudio() == null){
                 return;
             }
@@ -158,11 +158,11 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 Utils.showToast(aty, "请先插入SD卡");
                 return;
             }
-            //判断是否在下载列表中
-            if(aty.downLoadInfoDao.isExist(aty.mediaPlayerManager.getAudio().getNetUrl())){
-                Utils.showToast(aty, "此歌曲已经在下载列表中");
-                return;
-            }
+//            //判断是否在下载列表中
+//            if(aty.downLoadInfoDao.isExist(aty.mediaPlayerManager.getAudio().getNetUrl())){
+//                Utils.showToast(aty, "此歌曲已经在下载列表中");
+//                return;
+//            }
             //判断是否已经下载过
             if(aty.audioDao.isDownFinish(aty.mediaPlayerManager.getAudio().getId())){
                 Utils.showToast(aty, "此歌曲已经在下载过了");
@@ -175,8 +175,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 sharePop.showAtLocation(convertView, Gravity.BOTTOM, 0, 0);
             }
         } else if (v == play_model){
-            if (aty.audioList == null
-                    ||aty.audioList.size() <= 0){
+            if (Constants.playList == null
+                    ||Constants.playList.size() <= 0){
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
@@ -188,16 +188,16 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 play_model.setImageResource(R.mipmap.shuanxubf);
             }
         } else if (v == play_up){
-            if (aty.audioList == null
-                    ||aty.audioList.size() <= 0){
+            if (Constants.playList == null
+                    ||Constants.playList.size() <= 0){
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
             aty.showLoadDialog(true);
             aty.mediaPlayerManager.previousPlayer();
         } else if (v == play){
-            if (aty.audioList == null
-                    ||aty.audioList.size() <= 0){
+            if (Constants.playList == null
+                    ||Constants.playList.size() <= 0){
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
@@ -208,17 +208,17 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 play.setImageResource(R.mipmap.bof);
             }
         } else if (v == play_next){
-            if (aty.audioList == null
-                    ||aty.audioList.size() <= 0){
+            if (Constants.playList == null
+                    ||Constants.playList.size() <= 0){
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
             aty.showLoadDialog(true);
             aty.mediaPlayerManager.nextPlayer();
         } else if (v == play_list){
-            if (aty.audioList != null){
+            if (Constants.playList == null){
                 if (playListAdapter == null){
-                    playListAdapter = new PlayListAdapter(aty, aty.audioList);
+                    playListAdapter = new PlayListAdapter(aty, Constants.playList);
                     home_search_lv.setAdapter(playListAdapter);
                 } else {
                     playListAdapter.notifyDataSetChanged();
@@ -226,8 +226,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 Audio audio = aty.mediaPlayerManager.getAudio();
                 if (audio != null){
                     playListAdapter.setPlayId(audio.getId());
-                    for (int i = 0; i < aty.audioList.size(); i++) {
-                        if (audio.getId() == aty.audioList.get(i).getId()){
+                    for (int i = 0; i < Constants.playList.size(); i++) {
+                        if (audio.getId() == Constants.playList.get(i).getId()){
                             home_search_lv.setSelection(i);
                         }
                     }
@@ -328,7 +328,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         if (audio != null){
             playListAdapter.setPlayId(audio.getId());
             home_search_lv.setSelection(position);
-            aty.mediaPlayerManager.player(aty.playAlbum.getId(), audio.getId());
+            aty.mediaPlayerManager.player(Constants.playAlbum.getId());
         }
     }
 

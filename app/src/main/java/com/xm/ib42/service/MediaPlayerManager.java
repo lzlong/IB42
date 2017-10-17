@@ -276,9 +276,9 @@ public class MediaPlayerManager {
 	/**
 	 * 根据指定条件播放
 	 * */
-	public void player(int albumId, int audioId){
+	public void player(int albumId){
 		if(mMediaPlayerService !=null){
-			mMediaPlayerService.player(albumId, audioId);
+			mMediaPlayerService.player(albumId);
 		}
 	}
 	

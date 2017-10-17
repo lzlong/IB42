@@ -176,7 +176,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                     Constants.playAlbum = aty.albumDao.searchById(Constants.playAlbum.getId());
                 }
 //                aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
-                aty.mediaPlayerManager.player(((Album) msg.obj).getId(), Constants.playAlbum.getAudioId());
+                aty.mediaPlayerManager.player(((Album) msg.obj).getId());
                 aty.changePlay();
                 aty.showLoadDialog(false);
             } else if (msg.what == 2){

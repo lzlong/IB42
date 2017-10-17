@@ -30,8 +30,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import static android.R.attr.id;
-
 
 public class MediaPlayerService extends Service {
 	private final IBinder mBinder = new MediaPlayerBinder();
@@ -92,7 +90,7 @@ public class MediaPlayerService extends Service {
 
 		Constants.playAlbum = albumDao.searchById(albumId);
 		if (Constants.playAlbum == null)return;
-		getData();
+//		getData();
 		playerState = MediaPlayerManager.STATE_PAUSE;
 		if (TextUtils.isEmpty(t_playerMode)) {
 			playerMode = MediaPlayerManager.MODE_CIRCLELIST;
@@ -293,6 +291,7 @@ public class MediaPlayerService extends Service {
 									}
 									isFirst = false;
 									mPlayer.start();
+								} else {
 									currentDuration = mPlayer.getCurrentPosition();
 									Intent intent = new Intent(MediaPlayerManager.BROADCASTRECEVIER_ACTON);
 									intent.putExtra("flag",
@@ -302,6 +301,7 @@ public class MediaPlayerService extends Service {
 									intent.putExtra("duration", mPlayer.getDuration());
 									sendBroadcast(intent);
 									Thread.sleep(1000);
+
 								}
 							}
 							break;
@@ -446,22 +446,10 @@ public class MediaPlayerService extends Service {
     /**
 	 * 获取当前播放歌曲
 	 * */
-	public void getAudio(int audioId) {
-		audio = null;
-		if (Constants.playList != null){
-			for (int i = 0; i < Constants.playList.size(); i++) {
-				if (audioId == Constants.playList.get(i).getId()){
-					audio = Constants.playList.get(i);
-				}
-			}
-		}
-		if (audio == null){
-			getData();
-		}
-
-//		if (audio == null)
-//			return null;
-//		return audio;
+	public Audio getAudio() {
+		if (audio == null)
+			return null;
+		return audio;
 	}
 
 	/**
@@ -559,7 +547,7 @@ public class MediaPlayerService extends Service {
 			// 是否是启动后，第一次播放
 			if (isFirst) {
 				if (audio != null) {
-					player(albumId, audio.getId());
+					player(albumId);
 				} else {
 					currentDuration = 0;
 				}
@@ -607,37 +595,70 @@ public class MediaPlayerService extends Service {
 	/**
 	 * 根据指定条件播放
 	 * */
-	public void player(int albumId, int audioId) {
+	public void player(int albumId) {
         this.albumId = albumId;
-
-		getAudio();
-
-		for (int i = 0; i < Constants.playList.size(); i++) {
-			if (audioId == Constants.playList.get(i).getId()){
-				audio = Constants.playList.get(i);
-				break;
+		this.audioId = Constants.playAlbum.getAudioId();
+		if (audioId != 0){
+			if (Constants.playList != null){
+				for (int i = 0; i < Constants.playList.size(); i++) {
+					if (albumId == Constants.playList.get(i).getAlbum().getId()
+							&& audioId == Constants.playList.get(i).getId()){
+						audio = Constants.playList.get(i);
+						break;
+					}
+				}
+			} else {
+				getPlayAudio(audioId);
 			}
 		}
+//		for (int i = 0; i < Constants.playList.size(); i++) {
+//			if (audioId == Constants.playList.get(i).getId()){
+//				audio = Constants.playList.get(i);
+//				break;
+//			}
+//		}
         if (audio == null){
-            audio = Constants.playList.get(0);
-        }
-		if (audio != null && !audio.isDownFinish()) {
-			playerState = MediaPlayerManager.STATE_PLAYER;
-			this.audioId = audio.getId();
-		} else {
-			for (Audio s : Constants.playList) {
-				if (s.getId() == id) {
-					audio = s;
-					isFirst = false;
-					this.audioId = audio.getId();
-					break;
+			getPlayAudio(audioId);
+//            audio = Constants.playList.get(0);
+        } else {
+			audio = audioDao.searchById(audioId, true);
+			playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
+		}
+//		if (audio != null && !audio.isDownFinish()) {
+//			playerState = MediaPlayerManager.STATE_PLAYER;
+//			this.audioId = audio.getId();
+//		} else {
+//			for (Audio s : Constants.playList) {
+//				if (s.getId() == id) {
+//					audio = s;
+//					isFirst = false;
+//					this.audioId = audio.getId();
+//					break;
+//				}
+//			}
+//		}
+//		Constants.playAlbum.setAudioName(audio.getTitle());
+//		Constants.playAlbum.setAudioId(audio.getId());
+//        albumDao.update(Constants.playAlbum);
+//		player();
+	}
+
+	private void getPlayAudio(int audioId){
+		audio = null;
+		if (Constants.playList != null && Constants.playList.size() > 0){
+			if (Constants.playList.get(0).getAlbum().getId() == Constants.playAlbum.getId()){
+				for (int i = 0; i < Constants.playList.size(); i++) {
+					if (audioId == Constants.playList.get(i).getId()){
+						audio = Constants.playList.get(i);
+					}
 				}
 			}
 		}
-		Constants.playAlbum.setAudioName(audio.getTitle());
-		Constants.playAlbum.setAudioId(audio.getId());
-        albumDao.update(Constants.playAlbum);
-		player();
+		if (audioId == 0){
+		}
+		if (audio == null){
+			getData(0);
+		}
 	}
 
 	/**

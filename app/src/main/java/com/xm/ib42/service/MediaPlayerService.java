@@ -29,6 +29,8 @@ import org.apache.http.HttpResponse;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 
 public class MediaPlayerService extends Service {
@@ -278,8 +280,9 @@ public class MediaPlayerService extends Service {
 	// 准备
 	private void prepare(String path) {
 		try {
+//			String name = path.substring()
 			mPlayer.setDataSource(path);
-			mPlayer.prepareAsync();
+			mPlayer.prepare();
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -302,7 +305,10 @@ public class MediaPlayerService extends Service {
 									} else if (audio.isDownFinish()) {
 										prepare(audio.getFilePath());
 									} else {
-										prepare(audio.getNetUrl());
+										String path = audio.getNetUrl();
+										String name = path.substring(path.lastIndexOf("/"), path.length());
+										path = path.substring(0, path.lastIndexOf("/")) + URLEncoder.encode(name, "utf-8");
+										prepare(path);
 										CacheUtil cacheUtil = new CacheUtil(audio, getApplicationContext());
 										cacheUtil.start(false, getApplicationContext());
 									}
@@ -346,6 +352,8 @@ public class MediaPlayerService extends Service {
 					}
 				}
 			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
 		}

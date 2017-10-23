@@ -444,8 +444,8 @@ public class AudioDao {
 					.getColumnIndex(DBData.SONG_DURATIONTIME)));
 			audio.setSize(cr.getInt(cr.getColumnIndex(DBData.SONG_SIZE)));
 		}
-		cr.close();
 		if (isClose){
+			cr.close();
 			db.close();
 		}
 		return audio;
@@ -588,7 +588,7 @@ public class AudioDao {
     }
 
 	/**
-	 * 判断下载任务是否存在
+	 * 判断是否存在
 	 * */
 	public boolean isExist(int id) {
 		int rs = 0;

@@ -70,6 +70,7 @@ public class MediaPlayerManager {
 	public static final int SERVICE_MUSIC_PREV=4;//上一首
 	public static final int SERVICE_MUSIC_NEXT=5;//下一首
 	public static final int SERVICE_MUSIC_STOP=6;//停止播放
+	public static final int SERVICE_MUSIC_NONE=-1;//
 
 	private ServiceConnectionListener mConnectionListener;
 	

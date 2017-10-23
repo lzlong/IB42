@@ -31,7 +31,7 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
-import com.xm.ib42.entity.Album;
+import com.xm.ib42.entity.Column;
 import com.xm.ib42.service.DownLoadManager;
 import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.util.DialogUtils;
@@ -61,7 +61,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public AlbumDao albumDao;
     public AudioDao audioDao;
 
-    public List<Album> homeList;
+//    public List<Album> homeList;
+    public List<Column> homeList;
 
     private Dialog loadDialog;
     public SystemSetting setting;
@@ -89,6 +90,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         changeHome();
 
         updateVersion();
+
+        getService();
     }
 
     private void updateVersion() {
@@ -326,10 +329,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public DownLoadManager downLoadManager;
     private DownLoadBroadcastRecevier downLoadBroadcastRecevier;
     private IatBroadcast iatBroadcast;
-    @Override
-    protected void onStart() {
-        super.onStart();
 
+    private void getService(){
         //播放器管理
         if (mediaPlayerManager == null){
             mediaPlayerManager=new MediaPlayerManager(this);
@@ -337,8 +338,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mediaPlayerManager.setConnectionListener(mConnectionListener);
 
         //注册播放器-广播接收器
-//        mediaPlayerBroadcastReceiver=new MediaPlayerBroadcastReceiver();
-//        registerReceiver(mediaPlayerBroadcastReceiver, new IntentFilter(MediaPlayerManager.BROADCASTRECEVIER_ACTON));
+        //        mediaPlayerBroadcastReceiver=new MediaPlayerBroadcastReceiver();
+        //        registerReceiver(mediaPlayerBroadcastReceiver, new IntentFilter(MediaPlayerManager.BROADCASTRECEVIER_ACTON));
         //注册下载任务-广播接收器
         downLoadBroadcastRecevier=new DownLoadBroadcastRecevier();
         registerReceiver(downLoadBroadcastRecevier, new IntentFilter(DownLoadManager.BROADCASTRECEVIER_ACTON));
@@ -349,6 +350,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         iatBroadcast = new IatBroadcast();
         registerReceiver(iatBroadcast, new IntentFilter("startIat"));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
     }
 

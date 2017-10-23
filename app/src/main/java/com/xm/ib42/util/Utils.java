@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Audio;
+import com.xm.ib42.entity.Column;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -110,6 +111,21 @@ public class Utils {
             e.printStackTrace();
         }
         return jsonObject;
+    }
+
+    public static List<Column> pressColumnJson(JSONObject jsonObject){
+        if (jsonObject == null)return null;
+        List<Column> list = new ArrayList<>();
+        JSONArray jsonArray = jsonObject.optJSONArray("posts");
+        for (int i = 0; jsonArray != null && i < jsonArray.length(); i++){
+            JSONObject object = jsonArray.optJSONObject(i);
+            Column column = new Column();
+            column.setId(object.optInt("id"));
+            column.setTitle(object.optString("title"));
+            column.setUrl(object.optString("url"));
+            list.add(column);
+        }
+        return list;
     }
 
     public static List<Album> pressAlbumJson(JSONObject jsonObject){

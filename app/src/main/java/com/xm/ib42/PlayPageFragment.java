@@ -212,7 +212,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             aty.showLoadDialog(true);
             aty.mediaPlayerManager.nextPlayer();
         } else if (v == play_list){
-            if (Constants.playList == null){
+            if (Constants.playList != null){
                 if (playListAdapter == null){
                     playListAdapter = new PlayListAdapter(aty, Constants.playList);
                     home_search_lv.setAdapter(playListAdapter);
@@ -322,9 +322,12 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Audio audio = (Audio) parent.getAdapter().getItem(position);
         if (audio != null){
+            Constants.playAlbum.setAudioId(audio.getId());
+            Constants.playAlbum.setAudioName(audio.getTitle());
             playListAdapter.setPlayId(audio.getId());
             home_search_lv.setSelection(position);
             aty.mediaPlayerManager.player(Constants.playAlbum.getId());
+            playPop.dismiss();
         }
     }
 
@@ -340,7 +343,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             int flag=intent.getIntExtra("flag", -1);
             int lAlbum_id = intent.getIntExtra("album_id", -1);
 
-            mDefaultArtWork = BitmapFactory.decodeResource(getResources(), R.mipmap.kaiping2);
+            mDefaultArtWork = BitmapFactory.decodeResource(aty.getResources(), R.mipmap.kaiping2);
             if (lAlbum_id == -1){
                 mCachedArtwork = mDefaultArtWork;
             }else {

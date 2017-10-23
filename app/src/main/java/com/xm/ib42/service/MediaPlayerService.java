@@ -280,7 +280,7 @@ public class MediaPlayerService extends Service {
 	// 准备
 	private void prepare(String path) {
 		try {
-//			String name = path.substring()
+			isPrepare=true;
 			mPlayer.setDataSource(path);
 			mPlayer.prepare();
 		} catch (IllegalArgumentException e) {
@@ -299,7 +299,12 @@ public class MediaPlayerService extends Service {
 					switch (playerFlag) {
 						case MediaPlayerManager.SERVICE_MUSIC_START:
 							if (audio != null) {
-								if (!mPlayer.isPlaying()) {
+								audioDao.add(audio);
+								Constants.playAlbum.setAudioName(audio.getTitle());
+								Constants.playAlbum.setAudioId(audio.getId());
+								albumDao.update(Constants.playAlbum);
+								if (!mPlayer.isPlaying() && !isPrepare) {
+									mPlayer.reset();
 									if (audio.isCacheFinish()) {
 										prepare(audio.getCachePath());
 									} else if (audio.isDownFinish()) {
@@ -319,6 +324,7 @@ public class MediaPlayerService extends Service {
 										mPlayer.seekTo(audio.getCurrDurationTime());
 									}
 									isFirst = false;
+									isPrepare=false;
 									mPlayer.start();
 								} else {
 									currentDuration = mPlayer.getCurrentPosition();
@@ -329,25 +335,31 @@ public class MediaPlayerService extends Service {
 									intent.putExtra("audioName", audio.getTitle());
 									intent.putExtra("duration", mPlayer.getDuration());
 									sendBroadcast(intent);
+									audio.setCurrDurationTime(currentDuration);
+									audioDao.updateByDuration(audio.getId(), currentDuration);
 									Thread.sleep(1000);
-
 								}
 							}
 							break;
 						case MediaPlayerManager.SERVICE_MUSIC_PLAY:
 							mPlayer.start();
+							playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
 							break;
 						case MediaPlayerManager.SERVICE_MUSIC_PAUSE:
 							mPlayer.pause();
+							playerFlag = MediaPlayerManager.SERVICE_MUSIC_NONE;
 							break;
 						case MediaPlayerManager.SERVICE_MUSIC_PREV:
 							doPlayer(ACTION_PREVIOUS, true);
+							playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
 							break;
 						case MediaPlayerManager.SERVICE_MUSIC_NEXT:
 							doPlayer(ACTION_NEXT, true);
+							playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
 							break;
 						case MediaPlayerManager.SERVICE_MUSIC_STOP:
 							stop();
+							playerFlag = MediaPlayerManager.SERVICE_MUSIC_NONE;
 							break;
 					}
 				}
@@ -441,6 +453,8 @@ public class MediaPlayerService extends Service {
 					}
 				}
 				break;
+            case MediaPlayerManager.MODE_CIRCLEONE:
+                break;
 		}
 	}
 
@@ -571,25 +585,21 @@ public class MediaPlayerService extends Service {
 	 * */
 	public void pauseOrPlayer() {
 		if (mPlayer.isPlaying()) {
-			mPlayer.pause();
+//			mPlayer.pause();
 			currentDuration = mPlayer.getCurrentPosition();
 			playerState = MediaPlayerManager.STATE_PAUSE;
+			playerFlag = MediaPlayerManager.SERVICE_MUSIC_PAUSE;
 		} else {
-			// 是否是启动后，第一次播放
-			if (isFirst) {
-				if (audio != null) {
-					player(albumId);
-				} else {
-					currentDuration = 0;
-				}
-			} else {
-				if(isPrepare){
-					player();
-				}else{
-					mPlayer.start();
-				}
-			}
+//			// 是否是启动后，第一次播放
+//			if (isFirst) {
+//				if (audio != null) {
+//					player(albumId);
+//				} else {
+//					currentDuration = 0;
+//				}
+//			}
 			playerState = MediaPlayerManager.STATE_PLAYER;
+			playerFlag = MediaPlayerManager.SERVICE_MUSIC_PLAY;
 		}
 	}
 
@@ -605,20 +615,21 @@ public class MediaPlayerService extends Service {
 	 * 播放
 	 * */
 	private void player() {
-		isRun = false;
+//		isRun = false;
 
-		if (audio != null && !audio.isDownFinish()) {
-			// 准备状态
-			playerState = MediaPlayerManager.STATE_PREPARE;
-		} else {// 网络音乐-缓冲状态
-			playerState = MediaPlayerManager.STATE_BUFFER;
-		}
 		if (mPlayer.isPlaying()) {
 			mPlayer.stop();
 		}
-
 		if(audio !=null){
 			showPrepare();
+		}
+		if (audio != null && !audio.isDownFinish()) {
+			// 准备状态
+			playerState = MediaPlayerManager.STATE_PREPARE;
+			playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
+		} else {// 网络音乐-缓冲状态
+			playerState = MediaPlayerManager.STATE_BUFFER;
+			playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
 		}
 	}
 
@@ -629,6 +640,7 @@ public class MediaPlayerService extends Service {
 	public void player(int albumId) {
         this.albumId = albumId;
 		this.audioId = Constants.playAlbum.getAudioId();
+//		mPlayer.stop();
 		if (audioId != 0){
 			if (Constants.playList != null){
 				for (int i = 0; i < Constants.playList.size(); i++) {
@@ -642,32 +654,16 @@ public class MediaPlayerService extends Service {
 				getPlayAudio(audioId);
 			}
 		}
-//		for (int i = 0; i < Constants.playList.size(); i++) {
-//			if (audioId == Constants.playList.get(i).getId()){
-//				audio = Constants.playList.get(i);
-//				break;
-//			}
-//		}
         if (audio == null){
 			getPlayAudio(audioId);
 //            audio = Constants.playList.get(0);
         } else {
-			audio = audioDao.searchById(audioId, true);
+			if (audioDao.isExist(audioId)){
+				audio = audioDao.searchById(audioId, true);
+				mPlayer.stop();
+			}
 			playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
 		}
-//		if (audio != null && !audio.isDownFinish()) {
-//			playerState = MediaPlayerManager.STATE_PLAYER;
-//			this.audioId = audio.getId();
-//		} else {
-//			for (Audio s : Constants.playList) {
-//				if (s.getId() == id) {
-//					audio = s;
-//					isFirst = false;
-//					this.audioId = audio.getId();
-//					break;
-//				}
-//			}
-//		}
 //		Constants.playAlbum.setAudioName(audio.getTitle());
 //		Constants.playAlbum.setAudioId(audio.getId());
 //        albumDao.update(Constants.playAlbum);

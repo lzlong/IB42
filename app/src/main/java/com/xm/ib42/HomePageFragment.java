@@ -10,22 +10,19 @@ import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.GridView;
+import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshGridView;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
@@ -45,6 +42,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+
+import static android.R.id.list;
+import static com.xm.ib42.R.id.home_gv;
 
 /**
  * home1
@@ -74,7 +74,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
 
     private EditText home_search;
     private TextView title_name;
-    private PullToRefreshGridView home_gv;
+    private ExpandableListView home_lv;
     private LinearLayout home_play;
     private TextView home_play_name;
     private ListView home_search_lv;
@@ -89,7 +89,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
 	private void init(View v) {
         home_search = (EditText) v.findViewById(R.id.home_search);
         title_name = (TextView) v.findViewById(R.id.title_name);
-        home_gv = (PullToRefreshGridView) v.findViewById(R.id.home_gv);
+        home_lv = (ExpandableListView) v.findViewById(R.id.home_lv);
         home_play = (LinearLayout) v.findViewById(R.id.home_play);
         home_play_name = (TextView) v.findViewById(R.id.home_play_name);
         mkf_button = (ImageButton) convertView.findViewById(R.id.mkf_button);
@@ -104,7 +104,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         if (aty.homeList != null && aty.homeList.size() > 0){
             if (adapter == null){
                 adapter = new HomeAdapter(aty, aty.homeList);
-                home_gv.setAdapter(adapter);
+                home_lv.setAdapter(adapter);
             } else {
                 adapter.notifyDataSetChanged();
             }
@@ -131,10 +131,23 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     }
 
     private JSONObject json;
-    private List<Album> list;
+//    private List<Album> list;
     private List<Album> searchList;
 
-    private void getData() {
+    private void getColumnData() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpHelper httpHelper = new HttpHelper();
+                httpHelper.connect();
+                HttpResponse httpResponse = httpHelper.doGet(Constants.COLUMNURL);
+                json = Utils.parseResponse(httpResponse);
+                aty.homeList = Utils.pressColumnJson(json);
+                handler.sendMessage(handler.obtainMessage(0));
+            }
+        }).start();
+    }
+    private void getAlbumData() {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -156,18 +169,20 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == 0){
-                home_gv.onRefreshComplete();
                 aty.showLoadDialog(false);
-                if (list != null){
-                    aty.homeList.clear();
-                    aty.homeList.addAll(list);
-                    if (adapter == null){
-                        adapter = new HomeAdapter(aty, list);
-                        home_gv.setAdapter(adapter);
-                    } else {
-                        adapter.notifyDataSetChanged();
-                    }
+                if (aty.homeList != null){
+
                 }
+//                if (list != null){
+//                    aty.homeList.clear();
+//                    aty.homeList.addAll(list);
+//                    if (adapter == null){
+//                        adapter = new HomeAdapter(aty, list);
+//                        home_lv.setAdapter(adapter);
+//                    } else {
+//                        adapter.notifyDataSetChanged();
+//                    }
+//                }
             } else if (msg.what == 1){
                 Constants.playAlbum = ((Album) msg.obj);
                 if (aty.albumDao.isExist(Constants.playAlbum.getTitle()) == -1){
@@ -198,24 +213,10 @@ public class HomePageFragment extends Fragment implements OnClickListener,
 
     private void click() {
         home_play.setOnClickListener(this);
-        home_gv.setOnItemClickListener(this);
+        home_lv.setOnItemClickListener(this);
         home_search_lv.setOnItemClickListener(this);
         home_search.addTextChangedListener(this);
         mkf_button.setOnClickListener(this);
-
-        home_gv.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener<GridView>() {
-            @Override
-            public void onRefresh(PullToRefreshBase<GridView> refreshView) {
-                //设置下拉时显示的日期和时间
-                String label = DateUtils.formatDateTime(aty, System.currentTimeMillis(),
-                        DateUtils.FORMAT_SHOW_TIME | DateUtils.FORMAT_SHOW_DATE | DateUtils.FORMAT_ABBREV_ALL);
-
-                // 更新显示的label
-                refreshView.getLoadingLayoutProxy().setLastUpdatedLabel(label);
-                // 开始执行异步任务，传入适配器来进行数据改变
-                getData();
-            }
-        });
 
     }
 

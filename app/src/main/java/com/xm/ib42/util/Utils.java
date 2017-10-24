@@ -138,6 +138,7 @@ public class Utils {
             album.setId(object.optInt("id"));
             album.setTitle(object.optString("title"));
             album.setImageUrl(object.optString("url"));
+            album.setAudioNum(object.optInt("count_zt"));
             list.add(album);
         }
         return list;

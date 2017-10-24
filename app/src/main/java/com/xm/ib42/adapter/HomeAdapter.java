@@ -117,7 +117,7 @@ public class HomeAdapter extends BaseExpandableListAdapter {
             groupHolder = (GroupHolder) view.getTag();
         }
         Column column = data.get(i);
-        groupHolder.home_column_title.setText(column.getTitle()+"("+column.getTitle()+")");
+        groupHolder.home_column_title.setText(column.getTitle()+"("+column.getAlbumList().size()+")");
         groupHolder.home_column_more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -150,13 +150,13 @@ public class HomeAdapter extends BaseExpandableListAdapter {
                     .into(holder.home_page_item_img);
         }
         holder.home_album_title.setText(album.getTitle());
-        holder.home_audio_num.setText(album.getAudioNum());
+        holder.home_audio_num.setText(album.getAudioNum()+"");
         return view;
     }
 
     @Override
     public boolean isChildSelectable(int i, int i1) {
-        return false;
+        return true;
     }
 
     class GroupHolder{

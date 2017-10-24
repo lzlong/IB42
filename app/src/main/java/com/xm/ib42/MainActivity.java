@@ -31,6 +31,8 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
+import com.xm.ib42.entity.Album;
+import com.xm.ib42.entity.Audio;
 import com.xm.ib42.entity.Column;
 import com.xm.ib42.service.DownLoadManager;
 import com.xm.ib42.service.MediaPlayerManager;
@@ -455,4 +457,24 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         mIatDialog.show();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0){
+            if (resultCode == 0
+                    && data != null){
+                Audio audio = (Audio) data.getSerializableExtra("audio");
+                if (audio != null) {
+                    Constants.playAlbum.setAudioId(audio.getId());
+                    Constants.playAlbum.setTitle(audio.getTitle());
+                    if (albumDao.isExist(Constants.playAlbum.getTitle()) == -1){
+                        albumDao.add((Album) Constants.playAlbum);
+                    } else {
+                        albumDao.update(Constants.playAlbum);
+                    }
+                    mediaPlayerManager.player(Constants.playAlbum.getId());
+                }
+            }
+        }
+    }
 }

@@ -1,12 +1,13 @@
 package com.xm.ib42.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by long on 17-8-27.
  */
 
-public class Album {
+public class Album implements Serializable{
     private int id;
     private String title;
     private String thumbnail;

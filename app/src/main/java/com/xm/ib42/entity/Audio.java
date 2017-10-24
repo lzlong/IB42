@@ -1,10 +1,12 @@
 package com.xm.ib42.entity;
 
+import java.io.Serializable;
+
 /**
  * Created by long on 17-8-27.
  */
 
-public class Audio {
+public class Audio implements Serializable{
 
     private int id;// id
     private Album album;// 专辑

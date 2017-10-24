@@ -26,11 +26,14 @@ import com.xm.ib42.util.SystemSetting;
 import com.xm.ib42.util.Utils;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class MediaPlayerService extends Service {
@@ -112,8 +115,11 @@ public class MediaPlayerService extends Service {
 			public void run() {
 				HttpHelper httpHelper = new HttpHelper();
 				httpHelper.connect();
-				HttpResponse httpResponse = httpHelper.doGet(Constants.ALBUMSUBURL +
-						Constants.playAlbum.getId() + Constants.URLPAGE + Constants.playPage);
+				List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
+				list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
+				list.add(new BasicNameValuePair(Constants.VALUES[1], Constants.playAlbum.getId()+""));
+				list.add(new BasicNameValuePair(Constants.VALUES[2], Constants.playPage+""));
+				HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
 				JSONObject json = Utils.parseResponse(httpResponse);
 				Constants.playList.addAll(Utils.pressAudioJson(json, Constants.playAlbum));
 				if (Constants.playList != null || Constants.playList.size() <= 0){

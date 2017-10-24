@@ -32,6 +32,7 @@ import com.xm.ib42.adapter.HomeAdapter;
 import com.xm.ib42.adapter.HomeSearchAdapter;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Album;
+import com.xm.ib42.entity.Audio;
 import com.xm.ib42.entity.Column;
 import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.JsonParser;
@@ -53,7 +54,7 @@ import java.util.List;
  * 
  */
 public class HomePageFragment extends Fragment implements OnClickListener,
-        AdapterView.OnItemClickListener, TextWatcher {
+        ExpandableListView.OnChildClickListener, AdapterView.OnItemClickListener, TextWatcher {
 
     private MainActivity aty;
     private View convertView = null;
@@ -103,14 +104,20 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         click();
         if (aty.homeList != null && aty.homeList.size() > 0){
             if (adapter == null){
-//                adapter = new HomeAdapter(aty, aty.homeList);
-//                home_lv.setAdapter(adapter);
+                adapter = new HomeAdapter(aty, aty.homeList, handler);
+                home_lv.setAdapter(adapter);
+
             } else {
                 adapter.notifyDataSetChanged();
             }
+            int groupCount = home_lv.getCount();
+            for (int i=0; i<groupCount; i++) {
+                home_lv.expandGroup(i);
+            }
+
         } else {
             aty.showLoadDialog(true);
-//            getData();
+            getColumnData();
         }
 //        if (aty.setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
 //            int audioId = Integer.parseInt(aty.setting.getValue(SystemSetting.KEY_PLAYER_AUDIOID));
@@ -142,7 +149,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                 httpHelper.connect();
                 List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
                 list.add(new BasicNameValuePair(Constants.VALUES[0], "2"));
-                HttpResponse httpResponse = httpHelper.doGet(Constants.COLUMNURL, list);
+                HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
                 json = Utils.parseResponse(httpResponse);
                 aty.homeList = Utils.pressColumnJson(json);
                 if (aty.homeList != null){
@@ -150,9 +157,10 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                         Column column = aty.homeList.get(i);
                         list = new ArrayList<BasicNameValuePair>();
                         list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
-                        list.add(new BasicNameValuePair(Constants.VALUES[1], column.getPage()+""));
+                        list.add(new BasicNameValuePair(Constants.VALUES[2], column.getPage()+""));
                         list.add(new BasicNameValuePair(Constants.VALUES[4], column.getId()+""));
-                        HttpResponse albumResponse = httpHelper.doGet(Constants.ALBUMURL);
+                        list.add(new BasicNameValuePair(Constants.VALUES[5], "3"));
+                        HttpResponse albumResponse = httpHelper.doGet(Constants.HTTPURL, list);
                         column.setAlbumList(Utils.pressAlbumJson(Utils.parseResponse(albumResponse)));
                     }
                 }
@@ -184,18 +192,17 @@ public class HomePageFragment extends Fragment implements OnClickListener,
             if (msg.what == 0){
                 aty.showLoadDialog(false);
                 if (aty.homeList != null){
-
+                    if (adapter == null){
+                        adapter = new HomeAdapter(aty, aty.homeList, handler);
+                        home_lv.setAdapter(adapter);
+                        int groupCount = home_lv.getCount();
+                        for (int i=0; i<groupCount; i++) {
+                            home_lv.expandGroup(i);
+                        }
+                    } else {
+                        adapter.notifyDataSetChanged();
+                    }
                 }
-//                if (list != null){
-//                    aty.homeList.clear();
-//                    aty.homeList.addAll(list);
-//                    if (adapter == null){
-//                        adapter = new HomeAdapter(aty, list);
-//                        home_lv.setAdapter(adapter);
-//                    } else {
-//                        adapter.notifyDataSetChanged();
-//                    }
-//                }
             } else if (msg.what == 1){
                 Constants.playAlbum = ((Album) msg.obj);
                 if (aty.albumDao.isExist(Constants.playAlbum.getTitle()) == -1){
@@ -226,7 +233,8 @@ public class HomePageFragment extends Fragment implements OnClickListener,
 
     private void click() {
         home_play.setOnClickListener(this);
-        home_lv.setOnItemClickListener(this);
+//        home_lv.setOnItemClickListener(this);
+        home_lv.setOnChildClickListener(this);
         home_search_lv.setOnItemClickListener(this);
         home_search.addTextChangedListener(this);
         mkf_button.setOnClickListener(this);
@@ -393,4 +401,30 @@ public class HomePageFragment extends Fragment implements OnClickListener,
 
     }
 
+    @Override
+    public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
+        Album album = (Album) expandableListView.getExpandableListAdapter().getChild(i, i1);
+        if (album != null) {
+            Intent intent = new Intent(aty, AudioListActivity.class);
+            intent.putExtra("album", album);
+            aty.startActivityForResult(intent, 0);
+        }
+        return false;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0){
+            if (resultCode == 0
+                    && data != null){
+                Audio audio = (Audio) data.getSerializableExtra("audio");
+                if (audio != null) {
+                    Constants.playAlbum.setAudioId(audio.getId());
+                    Constants.playAlbum.setTitle(audio.getTitle());
+                    aty.mediaPlayerManager.player(Constants.playAlbum.getId());
+                }
+            }
+        }
+    }
 }

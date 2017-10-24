@@ -10,7 +10,8 @@ public class Column {
     private int id;
     private String title;
     private String url;
-    private List<Album> mAlbumList
+    private int page;
+    private List<Album> mAlbumList;
 
     public int getId() {
         return id;
@@ -34,6 +35,14 @@ public class Column {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
     }
 
     public List<Album> getAlbumList() {

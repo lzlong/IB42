@@ -32,19 +32,19 @@ import com.xm.ib42.adapter.HomeAdapter;
 import com.xm.ib42.adapter.HomeSearchAdapter;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Album;
+import com.xm.ib42.entity.Column;
 import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.JsonParser;
 import com.xm.ib42.util.Utils;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-
-import static android.R.id.list;
-import static com.xm.ib42.R.id.home_gv;
 
 /**
  * home1
@@ -103,14 +103,14 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         click();
         if (aty.homeList != null && aty.homeList.size() > 0){
             if (adapter == null){
-                adapter = new HomeAdapter(aty, aty.homeList);
-                home_lv.setAdapter(adapter);
+//                adapter = new HomeAdapter(aty, aty.homeList);
+//                home_lv.setAdapter(adapter);
             } else {
                 adapter.notifyDataSetChanged();
             }
         } else {
             aty.showLoadDialog(true);
-            getData();
+//            getData();
         }
 //        if (aty.setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
 //            int audioId = Integer.parseInt(aty.setting.getValue(SystemSetting.KEY_PLAYER_AUDIOID));
@@ -140,26 +140,39 @@ public class HomePageFragment extends Fragment implements OnClickListener,
             public void run() {
                 HttpHelper httpHelper = new HttpHelper();
                 httpHelper.connect();
-                HttpResponse httpResponse = httpHelper.doGet(Constants.COLUMNURL);
+                List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
+                list.add(new BasicNameValuePair(Constants.VALUES[0], "2"));
+                HttpResponse httpResponse = httpHelper.doGet(Constants.COLUMNURL, list);
                 json = Utils.parseResponse(httpResponse);
                 aty.homeList = Utils.pressColumnJson(json);
+                if (aty.homeList != null){
+                    for (int i = 0; i < aty.homeList.size(); i++) {
+                        Column column = aty.homeList.get(i);
+                        list = new ArrayList<BasicNameValuePair>();
+                        list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
+                        list.add(new BasicNameValuePair(Constants.VALUES[1], column.getPage()+""));
+                        list.add(new BasicNameValuePair(Constants.VALUES[4], column.getId()+""));
+                        HttpResponse albumResponse = httpHelper.doGet(Constants.ALBUMURL);
+                        column.setAlbumList(Utils.pressAlbumJson(Utils.parseResponse(albumResponse)));
+                    }
+                }
                 handler.sendMessage(handler.obtainMessage(0));
             }
         }).start();
     }
-    private void getAlbumData() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                HttpHelper httpHelper = new HttpHelper();
-                httpHelper.connect();
-                HttpResponse httpResponse = httpHelper.doGet(Constants.ALBUMURL);
-                json = Utils.parseResponse(httpResponse);
-                list = Utils.pressAlbumJson(json);
-                handler.sendMessage(handler.obtainMessage(0));
-            }
-        }).start();
-    }
+//    private void getAlbumData() {
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                HttpHelper httpHelper = new HttpHelper();
+//                httpHelper.connect();
+//                HttpResponse httpResponse = httpHelper.doGet(Constants.ALBUMURL);
+//                json = Utils.parseResponse(httpResponse);
+//                list = Utils.pressAlbumJson(json);
+//                handler.sendMessage(handler.obtainMessage(0));
+//            }
+//        }).start();
+//    }
 
     private HomeAdapter adapter;
     private HomeSearchAdapter searchAdapter;

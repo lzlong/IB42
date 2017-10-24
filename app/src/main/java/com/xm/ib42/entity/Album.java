@@ -15,6 +15,7 @@ public class Album {
     private int audioId;
     private String audioName;
     private List<Audio> audioList;
+    private int audioNum;
 
     public int getId() {
         return id;
@@ -78,5 +79,13 @@ public class Album {
 
     public void setAudioName(String audioName) {
         this.audioName = audioName;
+    }
+
+    public int getAudioNum() {
+        return audioNum;
+    }
+
+    public void setAudioNum(int audioNum) {
+        this.audioNum = audioNum;
     }
 }

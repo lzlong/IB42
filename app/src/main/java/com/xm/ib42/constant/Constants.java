@@ -11,7 +11,7 @@ import java.util.List;
  */
 public class Constants {
     public static final String TAG = "Tag";
-    public static final String COLUMNURL = "http://g1.124000.org/?json=2";
+    public static final String COLUMNURL = "http://g1.124000.org/";
     public static final String ALBUMURL = "http://g1.124000.org/?json=1";
     public static final String ALBUMSUBURL = "http://g1.124000.org/?json=1&p=";
     public static final String SEARCHURL = "http://xm.ib42.com/?json=get_search_result&s=";
@@ -19,9 +19,9 @@ public class Constants {
     public static final String APPDOWNURL = "http://app.webfuwu.com";
     public static final String SHAREURL = "http://app.webfuwu.com/?appid=1696";
     public static final String URLPAGE = "&page=";
+    public static final String[] VALUES = {"json", "p", "page", "keyword", "lm_id", "pn"};
 
     public static String MSG_SONG_PLAY_OVER = "歌曲播放完成切换下一曲";
-
 
     public static String TryListener = "TRYLISTENER";
 

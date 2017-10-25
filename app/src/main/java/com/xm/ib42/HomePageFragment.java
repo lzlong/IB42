@@ -19,10 +19,11 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.iflytek.cloud.RecognizerResult;
 import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
@@ -32,7 +33,6 @@ import com.xm.ib42.adapter.HomeAdapter;
 import com.xm.ib42.adapter.HomeSearchAdapter;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Album;
-import com.xm.ib42.entity.Audio;
 import com.xm.ib42.entity.Column;
 import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.JsonParser;
@@ -54,7 +54,8 @@ import java.util.List;
  * 
  */
 public class HomePageFragment extends Fragment implements OnClickListener,
-        ExpandableListView.OnChildClickListener, AdapterView.OnItemClickListener, TextWatcher {
+        ExpandableListView.OnChildClickListener, AdapterView.OnItemClickListener, TextWatcher,
+        PullToRefreshBase.OnRefreshListener {
 
     private MainActivity aty;
     private View convertView = null;
@@ -78,7 +79,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     private ExpandableListView home_lv;
     private LinearLayout home_play;
     private TextView home_play_name;
-    private ListView home_search_lv;
+    private PullToRefreshListView home_search_lv;
     private PopupWindow searchPop;
     private ImageButton mkf_button;
 
@@ -86,6 +87,8 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     private HashMap<String, String> mIatResults = new LinkedHashMap<String, String>();
     // 引擎类型
     private String mEngineType = SpeechConstant.TYPE_CLOUD;
+
+    private int searchPage = 1;
 
 	private void init(View v) {
         home_search = (EditText) v.findViewById(R.id.home_search);
@@ -96,7 +99,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         mkf_button = (ImageButton) convertView.findViewById(R.id.mkf_button);
 
         View view = aty.getLayoutInflater().inflate(R.layout.home_search, null);
-        home_search_lv = (ListView) view.findViewById(R.id.home_search_lv);
+        home_search_lv = (PullToRefreshListView) view.findViewById(R.id.home_search_lv);
         searchPop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         searchPop.setContentView(view);
@@ -138,7 +141,6 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     }
 
     private JSONObject json;
-//    private List<Album> list;
     private List<Album> searchList;
 
     private void getColumnData() {
@@ -216,7 +218,12 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                 aty.showLoadDialog(false);
             } else if (msg.what == 2){
                 aty.showLoadDialog(false);
-                if (searchList != null){
+                List<Album> list = (List<Album>) msg.obj;
+                if (list != null){
+                    if (searchList == null){
+                        searchList = new ArrayList<>();
+                    }
+                    searchList.addAll(list);
                     if (searchAdapter == null){
                         searchAdapter = new HomeSearchAdapter(aty, searchList);
                         home_search_lv.setAdapter(searchAdapter);
@@ -236,6 +243,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
 //        home_lv.setOnItemClickListener(this);
         home_lv.setOnChildClickListener(this);
         home_search_lv.setOnItemClickListener(this);
+        home_search_lv.setOnRefreshListener(this);
         home_search.addTextChangedListener(this);
         mkf_button.setOnClickListener(this);
 
@@ -293,19 +301,27 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         if (!searchName.equals(s.toString())){
             searchName = s.toString();
-            aty.showLoadDialog(true);
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    HttpHelper httpHelper = new HttpHelper();
-                    httpHelper.connect();
-                    HttpResponse httpResponse = httpHelper.doGet(Constants.SEARCHURL + searchName);
-                    json = Utils.parseResponse(httpResponse);
-                    searchList = Utils.pressAlbumJson(json);
-                    handler.sendMessage(handler.obtainMessage(2));
-                }
-            }).start();
+            getSearchData();
         }
+    }
+
+    private void getSearchData() {
+        aty.showLoadDialog(true);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpHelper httpHelper = new HttpHelper();
+                httpHelper.connect();
+                List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
+                list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
+                list.add(new BasicNameValuePair(Constants.VALUES[2], searchPage+""));
+                list.add(new BasicNameValuePair(Constants.VALUES[3], searchName));
+                HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
+                json = Utils.parseResponse(httpResponse);
+                List<Album> l = Utils.pressAlbumJson(json);
+                handler.sendMessage(handler.obtainMessage(2, l));
+            }
+        }).start();
     }
 
     @Override
@@ -413,18 +429,8 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 0){
-            if (resultCode == 0
-                    && data != null){
-                Audio audio = (Audio) data.getSerializableExtra("audio");
-                if (audio != null) {
-                    Constants.playAlbum.setAudioId(audio.getId());
-                    Constants.playAlbum.setTitle(audio.getTitle());
-                    aty.mediaPlayerManager.player(Constants.playAlbum.getId());
-                }
-            }
-        }
+    public void onRefresh(PullToRefreshBase refreshView) {
+        searchPage++;
+        getSearchData();
     }
 }

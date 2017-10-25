@@ -30,6 +30,6 @@ public class Constants {
 
     public static Album playAlbum;
     public static final List<Audio> playList = new ArrayList<>();
-    public static int playPage = 0;
+    public static int playPage = 1;
 
 }

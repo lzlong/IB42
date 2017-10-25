@@ -31,7 +31,6 @@ import com.tencent.mm.opensdk.openapi.WXAPIFactory;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
-import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Audio;
 import com.xm.ib42.entity.Column;
 import com.xm.ib42.service.DownLoadManager;
@@ -462,9 +461,10 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 Audio audio = (Audio) data.getSerializableExtra("audio");
                 if (audio != null) {
                     Constants.playAlbum.setAudioId(audio.getId());
-                    Constants.playAlbum.setTitle(audio.getTitle());
+                    Constants.playAlbum.setAudioName(audio.getTitle());
+                    Constants.playPage = Constants.playList.size() / 10;
                     if (albumDao.isExist(Constants.playAlbum.getTitle()) == -1){
-                        albumDao.add((Album) Constants.playAlbum);
+                        albumDao.add(Constants.playAlbum);
                     } else {
                         albumDao.update(Constants.playAlbum);
                     }

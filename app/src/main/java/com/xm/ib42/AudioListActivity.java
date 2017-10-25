@@ -45,7 +45,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     private PullToRefreshListView audio_lv;
 //    private int albumId;
     private Album album;
-    private int page;
+    private int page = 1;
     private int pageNum = 20;
     private List<Audio> audioList;
     private AudioListAdapter adapter;
@@ -94,6 +94,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
                     } else {
                         adapter.notifyDataSetChanged();
                     }
+                    audio_lv.onRefreshComplete();
                 }
             }
         }

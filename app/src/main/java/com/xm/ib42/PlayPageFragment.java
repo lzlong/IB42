@@ -7,6 +7,8 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -15,12 +17,13 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
@@ -29,8 +32,16 @@ import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Audio;
 import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.util.Common;
+import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.SystemSetting;
 import com.xm.ib42.util.Utils;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.xm.ib42.service.MediaPlayerManager.STATE_PLAYER;
 
@@ -39,7 +50,8 @@ import static com.xm.ib42.service.MediaPlayerManager.STATE_PLAYER;
  * @author andye
  *
  */
-public class PlayPageFragment extends Fragment implements OnClickListener, AdapterView.OnItemClickListener {
+public class PlayPageFragment extends Fragment implements OnClickListener, AdapterView.OnItemClickListener,
+        PullToRefreshBase.OnRefreshListener{
 
 	private MainActivity aty;
 	private View convertView = null;
@@ -65,7 +77,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     private SeekBar play_bar;
     private TextView play_name;
     private PopupWindow playPop;
-    private ListView home_search_lv;
+    private PullToRefreshListView home_search_lv;
     private PlayListAdapter playListAdapter;
     private ImageView session, timeline, favorite;
     private PopupWindow sharePop;
@@ -90,10 +102,11 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         mSetting = new SystemSetting(aty, false);
 
         View view = aty.getLayoutInflater().inflate(R.layout.home_search, null);
-        home_search_lv = (ListView) view.findViewById(R.id.home_search_lv);
+        home_search_lv = (PullToRefreshListView) view.findViewById(R.id.home_search_lv);
         playPop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, 600);
         playPop.setContentView(view);
         playPop.setFocusable(true);
+        home_search_lv.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
 
         View shareView = aty.getLayoutInflater().inflate(R.layout.sharepop, null);
         session = (ImageView) shareView.findViewById(R.id.session);
@@ -136,6 +149,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         timeline.setOnClickListener(this);
         favorite.setOnClickListener(this);
         home_search_lv.setOnItemClickListener(this);
+        home_search_lv.setOnRefreshListener(this);
         play_bar.setOnSeekBarChangeListener(seekBarChangeListener);
     }
 
@@ -224,7 +238,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                     playListAdapter.setPlayId(audio.getId());
                     for (int i = 0; i < Constants.playList.size(); i++) {
                         if (audio.getId() == Constants.playList.get(i).getId()){
-                            home_search_lv.setSelection(i);
+                            home_search_lv.getRefreshableView().setSelection(i);
                         }
                     }
                 }
@@ -325,11 +339,47 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             Constants.playAlbum.setAudioId(audio.getId());
             Constants.playAlbum.setAudioName(audio.getTitle());
             playListAdapter.setPlayId(audio.getId());
-            home_search_lv.setSelection(position);
+            home_search_lv.getRefreshableView().setSelection(position);
             aty.mediaPlayerManager.player(Constants.playAlbum.getId());
             playPop.dismiss();
         }
     }
+
+
+    @Override
+    public void onRefresh(PullToRefreshBase refreshView) {
+        Constants.playPage++;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpHelper httpHelper = new HttpHelper();
+                httpHelper.connect();
+                List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
+                list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
+                list.add(new BasicNameValuePair(Constants.VALUES[1], Constants.playAlbum.getId()+""));
+                list.add(new BasicNameValuePair(Constants.VALUES[2], Constants.playPage+""));
+                HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
+                JSONObject json = Utils.parseResponse(httpResponse);
+                List<Audio> l = Utils.pressAudioJson(json, Constants.playAlbum);
+                mHandler.sendMessage(mHandler.obtainMessage(0, l));
+            }
+        }).start();
+    }
+
+    Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 0){
+                List<Audio> list = (List<Audio>) msg.obj;
+                if (list != null){
+                    Constants.playList.addAll(list);
+                    playListAdapter.notifyDataSetChanged();
+                }
+                home_search_lv.onRefreshComplete();
+            }
+        }
+    };
 
     /**
      * 播放器-广播接收器

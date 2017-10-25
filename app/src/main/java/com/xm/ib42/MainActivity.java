@@ -338,6 +338,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             mediaPlayerManager=new MediaPlayerManager(this);
         }
         mediaPlayerManager.setConnectionListener(mConnectionListener);
+        mediaPlayerManager.startAndBindService();
 
         //注册播放器-广播接收器
         //        mediaPlayerBroadcastReceiver=new MediaPlayerBroadcastReceiver();
@@ -345,7 +346,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         //注册下载任务-广播接收器
         downLoadBroadcastRecevier=new DownLoadBroadcastRecevier();
         registerReceiver(downLoadBroadcastRecevier, new IntentFilter(DownLoadManager.BROADCASTRECEVIER_ACTON));
-        mediaPlayerManager.startAndBindService();
 
         downLoadManager=new DownLoadManager(this);
         downLoadManager.startAndBindService();
@@ -390,17 +390,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
 
     }
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mediaPlayerManager!=null){
-//            unregisterReceiver(mediaPlayerBroadcastReceiver);
-            unregisterReceiver(downLoadBroadcastRecevier);
-            mediaPlayerManager.unbindService();
-            //mediaPlayerManager = null;
-            unregisterReceiver(iatBroadcast);
-        }
-    }
 
     @Override
     protected void onDestroy() {
@@ -411,6 +400,13 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             // 退出时释放连接
             mIat.cancel();
             mIat.destroy();
+        }
+        if (mediaPlayerManager!=null){
+//            unregisterReceiver(mediaPlayerBroadcastReceiver);
+            unregisterReceiver(downLoadBroadcastRecevier);
+            mediaPlayerManager.unbindService();
+            //mediaPlayerManager = null;
+            unregisterReceiver(iatBroadcast);
         }
     }
 

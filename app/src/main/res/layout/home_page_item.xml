@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@color/color_FFFFFFFF"
     >
 
     <ImageView
@@ -24,6 +25,7 @@
             android:layout_height="wrap_content"
             android:padding="5dp"
             android:textSize="16sp"
+            android:textColor="@color/color_FF000000"
             android:text="测试文字"
             android:minLines="1"
             android:maxLines="2"/>
@@ -33,16 +35,18 @@
             android:layout_height="wrap_content"
             android:padding="5dp"
             android:textSize="16sp"
+            android:textColor="@color/color_FF000000"
             android:text="测试文字"
             android:minLines="1"
             android:maxLines="2"/>
     </LinearLayout>
 
     <ImageView
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:padding="5dp"
-        android:src="@mipmap/kaiping02"
+        android:src="@mipmap/home_a"
         android:layout_alignParentRight="true"/>
 
 </RelativeLayout>

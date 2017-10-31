@@ -11,9 +11,16 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.xm.ib42.R;
+import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Column;
+import com.xm.ib42.util.HttpHelper;
+import com.xm.ib42.util.Utils;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.xm.ib42.R.id.home_page_item_img;
@@ -105,7 +112,7 @@ public class HomeAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getGroupView(int i, boolean b, View view, ViewGroup viewGroup) {
+    public View getGroupView(final int i, boolean b, View view, ViewGroup viewGroup) {
         GroupHolder groupHolder = null;
         if (view == null){
             groupHolder = new GroupHolder();
@@ -116,12 +123,27 @@ public class HomeAdapter extends BaseExpandableListAdapter {
         } else {
             groupHolder = (GroupHolder) view.getTag();
         }
-        Column column = data.get(i);
+        final Column column = data.get(i);
         groupHolder.home_column_title.setText(column.getTitle()+"("+column.getAlbumList().size()+")");
         groupHolder.home_column_more.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                column.setPage(column.getPage()+1);
+                HttpHelper httpHelper = new HttpHelper();
+                httpHelper.connect();
+                List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
+                list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
+                list.add(new BasicNameValuePair(Constants.VALUES[2], column.getPage()+""));
+                list.add(new BasicNameValuePair(Constants.VALUES[4], column.getId()+""));
+                list.add(new BasicNameValuePair(Constants.VALUES[5], "3"));
+                HttpResponse albumResponse = httpHelper.doGet(Constants.HTTPURL, list);
+                List<Album> l = Utils.pressAlbumJson(Utils.parseResponse(albumResponse));
+                if (l != null && l.size() > 0){
+                    column.setAlbumList(l);
+                    notifyDataSetChanged();
+                } else {
+                    column.setPage(column.getPage()+1);
+                }
             }
         });
         return view;

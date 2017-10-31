@@ -10,7 +10,7 @@ public class Column {
     private int id;
     private String title;
     private String url;
-    private int page;
+    private int page = 1;
     private List<Album> mAlbumList;
 
     public int getId() {

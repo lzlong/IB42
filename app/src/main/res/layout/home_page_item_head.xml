@@ -10,6 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="16sp"
+        android:textColor="@color/color_FFFFFFFF"
         android:padding="5dp"
         android:text="测试文字"/>
 
@@ -18,7 +19,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="5dp"
-        android:src="@mipmap/bai"
+        android:src="@mipmap/home_c"
         android:layout_alignParentRight="true"/>
 
 </RelativeLayout>

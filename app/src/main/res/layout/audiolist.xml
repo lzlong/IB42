@@ -6,9 +6,33 @@
 
     <include layout="@layout/title"/>
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp">
+        <EditText
+            android:id="@+id/audio_search"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="@color/color_FFFFFFFF"
+            android:layout_margin="5dp"
+            android:paddingLeft="5dp"
+            android:hint="请输入栏目名称"
+            />
+        <ImageButton
+            android:id="@+id/audio_mkf_button"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginRight="5dp"
+            android:background="@mipmap/mkf"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"/>
+    </RelativeLayout>
+
     <com.handmark.pulltorefresh.library.PullToRefreshListView
         android:id="@+id/audio_lv"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"/>
 
 </LinearLayout>

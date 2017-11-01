@@ -7,8 +7,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
@@ -33,7 +39,7 @@ import java.util.List;
  */
 
 public class AudioListActivity extends Activity implements AdapterView.OnItemClickListener,
-        PullToRefreshBase.OnRefreshListener{
+        PullToRefreshBase.OnRefreshListener, TextWatcher {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,12 +57,25 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     private AudioListAdapter adapter;
     private Intent intent;
     private Dialog loadDialog;
+    private EditText audio_search;
+    private ImageButton audio_mkf_button;
+    private PopupWindow searchPop;
+    private PullToRefreshListView home_search_lv;
 
     private void initView() {
         title_name = (TextView) findViewById(R.id.title_name);
         audio_lv = (PullToRefreshListView) findViewById(R.id.audio_lv);
 
+        audio_search = (EditText) findViewById(R.id.audio_search);
+        audio_mkf_button = (ImageButton) findViewById(R.id.audio_mkf_button);
+
         loadDialog = DialogUtils.createLoadingDialog(this, "加载中...");
+
+        View view = getLayoutInflater().inflate(R.layout.home_search, null);
+        home_search_lv = (PullToRefreshListView) view.findViewById(R.id.home_search_lv);
+        searchPop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        searchPop.setContentView(view);
 
         audioList = new ArrayList<>();
         intent = getIntent();
@@ -70,6 +89,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         audio_lv.setMode(PullToRefreshBase.Mode.PULL_FROM_END);//上拉刷新
         audio_lv.setOnRefreshListener(this);
         audio_lv.setOnItemClickListener(this);
+        audio_search.addTextChangedListener(this);
     }
 
     Handler hander = new Handler(){
@@ -135,5 +155,47 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     public void onRefresh(PullToRefreshBase refreshView) {
         page++;
         getdata();
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+    }
+
+    private String searchName = "";
+    private int searchPage = 1;
+
+    @Override
+    public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        if (!searchName.equals(charSequence.toString())){
+            searchName = charSequence.toString();
+            getSearchData();
+        }
+    }
+
+    private void getSearchData() {
+        if (!loadDialog.isShowing()){
+            loadDialog.show();
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpHelper httpHelper = new HttpHelper();
+                httpHelper.connect();
+                List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
+                list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
+                list.add(new BasicNameValuePair(Constants.VALUES[2], searchPage+""));
+                list.add(new BasicNameValuePair(Constants.VALUES[3], searchName));
+                HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
+                JSONObject json = Utils.parseResponse(httpResponse);
+                List<Album> l = Utils.pressAlbumJson(json);
+                hander.sendMessage(hander.obtainMessage(2, l));
+            }
+        }).start();
+    }
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+
     }
 }

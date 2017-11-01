@@ -469,6 +469,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                         albumDao.update(Constants.playAlbum);
                     }
                     mediaPlayerManager.player(Constants.playAlbum.getId());
+                    changeMyPage();
                 }
             }
         }

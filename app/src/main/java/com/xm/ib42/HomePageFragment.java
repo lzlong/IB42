@@ -170,19 +170,6 @@ public class HomePageFragment extends Fragment implements OnClickListener,
             }
         }).start();
     }
-//    private void getAlbumData() {
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                HttpHelper httpHelper = new HttpHelper();
-//                httpHelper.connect();
-//                HttpResponse httpResponse = httpHelper.doGet(Constants.ALBUMURL);
-//                json = Utils.parseResponse(httpResponse);
-//                list = Utils.pressAlbumJson(json);
-//                handler.sendMessage(handler.obtainMessage(0));
-//            }
-//        }).start();
-//    }
 
     private HomeAdapter adapter;
     private HomeSearchAdapter searchAdapter;

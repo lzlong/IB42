@@ -324,11 +324,12 @@ public class MediaPlayerService extends Service {
 										cacheUtil.start(false, getApplicationContext());
 									}
 									// 是否是启动后，第一次播放
-									if (isFirst) {
-										mPlayer.seekTo(currentDuration);
-									} else {
-										mPlayer.seekTo(audio.getCurrDurationTime());
-									}
+//									if (isFirst) {
+//										mPlayer.seekTo(currentDuration);
+//									} else {
+//									}
+//										mPlayer.seekTo(audio.getCurrDurationTime());
+									mPlayer.seekTo(audio.getCurrDurationTime());
 									isFirst = false;
 									isPrepare=false;
 									mPlayer.start();
@@ -666,9 +667,9 @@ public class MediaPlayerService extends Service {
         } else {
 			if (audioDao.isExist(audioId)){
 				audio = audioDao.searchById(audioId, true);
-				mPlayer.stop();
 			}
 			playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
+			mPlayer.stop();
 		}
 //		Constants.playAlbum.setAudioName(audio.getTitle());
 //		Constants.playAlbum.setAudioId(audio.getId());

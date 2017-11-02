@@ -284,12 +284,31 @@ public class MediaPlayerService extends Service {
 	}
 
 	// 准备
-	private void prepare(String path) {
+	private void prepare(Audio audio) {
 		try {
+
+			if (audio.isCacheFinish()) {
+//				prepare(audio.getCachePath());
+				mPlayer.setDataSource(audio.getCachePath());
+				mPlayer.prepare();
+			} else if (audio.isDownFinish()) {
+//				prepare(audio.getFilePath());
+				mPlayer.setDataSource(audio.getFilePath());
+				mPlayer.prepare();
+			} else {
+				String path = audio.getNetUrl();
+				String name = path.substring(path.lastIndexOf("/"), path.length());
+				path = path.substring(0, path.lastIndexOf("/")) + URLEncoder.encode(name, "utf-8");
+//				prepare(path);
+				mPlayer.setDataSource(path);
+				mPlayer.prepare();
+				CacheUtil cacheUtil = new CacheUtil(audio, getApplicationContext());
+				cacheUtil.start(false, getApplicationContext());
+			}
 			isPrepare=true;
-			mPlayer.setDataSource(path);
-			mPlayer.prepare();
 		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -305,24 +324,13 @@ public class MediaPlayerService extends Service {
 					switch (playerFlag) {
 						case MediaPlayerManager.SERVICE_MUSIC_START:
 							if (audio != null) {
-								audioDao.add(audio);
-								Constants.playAlbum.setAudioName(audio.getTitle());
-								Constants.playAlbum.setAudioId(audio.getId());
-								albumDao.update(Constants.playAlbum);
 								if (!mPlayer.isPlaying() && !isPrepare) {
+									audioDao.add(audio);
+									Constants.playAlbum.setAudioName(audio.getTitle());
+									Constants.playAlbum.setAudioId(audio.getId());
+									albumDao.update(Constants.playAlbum);
 									mPlayer.reset();
-									if (audio.isCacheFinish()) {
-										prepare(audio.getCachePath());
-									} else if (audio.isDownFinish()) {
-										prepare(audio.getFilePath());
-									} else {
-										String path = audio.getNetUrl();
-										String name = path.substring(path.lastIndexOf("/"), path.length());
-										path = path.substring(0, path.lastIndexOf("/")) + URLEncoder.encode(name, "utf-8");
-										prepare(path);
-										CacheUtil cacheUtil = new CacheUtil(audio, getApplicationContext());
-										cacheUtil.start(false, getApplicationContext());
-									}
+									prepare(audio);
 									// 是否是启动后，第一次播放
 //									if (isFirst) {
 //										mPlayer.seekTo(currentDuration);
@@ -371,8 +379,6 @@ public class MediaPlayerService extends Service {
 					}
 				}
 			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
 		}
@@ -669,7 +675,9 @@ public class MediaPlayerService extends Service {
 				audio = audioDao.searchById(audioId, true);
 			}
 			playerFlag = MediaPlayerManager.SERVICE_MUSIC_START;
-			mPlayer.stop();
+			if (mPlayer.isPlaying()){
+				mPlayer.stop();
+			}
 		}
 //		Constants.playAlbum.setAudioName(audio.getTitle());
 //		Constants.playAlbum.setAudioId(audio.getId());

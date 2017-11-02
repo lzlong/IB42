@@ -2,11 +2,12 @@ package com.xm.ib42.util;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 
-import com.xm.ib42.dao.AudioDao;
-import com.xm.ib42.entity.Audio;
+import com.xm.ib42.MainActivity;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -43,7 +44,6 @@ public class UpdateUtil implements Serializable {
 		mThreadPool = Executors.newFixedThreadPool(5);  // 默认5个
 	}
 
-	private String mFileName; 							// 本地保存文件名
 	private String mUrl; 								// 下载地址
 	private String mLocalPath;							// 本地存放目录
 
@@ -53,18 +53,18 @@ public class UpdateUtil implements Serializable {
 	/**
 	 * 添加下载任务
 	 */
-	public UpdateUtil(Context context) {
+	public UpdateUtil(Context context, String url) {
+		mUrl = url;
 		String localfile = Common.getSdCardPath()
-				+ SystemSetting.CACHE_MUSIC_DIRECTORY;
+				+ SystemSetting.APK_DIRECTORY;
 		Common.isExistDirectory(localfile);
-		String localPath = localfile + ".apk";
+		String localPath = localfile + "update.apk";
 		File file = new File(localPath);
 		file = file.getParentFile();
 		if (!file.exists()) {
 			file.mkdirs();
 		}
 		String[] tempArray = mUrl.split("/");
-		mFileName = tempArray[tempArray.length-1];
 		mLocalPath = localPath.replaceAll("\"|\\(|\\)", "");
 	}
 	
@@ -74,13 +74,15 @@ public class UpdateUtil implements Serializable {
 	 * params isGoon是否为继续下载
 	 */
 	@SuppressLint("HandlerLeak")
-	public void start(final boolean isGoon, Context context) {
+	public void start(final boolean isGoon, final MainActivity mainActivity) {
 		// 处理消息
-		final Handler handler = new Handler(context.getMainLooper()) {
+		final Handler handler = new Handler(mainActivity.getMainLooper()) {
 			@Override
 			public void handleMessage(Message msg) {
 				switch (msg.what) {
 				case ERROR:
+					mainActivity.showLoadDialog(false);
+					Utils.showToast(mainActivity, "下载失败");
 					break;
 				case CANCEL:
 					break;
@@ -89,9 +91,10 @@ public class UpdateUtil implements Serializable {
 				case PUBLISH:
 					break;
 				case SUCCESS:
-					audio.setCacheFinish(true);
-					audio.setCachePath(mLocalPath);
-					audioDao.updateByCacheState(audio.getId(), mLocalPath);
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.setDataAndType(Uri.fromFile(new File(mUrl)),
+							"application/vnd.android.package-archive");
+					mainActivity.startActivity(intent);
 					break;
 				case START:
 					break;
@@ -199,10 +202,6 @@ public class UpdateUtil implements Serializable {
 
 				localFile.close();
 				client.getConnectionManager().shutdown();
-//				audio.setSize((int) downloadedLength);
-//                audio.setDownFinish(true);
-//                audio.setFilePath(getFileName());
-//                audio.setDisplayName(getLocalFileName());
 				// 发送下载完毕的消息
 				if(!isPause) handler.sendEmptyMessage(SUCCESS);
 			}

@@ -38,6 +38,7 @@ import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.util.DialogUtils;
 import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.SystemSetting;
+import com.xm.ib42.util.UpdateUtil;
 import com.xm.ib42.util.Utils;
 import com.xm.ib42.util.VersionUpdateDialog;
 
@@ -106,7 +107,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 //                String data = "{{v:2},{mess:更新说明：当前版本V2.0 优化已知BUG},{urls:/uploadfile/image/20170710/20170710182813541354.apk}}";
                 String data = Utils.parseResponseData(httpResponse);
                 updateMap = Utils.parseVersionData(data);
-                if (Utils.isUpdate(updateMap.get("v"), MainActivity.this)){
+                if (updateMap != null && Utils.isUpdate(updateMap.get("v"), MainActivity.this)){
                     updateHandler.sendMessage(updateHandler.obtainMessage(0));
                 }
             }
@@ -114,23 +115,32 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private Map<String, String> updateMap;
-
-    Handler updateHandler = new Handler(){
+    private VersionUpdateDialog versionUpdateDlg = null;
+    public Handler updateHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            if (msg.what == 1){
-                VersionUpdateDialog versionUpdateDlg = new VersionUpdateDialog(MainActivity.this, updateMap.get(""),
-                        updateMap.get(""), new VersionUpdateDialog.DialogListener() {
-                    @Override
-                    public void onSure() {
-                    }
+            if (msg.what == 0){
+                if (versionUpdateDlg == null){
+                    versionUpdateDlg = new VersionUpdateDialog(
+                            MainActivity.this, updateMap.get("mess"),
+                            "更新说明", new VersionUpdateDialog.DialogListener() {
+                        @Override
+                        public void onSure() {
+                            UpdateUtil updateUtil = new UpdateUtil(MainActivity.this,
+                                    Constants.APPDOWNURL+updateMap.get("urls"));
+                            updateUtil.start(false, MainActivity.this);
+                            versionUpdateDlg.dismiss();
+                            showLoadDialog(true);
+                        }
 
-                    @Override
-                    public void onCancel() {
-                        // 强制升级
-                    }
-                });
+                        @Override
+                        public void onCancel() {
+                            // 强制升级
+                            versionUpdateDlg.dismiss();
+                        }
+                    });
+                }
                 versionUpdateDlg.show();
             }
         }

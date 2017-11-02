@@ -14,6 +14,7 @@ public class SystemSetting {
 	 * */
 	public static final String DOWNLOAD_MUSIC_DIRECTORY="/IB42/download_music/";
 	public static final String CACHE_MUSIC_DIRECTORY="/IB42/cache_music/";
+	public static final String APK_DIRECTORY="/IB42/apk/";
 	/**
 	 * SD卡下载专辑图片目录
 	 * */

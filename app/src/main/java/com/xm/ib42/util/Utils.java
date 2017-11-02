@@ -211,6 +211,7 @@ public class Utils {
     }
 
     public static Map<String, String> parseVersionData(String data){
+        if (data == null)return null;
         data = data.replaceAll("\\{", "");
         data = data.replaceAll("\\}", "");
         String d[] = data.split(",");

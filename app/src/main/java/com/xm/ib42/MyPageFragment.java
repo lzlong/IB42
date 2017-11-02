@@ -15,7 +15,6 @@ import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Album;
-import com.xm.ib42.service.MediaPlayerManager;
 
 import java.util.List;
 
@@ -81,17 +80,22 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Constants.playAlbum = (Album) parent.getAdapter().getItem(position);
+        Album album = (Album) parent.getAdapter().getItem(position);
+        if (Constants.playAlbum != null){
+            if (Constants.playAlbum.getId() != album.getId()){
+                Constants.playAlbum = album;
+            }
+        }
         if (Constants.playAlbum != null){
             aty.showLoadDialog(true);
-            Constants.playList.addAll(audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
-            if (Constants.playList != null){
-                aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
+//            Constants.playList.addAll(audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+//            if (Constants.playList != null){
+//                aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
 //                aty.mediaPlayerManager.setPlayerList(aty.audioList);
                 aty.mediaPlayerManager.player(Constants.playAlbum.getId());
                 aty.showLoadDialog(false);
                 aty.changePlay();
-            }
+//            }
         }
     }
 }

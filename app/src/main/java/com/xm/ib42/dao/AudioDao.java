@@ -22,8 +22,6 @@ public class AudioDao {
 		dbHpler = new DBHpler(context);
 	}
 
-
-
     /**
 	 * 查询所有目录
 	 * */

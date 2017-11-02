@@ -141,7 +141,14 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Constants.playAlbum = album;
+        if (Constants.playAlbum != null){
+            if (Constants.playAlbum.getId() != album.getId()){
+                Constants.playList.clear();
+                Constants.playAlbum = album;
+            }
+        } else {
+            Constants.playAlbum = album;
+        }
         Constants.playList.addAll(audioList);
         Audio audio = (Audio) adapterView.getAdapter().getItem(i);
         if (audio != null) {

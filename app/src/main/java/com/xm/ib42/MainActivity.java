@@ -38,6 +38,7 @@ import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.util.DialogUtils;
 import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.SystemSetting;
+import com.xm.ib42.util.Utils;
 import com.xm.ib42.util.VersionUpdateDialog;
 
 import org.apache.http.HttpResponse;
@@ -102,8 +103,12 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 HttpHelper httpHelper = new HttpHelper();
                 httpHelper.connect();
                 HttpResponse httpResponse = httpHelper.doGet(Constants.UPDATEVERURL);
-
-
+//                String data = "{{v:2},{mess:更新说明：当前版本V2.0 优化已知BUG},{urls:/uploadfile/image/20170710/20170710182813541354.apk}}";
+                String data = Utils.parseResponseData(httpResponse);
+                updateMap = Utils.parseVersionData(data);
+                if (Utils.isUpdate(updateMap.get("v"), MainActivity.this)){
+                    updateHandler.sendMessage(updateHandler.obtainMessage(0));
+                }
             }
         }).start();
     }
@@ -469,7 +474,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                         albumDao.update(Constants.playAlbum);
                     }
                     mediaPlayerManager.player(Constants.playAlbum.getId());
-                    changeMyPage();
+                    changePlay();
                 }
             }
         }

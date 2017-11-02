@@ -176,15 +176,18 @@ public class Utils {
         return result;
     }
 
-    public static boolean isUpdate(JSONObject jsonObject, Context context){
+    public static boolean isUpdate(String newVersion, Context context){
         try {
             // 获取packagemanager的实例
             PackageManager packageManager = context.getPackageManager();
             // getPackageName()是你当前类的包名，0代表是获取版本信息
             PackageInfo packInfo = packageManager.getPackageInfo(context.getPackageName(),0);
             int version = packInfo.versionCode;
-//            jsonObject.optJSONObject()
-            return true;
+            if (Integer.parseInt(newVersion) > version){
+                return true;
+            } else {
+                return false;
+            }
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

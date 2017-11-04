@@ -28,6 +28,11 @@ import com.iflytek.sunflower.FlowerCollector;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+import com.tencent.open.utils.HttpUtils;
+import com.tencent.tauth.IRequestListener;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.Tencent;
+import com.tencent.tauth.UiError;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
@@ -43,8 +48,14 @@ import com.xm.ib42.util.Utils;
 import com.xm.ib42.util.VersionUpdateDialog;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.conn.ConnectTimeoutException;
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -81,12 +92,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public int duration = 0;//
     public int currentDuration = 0;// 已经播放时长
     public String playName = "";
+    public Tencent mTencent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        mTencent = Tencent.createInstance(Constants.QQAPP_ID, this.getApplicationContext());
 
         init();
 
@@ -489,4 +504,74 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             }
         }
     }
+
+    static class BaseUiListener implements IUiListener{
+
+        @Override
+        public void onComplete(Object o) {
+//            doComplete(response);
+        }
+        protected void doComplete(JSONObject values) {
+        }
+        @Override
+        public void onError(UiError uiError) {
+
+        }
+
+        @Override
+        public void onCancel() {
+
+        }
+    }
+
+    class BaseApiListener implements IRequestListener{
+
+        @Override
+        public void onComplete(JSONObject jsonObject) {
+
+        }
+
+        @Override
+        public void onIOException(IOException e) {
+
+        }
+
+        @Override
+        public void onMalformedURLException(MalformedURLException e) {
+
+        }
+
+        @Override
+        public void onJSONException(JSONException e) {
+
+        }
+
+        @Override
+        public void onConnectTimeoutException(ConnectTimeoutException e) {
+
+        }
+
+        @Override
+        public void onSocketTimeoutException(SocketTimeoutException e) {
+
+        }
+
+        @Override
+        public void onNetworkUnavailableException(HttpUtils.NetworkUnavailableException e) {
+            // 当前网络不可用时触发此异常
+        }
+
+        @Override
+        public void onHttpStatusException(HttpUtils.HttpStatusException e) {
+            // http请求返回码非200时触发此异常
+        }
+
+        @Override
+        public void onUnknowException(Exception e) {
+            // 出现未知错误时会触发此异常
+        }
+    }
+
+
+
 }

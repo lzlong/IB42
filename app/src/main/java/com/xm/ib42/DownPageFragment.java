@@ -21,6 +21,7 @@ import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Audio;
 import com.xm.ib42.service.MediaPlayerManager;
+import com.xm.ib42.util.Utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -56,25 +57,27 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
 	private ListView down_lv;
     private DownAdapter adapter;
     private PopupWindow deletePop;
-    private Button confirm, cancel;
+    private Button delete_true, delete_cancel;
 
 	private void init(View v) {
 		title_name = (TextView) convertView.findViewById(R.id.title_name);
 		title_name.setText("离线");
 		down_lv = (ListView) convertView.findViewById(R.id.down_lv);
 
-        View view = aty.getLayoutInflater().inflate(R.layout.deletepop, null);
-        confirm = (Button) view.findViewById(R.id.confirm);
-        cancel = (Button) view.findViewById(R.id.cancel);
-        deletePop = new PopupWindow(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        View view = aty.getLayoutInflater().inflate(R.layout.delete_dialog, null);
+        delete_true = (Button) view.findViewById(R.id.delete_true);
+        delete_cancel = (Button) view.findViewById(R.id.delete_cancel);
+        deletePop = new PopupWindow(LinearLayout.LayoutParams.WRAP_CONTENT, 600);
         deletePop.setContentView(view);
         deletePop.setFocusable(true);
 
+        albumList = new ArrayList<>();
+        albumMap = new HashMap<>();
 
         down_lv.setOnItemClickListener(this);
         down_lv.setOnItemLongClickListener(this);
-        confirm.setOnClickListener(this);
-        cancel.setOnClickListener(this);
+        delete_true.setOnClickListener(this);
+        delete_cancel.setOnClickListener(this);
         audioDao = new AudioDao(aty);
         albumDao = new AlbumDao(aty);
 		getData();
@@ -91,13 +94,14 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
 	 */
 	private void getData() {
         audioList = audioDao.searchByDownLoad();
-		albumList = new ArrayList<>();
-        albumMap = new HashMap<>();
+        albumList.clear();
 		for (int i = 0; audioList != null && i < audioList.size(); i++) {
 			Audio audio = audioList.get(i);
             if (!albumMap.containsKey(audio.getAlbum().getId())){
 //				albumMap.put(audio.getAlbum().getId(), audio.getAlbum());
 				Album album = albumDao.searchById(audio.getAlbum().getId());
+                album.setAudioName(audio.getTitle());
+                album.setAudioId(audio.getId());
 				albumList.add(album);
 			} else {
 			}
@@ -114,18 +118,25 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
         } else {
             adapter.notifyDataSetChanged();
         }
+        aty.showLoadDialog(false);
     }
 
 	@Override
 	public void onClick(View v) {
-        if (v == confirm){
+        if (v == delete_true){
             if (deletePop.isShowing()){
                 deletePop.dismiss();
             }
-            if (deleteAlbum != null){
-                audioDao.deleteByAlbum(deleteAlbum.getId());
+            if (deleteAlbum != null) {
+                aty.showLoadDialog(true);
+                //删除文件
+                List<Audio> list = audioDao.searchByAlbum(deleteAlbum.getId() + "");
+                Utils.deleteDown(list);
+                //音频记录改为未下载
+                audioDao.updateDownByAlbum(deleteAlbum.getId());
+                getData();
             }
-        } else if (v == cancel){
+        } else if (v == delete_cancel){
             if (deletePop.isShowing()){
                 deletePop.dismiss();
             }

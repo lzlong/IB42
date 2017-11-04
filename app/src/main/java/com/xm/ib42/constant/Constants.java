@@ -27,6 +27,8 @@ public class Constants {
     public static String TryListener = "TRYLISTENER";
 
     public static final String APP_ID = "wx146a438a7e069ff1";
+    public static final String QQAPP_ID = "101429567";
+    public static final String QQAPP_KEY = "c8baaac02e6f925782bcbc73a3cf21dd";
 
     public static Album playAlbum;
     public static final List<Audio> playList = new ArrayList<>();

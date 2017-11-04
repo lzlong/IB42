@@ -286,7 +286,6 @@ public class MediaPlayerService extends Service {
 	// 准备
 	private void prepare(Audio audio) {
 		try {
-
 			if (audio.isCacheFinish()) {
 //				prepare(audio.getCachePath());
 				mPlayer.setDataSource(audio.getCachePath());
@@ -297,6 +296,10 @@ public class MediaPlayerService extends Service {
 				mPlayer.prepare();
 			} else {
 				String path = audio.getNetUrl();
+				if (Utils.isNotBlank(path)){
+					doPlayer(ACTION_NEXT, true);
+					return;
+				}
 				String name = path.substring(path.lastIndexOf("/"), path.length());
 				path = path.substring(0, path.lastIndexOf("/")) + URLEncoder.encode(name, "utf-8");
 //				prepare(path);
@@ -308,6 +311,12 @@ public class MediaPlayerService extends Service {
 			isPrepare=true;
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
+		} catch (IllegalStateException e){
+			prepare(audio);
+			mPlayer.seekTo(audio.getCurrDurationTime());
+			isFirst = false;
+			isPrepare=false;
+			mPlayer.start();
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

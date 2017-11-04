@@ -1,29 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
+    android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/color_FFFFFFFF">
 
-    <ImageView
-        android:id="@+id/session"
-        android:layout_width="wrap_content"
-        android:layout_height="70dp"
-        android:layout_weight="1"
-        android:src="@mipmap/session"
-        />
-    <ImageView
-        android:id="@+id/timeline"
-        android:layout_width="wrap_content"
-        android:layout_height="70dp"
-        android:layout_weight="1"
-        android:src="@mipmap/timeline"
-        />
-    <ImageView
-        android:id="@+id/favorite"
-        android:layout_width="wrap_content"
-        android:layout_height="70dp"
-        android:layout_weight="1"
-        android:src="@mipmap/favorite"
-        />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/session"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:src="@mipmap/session"
+            />
+        <ImageView
+            android:id="@+id/timeline"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:src="@mipmap/timeline"
+            />
+        <ImageView
+            android:id="@+id/favorite"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:src="@mipmap/favorite"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/qq"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:src="@mipmap/share_qq"
+            />
+        <ImageView
+            android:id="@+id/qzone"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp"
+            android:layout_weight="1"
+            android:src="@mipmap/share_qzone"
+            />
+    </LinearLayout>
+
 
 </LinearLayout>

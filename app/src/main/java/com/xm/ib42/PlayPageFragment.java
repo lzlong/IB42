@@ -24,6 +24,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.tencent.connect.share.QQShare;
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
@@ -79,7 +80,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     private PopupWindow playPop;
     private PullToRefreshListView home_search_lv;
     private PlayListAdapter playListAdapter;
-    private ImageView session, timeline, favorite;
+    private ImageView session, timeline, favorite, qq, qzone;
     private PopupWindow sharePop;
 
 	private void init(View convertView) {
@@ -112,6 +113,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         session = (ImageView) shareView.findViewById(R.id.session);
         timeline = (ImageView) shareView.findViewById(R.id.timeline);
         favorite = (ImageView) shareView.findViewById(R.id.favorite);
+        qq = (ImageView) shareView.findViewById(R.id.qq);
+        qzone = (ImageView) shareView.findViewById(R.id.qzone);
         sharePop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         sharePop.setContentView(shareView);
         sharePop.setFocusable(true);
@@ -148,6 +151,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         session.setOnClickListener(this);
         timeline.setOnClickListener(this);
         favorite.setOnClickListener(this);
+        qq.setOnClickListener(this);
+        qzone.setOnClickListener(this);
         home_search_lv.setOnItemClickListener(this);
         home_search_lv.setOnRefreshListener(this);
         play_bar.setOnSeekBarChangeListener(seekBarChangeListener);
@@ -255,8 +260,23 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         } else if (v == favorite){
             aty.mTargetScene = SendMessageToWX.Req.WXSceneFavorite;
             shareApp();
+        } else if (v == qq){
+            shareApp2QQ();
+        } else if (v == qzone){
+            shareApp2QQ();
         }
 	}
+
+	private void shareApp2QQ(){
+        final Bundle params = new Bundle();
+        params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_DEFAULT);
+        params.putString(QQShare.SHARE_TO_QQ_TITLE, "印心讲堂");
+        params.putString(QQShare.SHARE_TO_QQ_SUMMARY,  "");
+        params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  Constants.SHAREURL);
+        params.putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, "");
+        params.putString(QQShare.SHARE_TO_QQ_APP_NAME,  "印心讲堂");
+        aty.mTencent.shareToQQ(aty, params, new MainActivity.BaseUiListener());
+    }
 
     private static final int THUMB_SIZE = 150;
     private void shareApp(){

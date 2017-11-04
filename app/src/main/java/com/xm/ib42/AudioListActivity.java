@@ -55,6 +55,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     private int pageNum = 20;
     private List<Audio> audioList;
     private AudioListAdapter adapter;
+    private AudioListAdapter searchAdapter;
     private Intent intent;
     private Dialog loadDialog;
     private EditText audio_search;
@@ -78,6 +79,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         searchPop.setContentView(view);
 
         audioList = new ArrayList<>();
+        searchList = new ArrayList<>();
         intent = getIntent();
         album = (Album) intent.getSerializableExtra("album");
         if (album != null) {
@@ -89,6 +91,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         audio_lv.setMode(PullToRefreshBase.Mode.PULL_FROM_END);//上拉刷新
         audio_lv.setOnRefreshListener(this);
         audio_lv.setOnItemClickListener(this);
+        home_search_lv.setOnItemClickListener(this);
         audio_search.addTextChangedListener(this);
     }
 
@@ -102,7 +105,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
                 }
                 List<Audio> list = (List<Audio>) msg.obj;
                 if (list != null){
-                    if (page == 0){
+                    if (page == 1){
                         audioList.clear();
                         audioList.addAll(list);
                     } else {
@@ -116,9 +119,33 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
                     }
                     audio_lv.onRefreshComplete();
                 }
+            } else if (msg.what == 2){
+                if (loadDialog.isShowing()){
+                    DialogUtils.closeDialog(loadDialog);
+                }
+                List<Audio> list = (List<Audio>) msg.obj;
+                if (list != null){
+                    if (page == 1){
+                        searchList.clear();
+                        searchList.addAll(list);
+                    } else {
+                        searchList.addAll(list);
+                    }
+                    if (searchAdapter == null){
+                        searchAdapter = new AudioListAdapter(AudioListActivity.this, searchList);
+                        home_search_lv.setAdapter(searchAdapter);
+                        if (!searchPop.isShowing()){
+                            searchPop.showAsDropDown(audio_search, 0, 20);
+                        }
+                    } else {
+                        searchAdapter.notifyDataSetChanged();
+                    }
+                }
             }
         }
     };
+
+    private List<Audio> searchList;
 
     private void getdata() {
         new Thread(new Runnable() {
@@ -152,6 +179,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         Constants.playList.addAll(audioList);
         Audio audio = (Audio) adapterView.getAdapter().getItem(i);
         if (audio != null) {
+            audio.setAlbum(album);
             intent.putExtra("audio", audio);
             setResult(0, intent);
             finish();
@@ -174,6 +202,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
 
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        if (Utils.isBlank(charSequence.toString()))return;
         if (!searchName.equals(charSequence.toString())){
             searchName = charSequence.toString();
             getSearchData();
@@ -191,11 +220,12 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
                 httpHelper.connect();
                 List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
                 list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
+                list.add(new BasicNameValuePair(Constants.VALUES[1], album.getId()+""));
                 list.add(new BasicNameValuePair(Constants.VALUES[2], searchPage+""));
                 list.add(new BasicNameValuePair(Constants.VALUES[3], searchName));
                 HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
                 JSONObject json = Utils.parseResponse(httpResponse);
-                List<Album> l = Utils.pressAlbumJson(json);
+                List<Audio> l = Utils.pressAudioJson(json, album);
                 hander.sendMessage(hander.obtainMessage(2, l));
             }
         }).start();

@@ -56,10 +56,13 @@ public class AudioDao {
 	public long add(Audio audio) {
 		SQLiteDatabase db = dbHpler.getWritableDatabase();
 		ContentValues values = new ContentValues();
+		values.put(DBData.SONG_ID, audio.getId());
 		values.put(DBData.SONG_DISPLAYNAME, audio.getDisplayName());
 		values.put(DBData.SONG_FILEPATH, audio.getFilePath());
 		values.put(DBData.SONG_NAME, audio.getTitle());
-		values.put(DBData.SONG_ALBUMID, audio.getAlbum().getId());
+        if (audio.getAlbum() != null){
+            values.put(DBData.SONG_ALBUMID, audio.getAlbum().getId());
+        }
 		values.put(DBData.SONG_NETURL, audio.getNetUrl());
 		values.put(DBData.SONG_DURATIONTIME, audio.getDurationTime());
 		values.put(DBData.SONG_SIZE, audio.getSize());

@@ -8,11 +8,36 @@
     <include
         android:id="@+id/title"
         layout="@layout/title"/>
+
+    <RelativeLayout
+        android:id="@+id/down_con_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/color_F0434343"
+        android:layout_below="@id/title">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="下载列表"
+            android:textSize="20sp"
+            android:padding="10dp"
+            android:textColor="@color/color_FFFFFFFF"
+            />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:src="@mipmap/home_c"/>
+
+    </RelativeLayout>
+
     <ListView
         android:id="@+id/down_lv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/title"
         android:scrollbars="none"
+        android:layout_below="@id/down_con_layout"
         android:footerDividersEnabled="false"/>
 </RelativeLayout>

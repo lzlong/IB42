@@ -296,7 +296,7 @@ public class MediaPlayerService extends Service {
 				mPlayer.prepare();
 			} else {
 				String path = audio.getNetUrl();
-				if (Utils.isNotBlank(path)){
+				if (Utils.isBlank(path)){
 					doPlayer(ACTION_NEXT, true);
 					return;
 				}

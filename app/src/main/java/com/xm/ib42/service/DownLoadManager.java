@@ -48,11 +48,11 @@ public class DownLoadManager {
 	/**
 	 * 启动某个下载任务
 	 * */
-//	public void start(String url){
-//		if(mDownLoadService!=null){
-//			mDownLoadService.start(url);
-//		}
-//	}
+	public void start(Audio audio){
+		if(mDownLoadService!=null){
+			mDownLoadService.start(audio);
+		}
+	}
 	
 	/**
 	 * 添加某个下载任务
@@ -66,20 +66,20 @@ public class DownLoadManager {
 	/**
 	 * 删除某个下载任务
 	 * */
-//	public void delete(String url){
-//		if(mDownLoadService!=null){
-//			mDownLoadService.delete(url);
-//		}
-//	}
+	public void delete(Audio audio){
+		if(mDownLoadService!=null){
+			mDownLoadService.delete(audio);
+		}
+	}
 	
 	/**
 	 * 暂停某个下载任务
 	 * */
-//	public void pause(String url){
-//		if(mDownLoadService!=null){
-//			mDownLoadService.pause(url);
-//		}
-//	}
+	public void pause(Audio audio){
+		if(mDownLoadService!=null){
+			mDownLoadService.pause(audio);
+		}
+	}
 	
 	/**
 	 * 获取下载数据
@@ -105,11 +105,11 @@ public class DownLoadManager {
 	/**
 	 * 停止下载
 	 * */
-//	public void stop(){
-//		if(mDownLoadService != null){
-//			mDownLoadService.stop();
-//        }
-//	}
+	public void stop(Audio audio){
+		if(mDownLoadService != null){
+			mDownLoadService.stop(audio);
+        }
+	}
 	
 	/**
 	 * 开始服务并绑定服务

@@ -1,5 +1,6 @@
 package com.xm.ib42;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
@@ -12,6 +13,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.xm.ib42.adapter.DownAdapter;
@@ -58,11 +60,13 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
     private DownAdapter adapter;
     private PopupWindow deletePop;
     private Button delete_true, delete_cancel;
+    private RelativeLayout down_con_layout;
 
 	private void init(View v) {
 		title_name = (TextView) convertView.findViewById(R.id.title_name);
 		title_name.setText("离线");
 		down_lv = (ListView) convertView.findViewById(R.id.down_lv);
+        down_con_layout = (RelativeLayout) convertView.findViewById(R.id.down_con_layout);
 
         View view = aty.getLayoutInflater().inflate(R.layout.delete_dialog, null);
         delete_true = (Button) view.findViewById(R.id.delete_true);
@@ -78,6 +82,7 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
         down_lv.setOnItemLongClickListener(this);
         delete_true.setOnClickListener(this);
         delete_cancel.setOnClickListener(this);
+        down_con_layout.setOnClickListener(this);
         audioDao = new AudioDao(aty);
         albumDao = new AlbumDao(aty);
 		getData();
@@ -140,6 +145,9 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
             if (deletePop.isShowing()){
                 deletePop.dismiss();
             }
+        } else if (v == down_con_layout){
+            Intent intent = new Intent(aty, DownActivity.class);
+            startActivity(intent);
         }
 	}
 

@@ -12,6 +12,7 @@ import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.xm.ib42.dao.AudioDao;
+import com.xm.ib42.dao.DownLoadInfoDao;
 import com.xm.ib42.entity.Audio;
 import com.xm.ib42.util.Download;
 import com.xm.ib42.util.Utils;
@@ -24,6 +25,27 @@ import com.xm.ib42.util.Utils;
 public class DownloadService extends Service {
 	private SparseArray<Download> mDownloads = new SparseArray<Download>();
     private AudioDao audioDao;
+	private DownLoadInfoDao mDownLoadInfoDao;
+
+	public void start(Audio audio) {
+		Download d = mDownloads.get(audio.getId());
+		d.pause(false);
+	}
+
+	public void delete(Audio audio) {
+		Download d = mDownloads.get(audio.getId());
+		d.cancel();
+	}
+
+	public void pause(Audio audio) {
+		Download d = mDownloads.get(audio.getId());
+		d.pause(true);
+	}
+
+	public void stop(Audio audio) {
+		Download d = mDownloads.get(audio.getId());
+		d.cancel();
+	}
 
 	public class DownloadBinder extends Binder {
 		public DownloadService getService() {
@@ -40,11 +62,12 @@ public class DownloadService extends Service {
 	public void onCreate() {
 		super.onCreate();
         audioDao = new AudioDao(this);
+		mDownLoadInfoDao = new DownLoadInfoDao(this);
 	}
 
 	public void download(final Audio audio) {
 		Utils.logD("download"+audio.getNetUrl());
-		Download d = new Download(audio);
+		Download d = new Download(audio, mDownLoadInfoDao);
 		d.setOnDownloadListener(mDownloadListener).start(false);
 		mDownloads.put(audio.getId(), d);
 	}

@@ -33,17 +33,17 @@ public class DBData {
 	public static final String ALBUM_AUDIO_ID="audioId";
 	public static final String ALBUM_AUDIO_NAME="audioName";
 
-//	//下载信息字段
-//	public static final String DOWNLOADINFO_TABLENAME="downLoadInfo";
-//	public static final String DOWNLOADINFO_ID="_id";
-//	public static final String DOWNLOADINFO_URL="url";
-//	public static final String DOWNLOADINFO_FILESIZE="filesize";
-//	public static final String DOWNLOADINFO_NAME="name";
-//	public static final String DOWNLOADINFO_ALBUM="album";
-//	public static final String DOWNLOADINFO_DISPLAYNAME="displayName";
-//	public static final String DOWNLOADINFO_DURATIONTIME="durationTime";
-//	public static final String DOWNLOADINFO_COMPLETESIZE="completeSize";
-//	public static final String DOWNLOADINFO_FILEPATH="filePath";
+	//下载信息字段
+	public static final String DOWNLOADINFO_TABLENAME="downLoadInfo";
+	public static final String DOWNLOADINFO_ID="_id";
+	public static final String DOWNLOADINFO_URL="url";
+	public static final String DOWNLOADINFO_FILESIZE="filesize";
+	public static final String DOWNLOADINFO_NAME="name";
+	public static final String DOWNLOADINFO_ALBUM="album";
+	public static final String DOWNLOADINFO_DISPLAYNAME="displayName";
+	public static final String DOWNLOADINFO_DURATIONTIME="durationTime";
+	public static final String DOWNLOADINFO_COMPLETESIZE="completeSize";
+	public static final String DOWNLOADINFO_FILEPATH="filePath";
 //
 //	//多线程下载-每个线程信息字段
 //	public static final String THREADINFO_TABLENAME="threadInfo";

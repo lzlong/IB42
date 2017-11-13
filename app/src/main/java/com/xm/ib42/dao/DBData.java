@@ -44,6 +44,7 @@ public class DBData {
 	public static final String DOWNLOADINFO_DURATIONTIME="durationTime";
 	public static final String DOWNLOADINFO_COMPLETESIZE="completeSize";
 	public static final String DOWNLOADINFO_FILEPATH="filePath";
+	public static final String DOWNLOADINFO_IMAGEURL="imgPath";
 //
 //	//多线程下载-每个线程信息字段
 //	public static final String THREADINFO_TABLENAME="threadInfo";

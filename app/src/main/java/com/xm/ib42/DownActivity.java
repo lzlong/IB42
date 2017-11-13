@@ -5,6 +5,13 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.widget.ListView;
 
+import com.xm.ib42.adapter.DownConAdapter;
+import com.xm.ib42.dao.DownLoadInfoDao;
+import com.xm.ib42.entity.DownLoadInfo;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by long on 17-11-6.
  */
@@ -22,11 +29,21 @@ public class DownActivity extends Activity {
 
     private void initView() {
         down_con_lv = (ListView) findViewById(R.id.down_con_lv);
+        mDownLoadInfoDao = new DownLoadInfoDao(this);
 
         detData();
     }
 
-    private void detData() {
+    private DownLoadInfoDao mDownLoadInfoDao;
+    private List<DownLoadInfo> list= new ArrayList<>();
+    private DownConAdapter mDownAdapter;
 
+    private void detData() {
+        list = mDownLoadInfoDao.searchAll();
+        if (list != null){
+            if (mDownAdapter == null) {
+                mDownAdapter = new DownConAdapter(this, list);
+            }
+        }
     }
 }

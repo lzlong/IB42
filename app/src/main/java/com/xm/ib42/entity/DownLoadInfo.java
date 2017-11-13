@@ -16,7 +16,8 @@ public class DownLoadInfo {
 	private int durationTime;//播放时长
 	private int completeSize;//总下载进度
 	private String filePath;//保存文件的路径
-	
+	private String imageUrl;//保存文件的路径
+
 	private int state;// 下载状态
 	private int threadCount;//运行时活动线程的数量
 	
@@ -125,5 +126,13 @@ public class DownLoadInfo {
 
 	public void setThreadCount(int threadCount) {
 		this.threadCount = threadCount;
+	}
+
+	public String getImageUrl() {
+		return imageUrl;
+	}
+
+	public void setImageUrl(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }

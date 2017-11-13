@@ -18,7 +18,7 @@ public class Audio implements Serializable{
     private int size;// 文件大小
     private String filePath;// 文件路径
     private String cachePath;// 缓存路径
-    private String playerList;// 播放列表的Id集合，它们之间用’$id$’分隔
+//    private String playerList;// 播放列表的Id集合，它们之间用’$id$’分隔
     private boolean isNet;// 是否是网络音乐
     private boolean isDownFinish;// 是否是下载完成
     private boolean isCacheFinish;// 是否缓存完成
@@ -94,15 +94,15 @@ public class Audio implements Serializable{
     public void setFilePath(String filePath) {
         this.filePath = filePath;
     }
-
-    public String getPlayerList() {
-        return playerList;
-    }
-
-    public void setPlayerList(String playerList) {
-        this.playerList = playerList;
-    }
-
+//
+//    public String getPlayerList() {
+//        return playerList;
+//    }
+//
+//    public void setPlayerList(String playerList) {
+//        this.playerList = playerList;
+//    }
+//
     public boolean isNet() {
         return isNet;
     }

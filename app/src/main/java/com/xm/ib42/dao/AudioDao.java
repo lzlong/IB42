@@ -66,7 +66,7 @@ public class AudioDao {
 		values.put(DBData.SONG_NETURL, audio.getNetUrl());
 		values.put(DBData.SONG_DURATIONTIME, audio.getDurationTime());
 		values.put(DBData.SONG_SIZE, audio.getSize());
-		values.put(DBData.SONG_PLAYERLIST, audio.getPlayerList());
+//		values.put(DBData.SONG_PLAYERLIST, audio.getPlayerList());
 		values.put(DBData.SONG_ISDOWNFINISH, audio.isDownFinish());
 		values.put(DBData.SONG_ISCACHEFINISH, audio.isCacheFinish());
 		values.put(DBData.SONG_CACHEPATH, audio.getCachePath());
@@ -94,7 +94,7 @@ public class AudioDao {
 			values.put(DBData.SONG_NETURL, audio.getNetUrl());
 			values.put(DBData.SONG_DURATIONTIME, audio.getDurationTime());
 			values.put(DBData.SONG_SIZE, audio.getSize());
-			values.put(DBData.SONG_PLAYERLIST, audio.getPlayerList());
+//			values.put(DBData.SONG_PLAYERLIST, audio.getPlayerList());
 			values.put(DBData.SONG_ISDOWNFINISH, audio.isDownFinish());
 			values.put(DBData.SONG_ISCACHEFINISH, audio.isCacheFinish());
             values.put(DBData.SONG_CACHEPATH, audio.getCachePath());
@@ -366,8 +366,8 @@ public class AudioDao {
 			audio.setNet(cr.getInt(cr.getColumnIndex(DBData.SONG_ISNET)) == 1 ? true
 					: false);
 			audio.setNetUrl(cr.getString(cr.getColumnIndex(DBData.SONG_NETURL)));
-			audio.setPlayerList(cr.getString(cr
-					.getColumnIndex(DBData.SONG_PLAYERLIST)));
+//			audio.setPlayerList(cr.getString(cr
+//					.getColumnIndex(DBData.SONG_PLAYERLIST)));
 			audio.setSize(cr.getInt(cr.getColumnIndex(DBData.SONG_SIZE)));
 			list.add(audio);
 		}
@@ -417,33 +417,36 @@ public class AudioDao {
 	public Audio searchById(int id, boolean isClose) {
 		Audio audio = null;
 		SQLiteDatabase db = dbHpler.getReadableDatabase();
-		Cursor cr = db.rawQuery("SELECT  A." + DBData.SONG_DISPLAYNAME
-                + ",C." + DBData.ALBUM_NAME+ " AS Cname"
-                + ",A." + DBData.SONG_NAME + " AS Aname"
-                + ",A." + DBData.SONG_ALBUMID
-                + ",A." + DBData.SONG_FILEPATH
-                + ",A." + DBData.SONG_DURATIONTIME
-				+ ",A." + DBData.SONG_SIZE
+		Cursor cr = db.rawQuery("SELECT * "
                 + " FROM " + DBData.SONG_TABLENAME
-				+ " AS A INNER JOIN "  + DBData.ALBUM_TABLENAME
-				+ " AS C ON A." + DBData.SONG_ALBUMID + "=C." + DBData.ALBUM_ID
-				+ " WHERE A." + DBData.SONG_ID + "=?",
+				+ " WHERE " + DBData.SONG_ID + "=?",
 				new String[] { String.valueOf(id) });
 		if (cr.moveToNext()) {
 			audio = new Audio();
 			audio.setId(id);
-			audio.setDisplayName(cr.getString(cr
-					.getColumnIndex(DBData.SONG_DISPLAYNAME)));
-//			audio.setAlbum(new Album(cr.getInt(cr
-//					.getColumnIndex(DBData.SONG_ALBUMID)), cr.getString(cr
-//					.getColumnIndex("Cname")), cr.getString(cr
-//					.getColumnIndex("Cpicpath"))));
-			audio.setTitle(cr.getString(cr.getColumnIndex("Aname")));
-			audio.setFilePath(cr.getString(cr
-					.getColumnIndex(DBData.SONG_FILEPATH)));
-			audio.setDurationTime(cr.getInt(cr
-					.getColumnIndex(DBData.SONG_DURATIONTIME)));
+			audio.setDisplayName(cr.getString(cr.getColumnIndex(DBData.SONG_DISPLAYNAME)));
+			Album album = new Album();
+			album.setId(cr.getInt(cr.getColumnIndex(DBData.SONG_ALBUMID)));
+			audio.setAlbum(album);
+			audio.setTitle(cr.getString(cr.getColumnIndex(DBData.SONG_NAME)));
+			audio.setFilePath(cr.getString(cr.getColumnIndex(DBData.SONG_FILEPATH)));
+			audio.setDurationTime(cr.getInt(cr.getColumnIndex(DBData.SONG_DURATIONTIME)));
 			audio.setSize(cr.getInt(cr.getColumnIndex(DBData.SONG_SIZE)));
+			audio.setNetUrl(cr.getString(cr.getColumnIndex(DBData.SONG_NETURL)));
+			audio.setCurrDurationTime(cr.getInt(cr.getColumnIndex(DBData.SONG_CURRDURATIONTIME)));
+//			audio.setPlayerList(cr.getString(cr.getColumnIndex(DBData.SONG_PLAYERLIST)));
+			audio.setCachePath(cr.getString(cr.getColumnIndex(DBData.SONG_CACHEPATH)));
+			if (cr.getColumnIndex(DBData.SONG_ISDOWNFINISH) == 1){
+				audio.setDownFinish(true);
+			} else {
+				audio.setDownFinish(false);
+			}
+			audio.setCachePath(cr.getString(cr.getColumnIndex(DBData.SONG_CACHEPATH)));
+			if (cr.getColumnIndex(DBData.SONG_ISCACHEFINISH) == 1){
+				audio.setCacheFinish(true);
+			} else {
+				audio.setCacheFinish(false);
+			}
 		}
 		if (isClose){
 			cr.close();

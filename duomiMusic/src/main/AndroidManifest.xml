@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.duomimusic"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-sdk
+        android:minSdkVersion="8"
+        android:targetSdkVersion="17" />
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:smallScreens="true" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/icon"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name="activity.WelcomeActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name="activity.SideslipActivity" >
+        </activity>
+        <activity android:name="com.example.duomimusic.LocalMusicActivity" >
+        </activity>
+        <activity android:name="com.example.duomimusic.ArtistActivity" >
+        </activity>
+        <activity android:name="activity.AlbumActivity" >
+        </activity>
+        <activity android:name="activity.DownLoadActivity" >
+        </activity>
+        <activity android:name="activity.MyLoveActivity" >
+        </activity>
+        <activity android:name="activity.AboutMusicActivity" >
+        </activity>
+        <activity android:name="com.example.duomimusic.PlayMusicActivity" >
+        </activity>
+        <service 
+            android:name="com.example.duomimusic.PlayMusicServicr">
+            <intent-filter>
+                <action android:name="com.example.duomimusic.PlayMusicServicr" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

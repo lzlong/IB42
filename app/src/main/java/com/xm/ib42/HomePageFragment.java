@@ -34,8 +34,10 @@ import com.xm.ib42.adapter.HomeSearchAdapter;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Column;
+import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.JsonParser;
+import com.xm.ib42.util.SystemSetting;
 import com.xm.ib42.util.Utils;
 
 import org.apache.http.HttpResponse;
@@ -122,20 +124,20 @@ public class HomePageFragment extends Fragment implements OnClickListener,
             aty.showLoadDialog(true);
             getColumnData();
         }
-//        if (aty.setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
-//            int audioId = Integer.parseInt(aty.setting.getValue(SystemSetting.KEY_PLAYER_AUDIOID));
-//            if (aty.mediaPlayerManager.getPlayerState() != MediaPlayerManager.STATE_PLAYER){
-//                for (int i = 0; i < aty.audioList.size(); i++) {
-//                    if (audioId == aty.audioList.get(i).getId()){
-//                        home_play_name.setText(aty.audioList.get(i).getTitle());
-//                    }
-//                }
-//            } else {
-//                home_play.setVisibility(View.GONE);
-//            }
-//        } else {
-//            home_play.setVisibility(View.GONE);
-//        }
+        if (aty.setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
+            int audioId = Integer.parseInt(aty.setting.getValue(SystemSetting.KEY_PLAYER_AUDIOID));
+            if (aty.mediaPlayerManager.getPlayerState() != MediaPlayerManager.STATE_PLAYER){
+                for (int i = 0; i < Constants.playList.size(); i++) {
+                    if (audioId == Constants.playList.get(i).getId()){
+                        home_play_name.setText(Constants.playList.get(i).getTitle());
+                    }
+                }
+            } else {
+                home_play.setVisibility(View.GONE);
+            }
+        } else {
+            home_play.setVisibility(View.GONE);
+        }
 
         setParam();
     }

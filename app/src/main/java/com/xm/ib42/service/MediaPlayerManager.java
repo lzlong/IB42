@@ -1,7 +1,6 @@
 package com.xm.ib42.service;
 
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -123,7 +122,7 @@ public class MediaPlayerManager {
 		lIntent.setPackage(mContextWrapper.getPackageName());
 		mContextWrapper.startService(lIntent);
         //mContextWrapper.bindService(new Intent(SERVICE_ACTION), mServiceConnection, Context.BIND_AUTO_CREATE);
-		mContextWrapper.bindService(lIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+//		mContextWrapper.bindService(lIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
     }
 	
 	/**

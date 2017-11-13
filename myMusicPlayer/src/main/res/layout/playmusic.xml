@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/player_bg" >
+    
+	<TextView 
+	    android:id="@+id/tv_song"
+	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"
+	    android:gravity="center"
+	    android:text="显示歌名"
+	    android:textSize="20dp"/>
+	
+	<TextView 
+	    android:id="@+id/tv_singer"
+	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"
+	    android:gravity="center"
+	    android:text="显示歌手"
+	    android:layout_marginTop="20dp"
+	    android:textSize="16dp"/>
+
+	<!-- 专辑图片 -->
+	<ImageView
+	    android:id="@+id/iv_pic"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:src="@drawable/item" 
+	    android:layout_marginTop="145dp"/>
+	
+	<SeekBar 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:id="@+id/seekBar"
+	    android:layout_marginTop="30dp"
+	    android:layout_marginLeft="5dp"
+	    android:layout_marginRight="5dp"
+	    android:progressDrawable="@drawable/progressbar_first"
+	    android:thumb="@drawable/progress_dot"/>
+	
+	<RelativeLayout 
+	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent">
+	    <TextView 
+	        android:layout_height="wrap_content"
+	        android:layout_width="wrap_content"
+	        android:id="@+id/tv_start"
+	        android:text="00:00"
+	        android:textSize="12dp"
+	        android:layout_alignParentLeft="true"/>
+	    
+	    <TextView 
+	        android:layout_height="wrap_content"
+	        android:layout_width="wrap_content"
+	        android:id="@+id/tv_end"
+	        android:text="00:00"
+	        android:textSize="12dp"
+	        android:layout_alignParentRight="true"/>
+	</RelativeLayout>
+	
+	<TextView 
+	    android:id="@+id/tv_lrc"
+	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"
+	    android:gravity="center"
+	    android:text="显示歌词"
+	    android:layout_marginTop="20dp"
+	    android:layout_marginBottom="25dp"
+	    android:textSize="14dp"/>
+	
+	<LinearLayout 
+	    android:layout_height="wrap_content"
+	    android:layout_width="match_parent"
+	    android:orientation="horizontal"
+	    android:layout_marginBottom="5dp"
+	    >
+	    <ImageButton
+	        android:id="@+id/imgbtn_pre"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1.0"
+		    android:src="@drawable/pre_button" 
+		    android:background="#00000000" 
+	    />
+	    
+	    <ImageButton
+	        android:id="@+id/imgbtn_pause"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1.0"
+		    android:src="@drawable/pause_button"
+		    android:background="#00000000" 
+	    />
+	    
+	    <ImageButton
+	        android:id="@+id/imgbtn_next"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:layout_weight="1.0"
+		    android:src="@drawable/next_button" 
+		    android:background="#00000000" 
+	    />
+	    
+	</LinearLayout>
+</LinearLayout>

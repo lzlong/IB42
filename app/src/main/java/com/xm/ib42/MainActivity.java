@@ -357,7 +357,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         return false;
     }
 
-    public DownLoadManager downLoadManager;
+    public static DownLoadManager downLoadManager;
     private DownLoadBroadcastRecevier downLoadBroadcastRecevier;
     private IatBroadcast iatBroadcast;
 
@@ -430,10 +430,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             mIat.cancel();
             mIat.destroy();
         }
+
+        //保存播放状态
+
+
         if (mediaPlayerManager!=null){
 //            unregisterReceiver(mediaPlayerBroadcastReceiver);
             unregisterReceiver(downLoadBroadcastRecevier);
-            mediaPlayerManager.unbindService();
+//            mediaPlayerManager.unbindService();
             //mediaPlayerManager = null;
             unregisterReceiver(iatBroadcast);
         }

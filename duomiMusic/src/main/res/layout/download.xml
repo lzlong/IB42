@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="15" >
+
+        <ImageButton
+            android:id="@+id/btn_local_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/actionbar_back" />
+
+        <TextView
+            android:id="@+id/tv_line"
+            android:layout_width="2dp"
+            android:layout_height="match_parent"
+            android:layout_alignParentTop="true"
+            android:layout_toRightOf="@+id/btn_local_download"
+            android:background="#e4e4e4" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/tv_line"
+            android:text="下载管理" />
+    </RelativeLayout>
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#FF11A0"
+        android:src="@drawable/player_line" />
+    <LinearLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="2">
+        <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="正在下载" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="正在下载" />
+     <ImageView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#96CF41"
+            android:src="@drawable/player_line" />
+     <ListView 
+         android:id="@+id/lv_download_music"
+         android:layout_weight="1"
+         android:layout_width="fill_parent"
+         android:layout_height="match_parent"
+         ></ListView>
+
+</LinearLayout>

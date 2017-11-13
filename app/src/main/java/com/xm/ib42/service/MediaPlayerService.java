@@ -193,8 +193,10 @@ public class MediaPlayerService extends Service {
 	private OnCompletionListener completionListener = new OnCompletionListener() {
 		@Override
 		public void onCompletion(MediaPlayer mp) {
-			isRun = false;
+			playerFlag = -1;
+//			isRun = false;
 			playerState = MediaPlayerManager.STATE_PAUSE;
+			currentDuration = mPlayer.getDuration();
 			doPlayer(ACTION_AUTO,true);
 			sendBroadcast(new Intent(MediaPlayerManager.BROADCASTRECEVIER_ACTON)
 					.putExtra("flag", MediaPlayerManager.FLAG_LIST));
@@ -233,6 +235,7 @@ public class MediaPlayerService extends Service {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		stop();
 		Utils.logE("onDestroy");
 	}
 
@@ -308,7 +311,7 @@ public class MediaPlayerService extends Service {
 				CacheUtil cacheUtil = new CacheUtil(audio, getApplicationContext());
 				cacheUtil.start(false, getApplicationContext());
 			}
-			isPrepare=true;
+			isPrepare=false;
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (IllegalStateException e){
@@ -334,7 +337,6 @@ public class MediaPlayerService extends Service {
 						case MediaPlayerManager.SERVICE_MUSIC_START:
 							if (audio != null) {
 								if (!mPlayer.isPlaying() && !isPrepare) {
-									audioDao.add(audio);
 									Constants.playAlbum.setAudioName(audio.getTitle());
 									Constants.playAlbum.setAudioId(audio.getId());
 									albumDao.update(Constants.playAlbum);
@@ -345,11 +347,12 @@ public class MediaPlayerService extends Service {
 //										mPlayer.seekTo(currentDuration);
 //									} else {
 //									}
-//										mPlayer.seekTo(audio.getCurrDurationTime());
 									mPlayer.seekTo(audio.getCurrDurationTime());
 									isFirst = false;
 									isPrepare=false;
 									mPlayer.start();
+									audio.setDurationTime(mPlayer.getDuration());
+									audioDao.add(audio);
 								} else {
 									currentDuration = mPlayer.getCurrentPosition();
 									Intent intent = new Intent(MediaPlayerManager.BROADCASTRECEVIER_ACTON);
@@ -423,6 +426,9 @@ public class MediaPlayerService extends Service {
 						if (audio.getDurationTime() != currentDuration){
 							audio.setCurrDurationTime(currentDuration);
 							audioDao.updateByDuration(audio.getId(), currentDuration);
+						} else {
+							audio.setCurrDurationTime(0);
+							audioDao.updateByDuration(audio.getId(), 0);
 						}
 						if (action == ACTION_AUTO || action == ACTION_NEXT) {
 							// 有下一首
@@ -476,6 +482,9 @@ public class MediaPlayerService extends Service {
 				}
 				break;
             case MediaPlayerManager.MODE_CIRCLEONE:
+//				audio.setCurrDurationTime(0);
+//				audioDao.updateByDuration(audio.getId(), 0);
+//				player();
                 break;
 		}
 	}
@@ -618,7 +627,7 @@ public class MediaPlayerService extends Service {
 //					player(albumId);
 //				} else {
 //					currentDuration = 0;
-//				}
+//
 //			}
 			playerState = MediaPlayerManager.STATE_PLAYER;
 			playerFlag = MediaPlayerManager.SERVICE_MUSIC_PLAY;
@@ -706,6 +715,7 @@ public class MediaPlayerService extends Service {
 			}
 		}
 		if (audioId == 0){
+			audio = Constants.playList.get(0);
 		}
 		if (audio == null){
 			getData(0);

@@ -186,8 +186,8 @@ AppID:wx146a438a7e069ff1
 AppSecret:f3f9a116cd1c117d262af930fcbb5231
 我:
 名称：印心讲堂
-Android包名：com .xm.ib42
-ISO AppID：com .xm.ib42
+Android包名：com.xm.ib42
+ISO AppID：com.xm.ib42
 Android证书别名：yyjtkey
 Android证书密钥：yyjtxmib42
 Android证书文件：见附件“yyjt.keystore”

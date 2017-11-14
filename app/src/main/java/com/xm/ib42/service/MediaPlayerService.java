@@ -79,7 +79,6 @@ public class MediaPlayerService extends Service {
 		// 申请wake lock保证了CPU维持唤醒状态
 		mPlayer.setWakeMode(getApplicationContext(),
 				PowerManager.PARTIAL_WAKE_LOCK);
-
 	}
 
 	/**

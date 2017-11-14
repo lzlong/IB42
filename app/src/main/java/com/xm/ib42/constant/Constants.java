@@ -34,4 +34,27 @@ public class Constants {
     public static final List<Audio> playList = new ArrayList<>();
     public static int playPage = 1;
 
+
+    public static final String ACTION_PLAY = "com.xm.ib42.PLAY";
+    public static final String ACTION_NET_PLAY = "com.xm.ib42.NET_PLAY";
+    public static final String ACTION_PAUSE = "com.xm.ib42.PAUSE";
+    public static final String ACTION_STOP = "com.xm.ib42.STOP";
+    public static final String ACTION_SEEK = "com.xm.ib42.SEEK";
+    public static final String ACTION_PREVIOUS = "com.xm.ib42.PREVIOUS";
+    public static final String ACTION_NEXT = "com.xm.ib42.NEXT";
+    public static final String ACTION_JUMR = "com.xm.ib42.JUMP";
+    public static final String ACTION_JUMR_OTHER = "com.xm.ib42.JUMP_OTHER";
+    public static final String ACTION_FIND = "com.xm.ib42.FIND";
+    public static final String ACTION_UPDATE = "com.xm.ib42.UPDATE";
+    public static final String ACTION_UPDATE_ALL = "com.xm.ib42.UPDATE_ALL";
+    public static final String ACTION_UPDATE_TIME = "com.xm.ib42.UPDATE_TIME";
+    public static final String ACTION_UPDATE_LRC = "com.xm.ib42.UPDATE_LRC";
+    public static final String ACTION_SERVICESTOPED = "com.xm.ib42.SERVICESTOPED";
+    public static final String ACTION_LISTCHANGED = "com.xm.ib42.LISTCHANGED";
+    public static final String ACTION_DISS_DIALOG = "com.xm.ib42.DISSDIALOG";
+    public static final String ACTION_SET_PLAYMODE = "com.xm.ib42.PALY_MODE";
+    public static final String ACTION_STAR_THREAD = "com.xm.ib42.STAR_THREA";
+    public static final String ACTION_LRC = "com.xm.ib42.lrc";
+    
+    
 }

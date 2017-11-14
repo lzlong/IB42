@@ -38,7 +38,7 @@ public class Utils {
     static Toast toast = null;
 
     public static void showToast(Context context, String str) {
-        // Toast.makeText(context, str, Toast.LENGTH_SHORT).show();;
+        // Toast.makeText(mContext, str, Toast.LENGTH_SHORT).show();;
         if (toast == null) {
             toast = Toast.makeText(context, str, Toast.LENGTH_SHORT);
         } else {

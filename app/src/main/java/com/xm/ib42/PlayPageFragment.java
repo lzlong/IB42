@@ -417,7 +417,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             if (lAlbum_id == -1){
                 mCachedArtwork = mDefaultArtWork;
             }else {
-//                mCachedArtwork = MusicUtils.getCachedArtwork(context, lAlbum_id, mDefaultArtWork);
+//                mCachedArtwork = MusicUtils.getCachedArtwork(mContext, lAlbum_id, mDefaultArtWork);
             }
 
             if(flag==MediaPlayerManager.FLAG_CHANGED){

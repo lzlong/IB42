@@ -1,6 +1,7 @@
 package com.xm.ib42.app;
 
 import android.app.Application;
+import android.media.MediaPlayer;
 import android.os.Environment;
 
 import com.iflytek.cloud.SpeechUtility;
@@ -16,9 +17,14 @@ import org.wlf.filedownloader.FileDownloader;
  */
 
 public class MyApplication extends Application {
+
+    public static MediaPlayer mediaPlayer;
+
     @Override
     public void onCreate() {
         super.onCreate();
+        mediaPlayer = new MediaPlayer();
+
 
         SpeechUtility.createUtility(getApplicationContext(), "appid=" + getString(R.string.app_id));
 

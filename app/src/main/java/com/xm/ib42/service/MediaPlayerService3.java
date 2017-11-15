@@ -19,6 +19,8 @@ import com.xm.ib42.entity.Audio;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static com.iflytek.sunflower.config.a.C;
+
 
 public class MediaPlayerService3 extends Service {
 
@@ -33,7 +35,9 @@ public class MediaPlayerService3 extends Service {
 	private int totalms = 0;// 当前歌曲总时长
 	private int playmode = 0;// 播放模式 0 顺序播放 1 随机播放 2 单曲循环
 	public static int status = 1;// 1 未播放 2 暂停 3 播放
+	private int mode_current = 0;
 	public Context mContext;
+	public Audio nowPlayAudio;
 
 	@Nullable
 	@Override
@@ -153,7 +157,7 @@ public class MediaPlayerService3 extends Service {
 					e.printStackTrace();
 				}
 			} else if (Constants.ACTION_UPDATE_ALL.equals(intent.getAction())) {
-				updataAllMusicInfo(false, nowplaymusic);
+				updataAllMusicInfo(false, nowPlayAudio);
 
 			} else // 设置播放模式
 				if (Constants.ACTION_SET_PLAYMODE.equals(intent.getAction())) {
@@ -165,7 +169,7 @@ public class MediaPlayerService3 extends Service {
 					// 播放列表发生变化
 				} else if (Constants.ACTION_LISTCHANGED.equals(intent.getAction())) {
 					musicList.clear();
-					musicList.addAll(MyApplication.musics);
+					musicList.addAll(Constants.playList);
 					initAllsongNames();
 				}
 		}
@@ -189,12 +193,12 @@ public class MediaPlayerService3 extends Service {
 			updataintent.putExtra("isnet", true);
 		} else {
 			updataintent.putExtra("status", status);
-			updataintent.putExtra("music", nowplaymusic);
+			updataintent.putExtra("music", nowPlayAudio);
 			updataintent.putExtra("position", current);
 			updataintent.putExtra("totalms", totalms);
 		}
 		sendBroadcast(updataintent);
-//		MyNotiofation.getNotif(MusicPlayerService.this, nowplaymusic, manager);
+//		MyNotiofation.getNotif(MusicPlayerService.this, nowPlayAudio, manager);
 	}
 
 	SharedPreferences sp;
@@ -222,7 +226,7 @@ public class MediaPlayerService3 extends Service {
 			}
 		});
 		// 当前播放的音乐列表
-		musicList = ((MyApplication) getApplication()).getMusics();
+		musicList = (ArrayList<Audio>) Constants.playList;
 		// 当前播放音乐的索引
 		current = MyApplication.musicPreference.getsaveposition(this);
 
@@ -245,7 +249,7 @@ public class MediaPlayerService3 extends Service {
 		if (mPlayer == null) {
 			mPlayer = MyApplication.mediaPlayer;
 		}
-		musicList = ((MyApplication) getApplication()).getMusics();
+		musicList = (ArrayList<Audio>) Constants.playList;
 		// 动态注册广播
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(Constants.ACTION_LISTCHANGED);
@@ -350,12 +354,12 @@ public class MediaPlayerService3 extends Service {
 			} else if (playmode == 2) {// 单曲
 				current = mode_current;
 			}
-			nowplaymusic = musicList.get(current);
+			nowPlayAudio = musicList.get(current);
 			Log.i("music", current + "当前播放的歌曲");
 			isjump = false;
 			try {
 				mPlayer.reset();
-				mPlayer.setDataSource(nowplaymusic.getSavePath());
+				mPlayer.setDataSource(nowPlayAudio.getFilePath());
 				mPlayer.prepare();
 				mPlayer.start();
 				status = 3;

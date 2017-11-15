@@ -19,8 +19,6 @@ import com.xm.ib42.entity.Audio;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static com.iflytek.sunflower.config.a.C;
-
 
 public class MediaPlayerService3 extends Service {
 
@@ -237,7 +235,7 @@ public class MediaPlayerService3 extends Service {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				SongNamekeywords = Musicdata.GetAll(musicList);
+//				SongNamekeywords = Musicdata.GetAll(musicList);
 			}
 		}).start();
 	}

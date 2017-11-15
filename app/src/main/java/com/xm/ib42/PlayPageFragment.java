@@ -44,7 +44,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.xm.ib42.service.MediaPlayerManager.STATE_PLAYER;
+import static com.xm.ib42.app.MyApplication.context;
 
 /**
  * home2
@@ -82,6 +82,9 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     private PlayListAdapter playListAdapter;
     private ImageView session, timeline, favorite, qq, qzone;
     private PopupWindow sharePop;
+
+    public boolean isplaying = false;
+    public Intent broadcastIntent;
 
 	private void init(View convertView) {
 
@@ -216,12 +219,32 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
-            aty.mediaPlayerManager.pauseOrPlayer();
-            if (aty.mediaPlayerManager.getPlayerState() == STATE_PLAYER){
-                play.setImageResource(R.mipmap.zangt);
-            } else {
+
+            if (!isplaying) {
                 play.setImageResource(R.mipmap.bof);
+                if (aty.position > 0) {// 如果大于0说明我们记忆了上次退出时候的歌曲
+                    broadcastIntent.setAction(Constants.ACTION_JUMR);
+                    broadcastIntent.putExtra("position", aty.position);
+                } else {
+                    broadcastIntent.setAction(Constants.ACTION_PLAY);
+                }
+                context.sendBroadcast(broadcastIntent);
+                isplaying = true;
+            } else {
+                broadcastIntent.setAction(Constants.ACTION_PAUSE);
+                aty.sendBroadcast(broadcastIntent);
+                isplaying = false;
+                play.setImageResource(R.mipmap.zangt);
             }
+
+
+//
+//            aty.mediaPlayerManager.pauseOrPlayer();
+//            if (aty.mediaPlayerManager.getPlayerState() == STATE_PLAYER){
+//                play.setImageResource(R.mipmap.zangt);
+//            } else {
+//                play.setImageResource(R.mipmap.bof);
+//            }
         } else if (v == play_next){
             if (Constants.playList == null
                     ||Constants.playList.size() <= 0){

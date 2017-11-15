@@ -1,12 +1,14 @@
 package com.xm.ib42.app;
 
 import android.app.Application;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Environment;
 
 import com.iflytek.cloud.SpeechUtility;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.xm.ib42.R;
+import com.xm.ib42.util.MusicPreference;
 
 import org.wlf.filedownloader.FileDownloadConfiguration;
 import org.wlf.filedownloader.FileDownloader;
@@ -19,12 +21,16 @@ import org.wlf.filedownloader.FileDownloader;
 public class MyApplication extends Application {
 
     public static MediaPlayer mediaPlayer;
+    public static MusicPreference musicPreference;
 
+    public static Context context;
     @Override
     public void onCreate() {
         super.onCreate();
+        context = getApplicationContext();
         mediaPlayer = new MediaPlayer();
 
+        musicPreference = new MusicPreference(context);
 
         SpeechUtility.createUtility(getApplicationContext(), "appid=" + getString(R.string.app_id));
 

@@ -33,6 +33,7 @@ import com.tencent.tauth.IRequestListener;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
+import com.xm.ib42.app.MyApplication;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
@@ -40,6 +41,7 @@ import com.xm.ib42.entity.Audio;
 import com.xm.ib42.entity.Column;
 import com.xm.ib42.service.DownLoadManager;
 import com.xm.ib42.service.MediaPlayerManager;
+import com.xm.ib42.service.MediaPlayerService3;
 import com.xm.ib42.util.DialogUtils;
 import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.SystemSetting;
@@ -61,6 +63,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import static com.xm.ib42.app.MyApplication.context;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener{
 
@@ -93,6 +97,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public int currentDuration = 0;// 已经播放时长
     public String playName = "";
     public Tencent mTencent;
+    int position;
 
 
     @Override
@@ -182,6 +187,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         homeList = new ArrayList<>();
 
         content_container = (LinearLayout) findViewById(R.id.content_container);
+
+
+        position = MyApplication.musicPreference.getsaveposition(context);
 
         setting = new SystemSetting(this, true);
         if (setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
@@ -363,6 +371,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     private void getService(){
         //播放器管理
+
+        startService(new Intent(context, MediaPlayerService3.class));
+
         if (mediaPlayerManager == null){
             mediaPlayerManager=new MediaPlayerManager(this);
         }

@@ -273,4 +273,31 @@ public class Utils {
 //            Constants.Logdada("文件不存在！"+"\n");
         }
     }
+
+
+    public static String gettim(int durctions) {
+        int mintue = durctions / 1000 / 60;
+        int second = (durctions - mintue * 60000) / 1000;
+        if (second < 10) {
+            return "0" + mintue + ":0" + second;
+        } else {
+            return "0" + mintue + ":" + second;
+        }
+    }
+
+    public static String getTime(String durction) {
+        try {
+            int durctions = Integer.parseInt(durction);
+            int mintue = durctions / 1000 / 60;
+            int second = (durctions - mintue * 60000) / 1000;
+            if (second < 10) {
+                return "0" + mintue + ":0" + second;
+            } else {
+                return "0" + mintue + ":" + second;
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            return "00:00";
+        }
+    }
 }

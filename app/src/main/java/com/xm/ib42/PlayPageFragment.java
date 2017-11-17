@@ -29,6 +29,7 @@ import com.tencent.mm.opensdk.modelmsg.SendMessageToWX;
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject;
 import com.xm.ib42.adapter.PlayListAdapter;
+import com.xm.ib42.app.MyApplication;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Audio;
 import com.xm.ib42.service.MediaPlayerManager;
@@ -143,6 +144,49 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         }
     }
 
+    boolean isrunable = true;
+    int curms;
+    int totalms = 1;
+
+    class ProgeressThread extends Thread {
+        @Override
+        public void run() {
+            while (isrunable) {
+                if (MyApplication.mediaPlayer != null
+                        && MyApplication.mediaPlayer.isPlaying()) {
+                    curms = MyApplication.mediaPlayer.getCurrentPosition();
+                    nameshandler.sendEmptyMessage(20);
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            super.run();
+        }
+
+    }
+
+    Handler nameshandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 20:
+                    try {
+                        int progress = curms * 100 / totalms;
+                        // 设置当前进度
+                        play_bar.setProgress(progress);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    play_time.setText(Utils.gettim(curms));
+                    break;
+            }
+        }
+    };
+
     private void click() {
         play_down.setOnClickListener(this);
         play_share.setOnClickListener(this);
@@ -212,7 +256,11 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 return;
             }
             aty.showLoadDialog(true);
-            aty.mediaPlayerManager.previousPlayer();
+            play.setImageResource(R.mipmap.bof);
+            isplaying = true;
+            broadcastIntent.setAction(Constants.ACTION_PREVIOUS);
+            context.sendBroadcast(broadcastIntent);
+//            aty.mediaPlayerManager.previousPlayer();
         } else if (v == play){
             if (Constants.playList == null
                     ||Constants.playList.size() <= 0){
@@ -252,7 +300,13 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 return;
             }
             aty.showLoadDialog(true);
-            aty.mediaPlayerManager.nextPlayer();
+
+            play.setImageResource(R.mipmap.bof);
+            isplaying = true;
+            broadcastIntent.setAction(Constants.ACTION_NEXT);
+            context.sendBroadcast(broadcastIntent);
+
+//            aty.mediaPlayerManager.nextPlayer();
         } else if (v == play_list){
             if (Constants.playList != null){
                 if (playListAdapter == null){
@@ -383,7 +437,10 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             Constants.playAlbum.setAudioName(audio.getTitle());
             playListAdapter.setPlayId(audio.getId());
             home_search_lv.getRefreshableView().setSelection(position);
-            aty.mediaPlayerManager.player(Constants.playAlbum.getId());
+//            aty.mediaPlayerManager.player(Constants.playAlbum.getId());
+            Intent intent = new Intent(Constants.ACTION_JUMR);
+            intent.putExtra("position", position);
+            context.sendBroadcast(intent);
             playPop.dismiss();
         }
     }

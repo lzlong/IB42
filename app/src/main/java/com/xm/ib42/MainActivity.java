@@ -37,11 +37,10 @@ import com.xm.ib42.app.MyApplication;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
-import com.xm.ib42.entity.Audio;
 import com.xm.ib42.entity.Column;
 import com.xm.ib42.service.DownLoadManager;
 import com.xm.ib42.service.MediaPlayerManager;
-import com.xm.ib42.service.MediaPlayerService3;
+import com.xm.ib42.service.MediaPlayerService;
 import com.xm.ib42.util.DialogUtils;
 import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.SystemSetting;
@@ -98,6 +97,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public String playName = "";
     public Tencent mTencent;
     int position;
+    int nowplaymode;// 当前播放模式
 
 
     @Override
@@ -372,7 +372,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void getService(){
         //播放器管理
 
-        startService(new Intent(context, MediaPlayerService3.class));
+        startService(new Intent(context, MediaPlayerService.class));
 
         if (mediaPlayerManager == null){
             mediaPlayerManager=new MediaPlayerManager(this);
@@ -503,19 +503,17 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (requestCode == 0){
             if (resultCode == 0
                     && data != null){
-                Audio audio = (Audio) data.getSerializableExtra("audio");
-                if (audio != null) {
-                    Constants.playAlbum.setAudioId(audio.getId());
-                    Constants.playAlbum.setAudioName(audio.getTitle());
-                    Constants.playPage = Constants.playList.size() / 10;
-                    if (albumDao.isExist(Constants.playAlbum.getTitle()) == -1){
-                        albumDao.add(Constants.playAlbum);
-                    } else {
-                        albumDao.update(Constants.playAlbum);
-                    }
-                    mediaPlayerManager.player(Constants.playAlbum.getId());
-                    changePlay();
-                }
+
+                Intent intent = new Intent(Constants.ACTION_JUMR);
+                intent.putExtra("position", data.getIntExtra("position", position));
+                context.sendBroadcast(intent);
+                changePlay();
+            } else if (resultCode == 1
+                    && data != null){
+                Intent intent = new Intent(Constants.ACTION_JUMR_MYPAGE);
+                intent.putExtra("title", data.getStringExtra("title"));
+                context.sendBroadcast(intent);
+                changePlay();
             }
         }
     }

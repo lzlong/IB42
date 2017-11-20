@@ -12,8 +12,8 @@ import java.util.List;
 
 public class MediaPlayerManager {
 	
-//	private MediaPlayerServiceO mMediaPlayerService;
-	private MediaPlayerService mMediaPlayerService;
+//	private MediaPlayerServiceO mMediaPlayerService2;
+	private MediaPlayerService2 mMediaPlayerService2;
 	private ContextWrapper mContextWrapper;
 	
 	//播放模式
@@ -90,7 +90,7 @@ public class MediaPlayerManager {
 	
 	private ServiceConnection mServiceConnection = new ServiceConnection() {
 		public void onServiceConnected(ComponentName className, IBinder service) {
-			mMediaPlayerService = ((MediaPlayerService.MediaPlayerBinder) service)
+			mMediaPlayerService2 = ((MediaPlayerService2.MediaPlayerBinder) service)
 					.getService();
 			if(mConnectionListener!=null){
 				mConnectionListener.onServiceConnected();
@@ -98,7 +98,7 @@ public class MediaPlayerManager {
 		}
 
 		public void onServiceDisconnected(ComponentName className) {
-			mMediaPlayerService = null;
+			mMediaPlayerService2 = null;
 			if(mConnectionListener!=null){
 				mConnectionListener.onServiceDisconnected();
 			}
@@ -109,8 +109,8 @@ public class MediaPlayerManager {
 	 * 初始化歌曲信息-播放界面进入时
 	 * */
 	public void initPlayerMain_SongInfo(){
-		if(mMediaPlayerService !=null){
-			mMediaPlayerService.initPlayerMain_SongInfo();
+		if(mMediaPlayerService2 !=null){
+			mMediaPlayerService2.initPlayerMain_SongInfo();
 		}
 	}
 	
@@ -129,8 +129,8 @@ public class MediaPlayerManager {
 	 * 停止播放
 	 * */
 	public void stop(){
-        if(mMediaPlayerService != null){
-        	mMediaPlayerService.stop();
+        if(mMediaPlayerService2 != null){
+        	mMediaPlayerService2.stop();
         }
     }
 	
@@ -138,7 +138,7 @@ public class MediaPlayerManager {
 	 * 取消绑定
 	 * */
 	public void unbindService(){
-        if(mMediaPlayerService != null){
+        if(mMediaPlayerService2 != null){
             mContextWrapper.unbindService(mServiceConnection);
         }
     }
@@ -147,21 +147,21 @@ public class MediaPlayerManager {
 	 * 设置播放模式
 	 * */
 	public void setPlayerMode(int playerMode){
-		if(mMediaPlayerService !=null){
-			mMediaPlayerService.setPlayerMode(playerMode);
+		if(mMediaPlayerService2 !=null){
+			mMediaPlayerService2.setPlayerMode(playerMode);
 		}
 	}
 
     public int getPlayerFlag() {
-        if(mMediaPlayerService !=null){
-            return mMediaPlayerService.getPlayerFlag();
+        if(mMediaPlayerService2 !=null){
+            return mMediaPlayerService2.getPlayerFlag();
         }
         return -1;
     }
 
     public void setPlayerFlag(int playerFlag) {
-        if(mMediaPlayerService !=null){
-            mMediaPlayerService.setPlayerFlag(playerFlag);
+        if(mMediaPlayerService2 !=null){
+            mMediaPlayerService2.setPlayerFlag(playerFlag);
         }
     }
 
@@ -169,8 +169,8 @@ public class MediaPlayerManager {
 	 * 获取专辑图片
 	 * */
 	public String getAlbumPic(){
-		if(mMediaPlayerService !=null){
-			mMediaPlayerService.getAlbumPic();
+		if(mMediaPlayerService2 !=null){
+			mMediaPlayerService2.getAlbumPic();
 		}
 		return null;
 	}
@@ -179,8 +179,8 @@ public class MediaPlayerManager {
 	 * 获取当前播放歌曲的Id
 	 * */
 	public int getSongId(){
-		if(mMediaPlayerService !=null){
-			return mMediaPlayerService.getSongId();
+		if(mMediaPlayerService2 !=null){
+			return mMediaPlayerService2.getSongId();
 		}
 		return -1;
 	}
@@ -189,8 +189,8 @@ public class MediaPlayerManager {
 	 * 获取当前播放歌曲的Id
 	 * */
 	public Audio getAudio(){
-		if(mMediaPlayerService !=null){
-			return mMediaPlayerService.getAudio();
+		if(mMediaPlayerService2 !=null){
+			return mMediaPlayerService2.getAudio();
 		}
 		return null;
 	}
@@ -199,8 +199,8 @@ public class MediaPlayerManager {
 	 * 获取当前播放状态
 	 * */
 	public int getPlayerState(){
-		if(mMediaPlayerService !=null){
-			return mMediaPlayerService.getPlayerState();
+		if(mMediaPlayerService2 !=null){
+			return mMediaPlayerService2.getPlayerState();
 		}
 		return -1;
 	}
@@ -209,8 +209,8 @@ public class MediaPlayerManager {
 	 * 指定位置播放
 	 * */
 	public void seekTo(int msec){
-		if(mMediaPlayerService !=null){
-			mMediaPlayerService.seekTo(msec);
+		if(mMediaPlayerService2 !=null){
+			mMediaPlayerService2.seekTo(msec);
 		}
 	}
 	
@@ -218,8 +218,8 @@ public class MediaPlayerManager {
 	 * 获取当前播放歌曲标题
 	 * */
 	public String getTitle(){
-		if(mMediaPlayerService !=null){
-			return mMediaPlayerService.getTitle();
+		if(mMediaPlayerService2 !=null){
+			return mMediaPlayerService2.getTitle();
 		}
 		return null;
 	}
@@ -228,8 +228,8 @@ public class MediaPlayerManager {
 	 * 获取当前播放歌曲的进度
 	 * */
 	public int getPlayerProgress(){
-		if(mMediaPlayerService !=null){
-			return mMediaPlayerService.getPlayerProgress();
+		if(mMediaPlayerService2 !=null){
+			return mMediaPlayerService2.getPlayerProgress();
 		}
 		return -1;
 	}
@@ -238,8 +238,8 @@ public class MediaPlayerManager {
 	 * 获取当前播放歌曲的时长
 	 * */
 	public int getPlayerDuration(){
-		if(mMediaPlayerService !=null){
-			return mMediaPlayerService.getPlayerDuration();
+		if(mMediaPlayerService2 !=null){
+			return mMediaPlayerService2.getPlayerDuration();
 		}
 		return -1;
 	}
@@ -248,9 +248,9 @@ public class MediaPlayerManager {
 	 * 播放下一首
 	 * */
 	public void nextPlayer(){
-		if(mMediaPlayerService !=null){
-//			mMediaPlayerService.nextPlayer();
-			mMediaPlayerService.setPlayerFlag(MediaPlayerManager.SERVICE_MUSIC_NEXT);
+		if(mMediaPlayerService2 !=null){
+//			mMediaPlayerService2.nextPlayer();
+			mMediaPlayerService2.setPlayerFlag(MediaPlayerManager.SERVICE_MUSIC_NEXT);
 		}
 	}
 	
@@ -258,9 +258,9 @@ public class MediaPlayerManager {
 	 * 播放上一首
 	 * */
 	public void previousPlayer(){
-		if(mMediaPlayerService !=null){
-//			mMediaPlayerService.previousPlayer();
-			mMediaPlayerService.setPlayerFlag(MediaPlayerManager.SERVICE_MUSIC_PREV);
+		if(mMediaPlayerService2 !=null){
+//			mMediaPlayerService2.previousPlayer();
+			mMediaPlayerService2.setPlayerFlag(MediaPlayerManager.SERVICE_MUSIC_PREV);
 		}
 	}
 	
@@ -268,8 +268,8 @@ public class MediaPlayerManager {
 	 * 播放/暂停
 	 * */
 	public void pauseOrPlayer(){
-		if(mMediaPlayerService !=null){
-			mMediaPlayerService.pauseOrPlayer();
+		if(mMediaPlayerService2 !=null){
+			mMediaPlayerService2.pauseOrPlayer();
 		}
 	}
 
@@ -277,8 +277,8 @@ public class MediaPlayerManager {
 	 * 根据指定条件播放
 	 * */
 	public void player(int albumId){
-		if(mMediaPlayerService !=null){
-			mMediaPlayerService.player(albumId);
+		if(mMediaPlayerService2 !=null){
+			mMediaPlayerService2.player(albumId);
 		}
 	}
 	
@@ -286,8 +286,8 @@ public class MediaPlayerManager {
 	 * 重置播放歌曲列表
 	 * */
 	public void setPlayerList(List<Audio> list){
-		if(mMediaPlayerService !=null){
-//			mMediaPlayerService.setPlayerList(list);
+		if(mMediaPlayerService2 !=null){
+//			mMediaPlayerService2.setPlayerList(list);
 		}
 	}
 	
@@ -295,8 +295,8 @@ public class MediaPlayerManager {
 	 * 获取当前播放模式
 	 * */
 	public int getPlayerMode(){
-		if(mMediaPlayerService !=null){
-			return mMediaPlayerService.getPlayerMode();
+		if(mMediaPlayerService2 !=null){
+			return mMediaPlayerService2.getPlayerMode();
 		}
 		return -1;
 	}
@@ -305,8 +305,8 @@ public class MediaPlayerManager {
 	 * 初始化歌曲信息-扫描之后
 	 * */
 //	public void initScanner_SongInfo(){
-//		if(mMediaPlayerService!=null){
-//			mMediaPlayerService.initScanner_SongInfo();
+//		if(mMediaPlayerService2!=null){
+//			mMediaPlayerService2.initScanner_SongInfo();
 //		}
 //	}
 	
@@ -314,8 +314,8 @@ public class MediaPlayerManager {
 	 * 删除歌曲时
 	 * */
 	public void delete(int songId){
-		if(mMediaPlayerService !=null){
-//			mMediaPlayerService.delete(songId);
+		if(mMediaPlayerService2 !=null){
+//			mMediaPlayerService2.delete(songId);
 		}
 	}
 }

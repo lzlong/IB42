@@ -178,6 +178,7 @@ public class Utils {
     }
 
     public static boolean isUpdate(String newVersion, Context context){
+        if (isBlank(newVersion))return false;
         try {
             // 获取packagemanager的实例
             PackageManager packageManager = context.getPackageManager();
@@ -218,7 +219,10 @@ public class Utils {
         String d[] = data.split(",");
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < d.length; i++) {
-            map.put(d[i].split(":")[0], d[i].split(":")[1]);
+            String s[] = d[i].split(":");
+            if (s.length >= 2){
+                map.put(d[i].split(":")[0], d[i].split(":")[1]);
+            }
         }
         return map;
     }
@@ -276,13 +280,20 @@ public class Utils {
 
 
     public static String gettim(int durctions) {
-        int mintue = durctions / 1000 / 60;
-        int second = (durctions - mintue * 60000) / 1000;
-        if (second < 10) {
-            return "0" + mintue + ":0" + second;
-        } else {
-            return "0" + mintue + ":" + second;
+//        int mintue = durctions / 1000 / 60;
+//        int second = (durctions - mintue * 60000) / 1000;
+//        if (second < 10) {
+//            return "0" + mintue + ":0" + second;
+//        } else {
+//            return "0" + mintue + ":" + second;
+//        }
+        if (durctions == 0) {
+            return "00:00";
         }
+        durctions = durctions / 1000;
+        int m = durctions / 60;
+        int s = durctions % 60;
+        return (m > 9 ? m : "0" + m) + ":" + (s > 9 ? s : "0" + s);
     }
 
     public static String getTime(String durction) {

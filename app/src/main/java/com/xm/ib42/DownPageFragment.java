@@ -17,12 +17,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.xm.ib42.adapter.DownAdapter;
-import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Audio;
-import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.util.Utils;
 
 import java.util.ArrayList;
@@ -146,25 +144,35 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
                 deletePop.dismiss();
             }
         } else if (v == down_con_layout){
-            Intent intent = new Intent(aty, DownActivity.class);
+            Intent intent = new Intent(aty, DownConActivity.class);
             startActivity(intent);
         }
 	}
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Constants.playAlbum = (Album) parent.getAdapter().getItem(position);
-        if (Constants.playAlbum != null){
-            aty.showLoadDialog(true);
-            Constants.playList.addAll(audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
-			if (Constants.playList != null){
-                aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
-//				aty.mediaPlayerManager.setPlayerList(Constants.audioList);
-                aty.mediaPlayerManager.player(Constants.playAlbum.getId());
-                aty.showLoadDialog(false);
-                aty.changePlay();
-			}
+
+        Album album = (Album) parent.getAdapter().getItem(position);
+        if (album != null){
+            Intent intent = new Intent(aty, DownActivity.class);
+            intent.putExtra("album", album);
+            aty.startActivityForResult(intent, 0);
         }
+
+
+
+//        Constants.playAlbum = (Album) parent.getAdapter().getItem(position);
+//        if (Constants.playAlbum != null){
+//            aty.showLoadDialog(true);
+//            Constants.playList.addAll(audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+//			if (Constants.playList != null){
+//                aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
+////				aty.mediaPlayerManager.setPlayerList(Constants.audioList);
+//                aty.mediaPlayerManager.player(Constants.playAlbum.getId());
+//                aty.showLoadDialog(false);
+//                aty.changePlay();
+//			}
+//        }
 
     }
 

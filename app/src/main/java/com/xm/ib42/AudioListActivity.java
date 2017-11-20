@@ -39,7 +39,7 @@ import java.util.List;
  */
 
 public class AudioListActivity extends Activity implements AdapterView.OnItemClickListener,
-        PullToRefreshBase.OnRefreshListener, TextWatcher {
+        PullToRefreshBase.OnRefreshListener, TextWatcher, View.OnClickListener {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +47,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         initView();
     }
 
-    private TextView title_name;
+    private TextView title_back;
     private PullToRefreshListView audio_lv;
 //    private int albumId;
     private Album album;
@@ -64,7 +64,8 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     private PullToRefreshListView home_search_lv;
 
     private void initView() {
-        title_name = (TextView) findViewById(R.id.title_name);
+        title_back = (TextView) findViewById(R.id.title_back);
+        title_back.setVisibility(View.VISIBLE);
         audio_lv = (PullToRefreshListView) findViewById(R.id.audio_lv);
 
         audio_search = (EditText) findViewById(R.id.audio_search);
@@ -91,8 +92,28 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         audio_lv.setMode(PullToRefreshBase.Mode.PULL_FROM_END);//上拉刷新
         audio_lv.setOnRefreshListener(this);
         audio_lv.setOnItemClickListener(this);
-        home_search_lv.setOnItemClickListener(this);
         audio_search.addTextChangedListener(this);
+        title_back.setOnClickListener(this);
+
+        itemListener();
+    }
+
+    private void itemListener() {
+        home_search_lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Constants.playAlbum = album;
+                Constants.playList.clear();
+                Constants.playList.addAll(audioList);
+                Audio audio = (Audio) adapterView.getAdapter().getItem(i);
+                Constants.playAlbum.setAudioId(audio.getId());
+                Constants.playAlbum.setAudioName(audio.getTitle());
+                Constants.playPage = Constants.playList.size() / 10;
+                intent.putExtra("title", audio.getTitle());
+                setResult(1, intent);
+                finish();
+            }
+        });
     }
 
     Handler hander = new Handler(){
@@ -168,22 +189,22 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        if (Constants.playAlbum != null){
-            if (Constants.playAlbum.getId() != album.getId()){
-                Constants.playList.clear();
-                Constants.playAlbum = album;
-            }
-        } else {
-            Constants.playAlbum = album;
-        }
+//        if (Constants.playAlbum != null){
+//            if (Constants.playAlbum.getId() != album.getId()){
+//                Constants.playAlbum = album;
+//            }
+//        } else {
+//        }
+        Constants.playAlbum = album;
+        Constants.playList.clear();
         Constants.playList.addAll(audioList);
         Audio audio = (Audio) adapterView.getAdapter().getItem(i);
-        if (audio != null) {
-            audio.setAlbum(album);
-            intent.putExtra("audio", audio);
-            setResult(0, intent);
-            finish();
-        }
+        Constants.playAlbum.setAudioId(audio.getId());
+        Constants.playAlbum.setAudioName(audio.getTitle());
+        Constants.playPage = Constants.playList.size() / 10;
+        intent.putExtra("position", i-1);
+        setResult(0, intent);
+        finish();
     }
 
     @Override
@@ -221,7 +242,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
                 List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
                 list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
                 list.add(new BasicNameValuePair(Constants.VALUES[1], album.getId()+""));
-                list.add(new BasicNameValuePair(Constants.VALUES[2], searchPage+""));
+//                list.add(new BasicNameValuePair(Constants.VALUES[2], searchPage+""));
                 list.add(new BasicNameValuePair(Constants.VALUES[3], searchName));
                 HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
                 JSONObject json = Utils.parseResponse(httpResponse);
@@ -234,5 +255,12 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     @Override
     public void afterTextChanged(Editable editable) {
 
+    }
+
+    @Override
+    public void onClick(View view) {
+        if (view == title_back){
+            finish();
+        }
     }
 }

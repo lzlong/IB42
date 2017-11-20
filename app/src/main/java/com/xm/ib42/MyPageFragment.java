@@ -1,5 +1,6 @@
 package com.xm.ib42;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
@@ -21,6 +22,7 @@ import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Album;
 
 import java.util.List;
+
 
 /**
  * home3
@@ -99,8 +101,7 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
                 deletePop.dismiss();
             }
             if (deleteAlbum != null){
-                //删除文件
-                //音频记录改为未下载
+                //
                 audioDao.deleteByAlbum(deleteAlbum.getId());
             }
         } else if (v == delete_cancel){
@@ -113,24 +114,19 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Album album = (Album) parent.getAdapter().getItem(position);
-        if (Constants.playAlbum != null){
-            if (Constants.playAlbum.getId() != album.getId()){
-                Constants.playAlbum = album;
-            }
-        } else {
-            Constants.playAlbum = album;
-        }
-        if (Constants.playAlbum != null){
-            aty.showLoadDialog(true);
-//            Constants.playList.addAll(audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
-//            if (Constants.playList != null){
-//                aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
-//                aty.mediaPlayerManager.setPlayerList(aty.audioList);
-                aty.mediaPlayerManager.player(Constants.playAlbum.getId());
-                aty.showLoadDialog(false);
-                aty.changePlay();
+//        if (Constants.playAlbum != null){
+//            if (Constants.playAlbum.getId() != album.getId()){
+//                Constants.playAlbum = album;
 //            }
-        }
+//        } else {
+//        }
+        Constants.playPage = 0;
+        Constants.playAlbum = album;
+        Constants.playList.clear();
+        Intent intent = new Intent(Constants.ACTION_JUMR_MYPAGE);
+        intent.putExtra("title", album.getAudioName());
+        aty.sendBroadcast(intent);
+        aty.changePlay();
     }
 
     private Album deleteAlbum;

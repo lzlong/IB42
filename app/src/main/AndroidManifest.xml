@@ -38,6 +38,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".AudioListActivity"/>
+        <activity android:name=".DownConActivity"/>
         <activity android:name=".DownActivity"/>
         <activity
             android:name=".wxapi.WXEntryActivity"
@@ -49,7 +50,17 @@
                 <action android:name="com.xm.ib42.service.download"/>
             </intent-filter>
         </service>
-        <service android:name=".service.MediaPlayerService">
+
+        <service android:name=".service.MediaPlayerService" >
+            <intent-filter>
+                <action android:name="com.xm.ib42.service.MusicPlayerService" >
+                </action>
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </service>
+
+        <service android:name=".service.MediaPlayerService2">
             <intent-filter>
                 <action android:name="com.xm.ib42.service.meidaplayer"/>
             </intent-filter>

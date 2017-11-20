@@ -43,6 +43,7 @@ public class Constants {
     public static final String ACTION_PREVIOUS = "com.xm.ib42.PREVIOUS";
     public static final String ACTION_NEXT = "com.xm.ib42.NEXT";
     public static final String ACTION_JUMR = "com.xm.ib42.JUMP";
+    public static final String ACTION_JUMR_MYPAGE = "com.xm.ib42.JUMP_MYPAGE";
     public static final String ACTION_JUMR_OTHER = "com.xm.ib42.JUMP_OTHER";
     public static final String ACTION_FIND = "com.xm.ib42.FIND";
     public static final String ACTION_UPDATE = "com.xm.ib42.UPDATE";

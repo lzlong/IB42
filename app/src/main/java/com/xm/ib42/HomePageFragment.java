@@ -260,7 +260,10 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         final Album album = (Album) parent.getAdapter().getItem(position);
         if (album != null){
-            handler.sendMessage(handler.obtainMessage(1, album));
+            Intent intent = new Intent(aty, AudioListActivity.class);
+            intent.putExtra("album", album);
+            aty.startActivityForResult(intent, 0);
+//            handler.sendMessage(handler.obtainMessage(1, album));
 //            aty.showLoadDialog(true);
 //            new Thread(new Runnable() {
 //                @Override

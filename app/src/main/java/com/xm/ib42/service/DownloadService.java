@@ -114,7 +114,7 @@ public class DownloadService extends Service {
 					mDownloads.get(audio.getId()).getLocalFileName() + "下载完成",
 					Toast.LENGTH_SHORT).show();
 			onDownloadComplete(audio.getId());
-            audioDao.add(audio);
+            audioDao.updateByDownLoadState(audio);
 		}
 		
 		@Override

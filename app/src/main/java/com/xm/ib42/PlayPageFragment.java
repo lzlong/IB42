@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.xm.ib42.app.MyApplication.context;
+import static com.xm.ib42.app.MyApplication.musicPreference;
 
 /**
  * home2
@@ -142,6 +143,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                     .override(100, 100)
                     .into(play_img);
         }
+        ProgeressThread thread = new ProgeressThread();
+        thread.start();
     }
 
     boolean isrunable = true;
@@ -174,13 +177,14 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             super.handleMessage(msg);
             switch (msg.what) {
                 case 20:
-                    try {
-                        int progress = curms * 100 / totalms;
-                        // 设置当前进度
-                        play_bar.setProgress(progress);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        int progress = curms * 100 / totalms;
+//                        // 设置当前进度
+//                        play_bar.setProgress(progress);
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+                    play_bar.setProgress(curms);
                     play_time.setText(Utils.gettim(curms));
                     break;
             }
@@ -208,8 +212,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     @Override
 	public void onClick(View v) {
         if (v == play_down){
-            if (Constants.playAlbum == null
-                    ||aty.mediaPlayerManager.getAudio() == null){
+            if (Constants.playAlbum == null){
                 return;
             }
             if(!Common.getNetIsAvailable(aty)){
@@ -226,12 +229,12 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
 //                return;
 //            }
             //判断是否已经下载过
-            if(aty.audioDao.isDownFinish(aty.mediaPlayerManager.getAudio().getId())){
+            if(aty.audioDao.isDownFinish(Constants.playAlbum.getAudioId())){
                 Utils.showToast(aty, "此歌曲已经在下载过了");
                 return;
             }
             //添加到下载列表中
-            aty.downLoadManager.add(aty.mediaPlayerManager.getAudio());
+            aty.downLoadManager.add(aty.audioDao.searchById(Constants.playAlbum.getAudioId(), true));
         } else if (v == play_share){
             if (!sharePop.isShowing()){
                 sharePop.showAtLocation(convertView, Gravity.BOTTOM, 0, 0);
@@ -242,71 +245,89 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
-            if (aty.mediaPlayerManager.getPlayerMode() == MediaPlayerManager.MODE_CIRCLELIST){
-                aty.mediaPlayerManager.setPlayerMode(MediaPlayerManager.MODE_CIRCLEONE);
+            broadcastIntent = new Intent();
+            aty.nowplaymode++;
+            if (aty.nowplaymode == 1) {
                 play_model.setImageResource(R.mipmap.danquxh);
             } else {
-                aty.mediaPlayerManager.setPlayerMode(MediaPlayerManager.MODE_CIRCLELIST);
+                aty.nowplaymode = 0;
                 play_model.setImageResource(R.mipmap.shuanxubf);
             }
+            musicPreference.savaPlayMode(context, aty.nowplaymode);
+            broadcastIntent.setAction(Constants.ACTION_SET_PLAYMODE);
+            broadcastIntent.putExtra("play_mode", aty.nowplaymode);
+            aty.sendBroadcast(broadcastIntent);
+
         } else if (v == play_up){
             if (Constants.playList == null
                     ||Constants.playList.size() <= 0){
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
+
+            if (audio != null){
+                audio.setCurrDurationTime(MyApplication.mediaPlayer.getCurrentPosition());
+                aty.audioDao.updateByDuration(audio.getId(), audio.getCurrDurationTime());
+                for (int i = 0; i < Constants.playList.size(); i++) {
+                    if (audio.getId() == Constants.playList.get(i).getId()){
+                        Constants.playList.get(i).setCurrDurationTime(audio.getCurrDurationTime());
+                        break;
+                    }
+                }
+            }
+
+            broadcastIntent = new Intent();
             aty.showLoadDialog(true);
             play.setImageResource(R.mipmap.bof);
             isplaying = true;
             broadcastIntent.setAction(Constants.ACTION_PREVIOUS);
             context.sendBroadcast(broadcastIntent);
-//            aty.mediaPlayerManager.previousPlayer();
         } else if (v == play){
             if (Constants.playList == null
                     ||Constants.playList.size() <= 0){
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
-
+            broadcastIntent = new Intent();
             if (!isplaying) {
-                play.setImageResource(R.mipmap.bof);
-                if (aty.position > 0) {// 如果大于0说明我们记忆了上次退出时候的歌曲
-                    broadcastIntent.setAction(Constants.ACTION_JUMR);
-                    broadcastIntent.putExtra("position", aty.position);
-                } else {
-                    broadcastIntent.setAction(Constants.ACTION_PLAY);
-                }
+//                if (aty.position > 0) {// 如果大于0说明我们记忆了上次退出时候的歌曲
+//                    broadcastIntent.setAction(Constants.ACTION_JUMR);
+//                    broadcastIntent.putExtra("position", aty.position);
+//                } else {
+//                }
+                broadcastIntent.setAction(Constants.ACTION_PLAY);
                 context.sendBroadcast(broadcastIntent);
                 isplaying = true;
+                play.setImageResource(R.mipmap.zangt);
             } else {
                 broadcastIntent.setAction(Constants.ACTION_PAUSE);
                 aty.sendBroadcast(broadcastIntent);
                 isplaying = false;
-                play.setImageResource(R.mipmap.zangt);
+                play.setImageResource(R.mipmap.bof);
             }
-
-
-//
-//            aty.mediaPlayerManager.pauseOrPlayer();
-//            if (aty.mediaPlayerManager.getPlayerState() == STATE_PLAYER){
-//                play.setImageResource(R.mipmap.zangt);
-//            } else {
-//                play.setImageResource(R.mipmap.bof);
-//            }
         } else if (v == play_next){
             if (Constants.playList == null
                     ||Constants.playList.size() <= 0){
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
+            if (audio != null){
+                audio.setCurrDurationTime(MyApplication.mediaPlayer.getCurrentPosition());
+                aty.audioDao.updateByDuration(audio.getId(), audio.getCurrDurationTime());
+                for (int i = 0; i < Constants.playList.size(); i++) {
+                    if (audio.getId() == Constants.playList.get(i).getId()){
+                        Constants.playList.get(i).setCurrDurationTime(audio.getCurrDurationTime());
+                        break;
+                    }
+                }
+            }
+            broadcastIntent = new Intent();
             aty.showLoadDialog(true);
-
-            play.setImageResource(R.mipmap.bof);
+            play.setImageResource(R.mipmap.zangt);
             isplaying = true;
             broadcastIntent.setAction(Constants.ACTION_NEXT);
             context.sendBroadcast(broadcastIntent);
 
-//            aty.mediaPlayerManager.nextPlayer();
         } else if (v == play_list){
             if (Constants.playList != null){
                 if (playListAdapter == null){
@@ -315,15 +336,15 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 } else {
                     playListAdapter.notifyDataSetChanged();
                 }
-                Audio audio = aty.mediaPlayerManager.getAudio();
-                if (audio != null){
-                    playListAdapter.setPlayId(audio.getId());
-                    for (int i = 0; i < Constants.playList.size(); i++) {
-                        if (audio.getId() == Constants.playList.get(i).getId()){
-                            home_search_lv.getRefreshableView().setSelection(i);
-                        }
-                    }
-                }
+//                Audio audio = null;
+//                if (audio != null){
+//                    playListAdapter.setPlayId(audio.getId());
+//                    for (int i = 0; i < Constants.playList.size(); i++) {
+//                        if (audio.getId() == Constants.playList.get(i).getId()){
+//                            home_search_lv.getRefreshableView().setSelection(i);
+//                        }
+//                    }
+//                }
                 if (!playPop.isShowing()){
                     playPop.showAtLocation(convertView, Gravity.BOTTOM, 0, 0);
                 }
@@ -383,49 +404,46 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
 
         public void onStopTrackingTouch(SeekBar seekBar) {
-            if (seekBar.getId() == R.id.play_bar) {
-                isSeekDrag = false;
-                aty.mediaPlayerManager.seekTo(seekBar.getProgress());
-            }
         }
 
         public void onStartTrackingTouch(SeekBar seekBar) {
-            if (seekBar.getId() == R.id.play_bar) {
-                isSeekDrag = true;
-                play_time.setText(Common.formatSecondTime(seekBar.getProgress()));
-            }
         }
 
         public void onProgressChanged(SeekBar seekBar, int progress,
                                       boolean fromUser) {
-            if (seekBar.getId() == R.id.play_bar) {
-                if (isSeekDrag) {
-                    play_time.setText(Common.formatSecondTime(progress));
-                }
+            if (fromUser == true && Math.abs(progress - curms) >= 5) {
+                curms = progress;
+                broadcastIntent = new Intent(Constants.ACTION_SEEK);
+                broadcastIntent.putExtra("seekcurr", progress);// 讲拖动的进度传进Service
+                aty.sendBroadcast(broadcastIntent);
+                play_bar.setProgress(progress);
             }
-
-            if (mSetting.getBooleanValue(Constants.TryListener)){
-                int millions = progress / 1000;
-                if (millions>10){
-                    aty.mediaPlayerManager.nextPlayer();
-                }
-            }
-            currentTime = progress;
         }
     };
 
-    private MediaPlayerBroadcastReceiver mediaPlayerBroadcastReceiver;
+    private MusicinfoRec mMusicinfoRec;
     @Override
     public void onStart() {
         super.onStart();
-        mediaPlayerBroadcastReceiver=new MediaPlayerBroadcastReceiver();
-        aty.registerReceiver(mediaPlayerBroadcastReceiver, new IntentFilter(MediaPlayerManager.BROADCASTRECEVIER_ACTON));
+        mMusicinfoRec=new MusicinfoRec();
+        IntentFilter filter = new IntentFilter(MediaPlayerManager.BROADCASTRECEVIER_ACTON);
+        filter.addAction(Constants.ACTION_UPDATE);
+        filter.addAction(Constants.ACTION_UPDATE_LRC);
+        aty.registerReceiver(mMusicinfoRec, filter);
+
+        aty.sendBroadcast(new Intent(Constants.ACTION_UPDATE_ALL));
+        aty.nowplaymode = musicPreference.getPlayMode(context);
+        if (aty.nowplaymode == 0) {// 0 顺序播放 1 单曲循环
+            play_model.setImageResource(R.mipmap.shuanxubf);
+        } else if (aty.nowplaymode == 1) {
+            play_model.setImageResource(R.mipmap.danquxh);
+        }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        aty.unregisterReceiver(mediaPlayerBroadcastReceiver);
+        aty.unregisterReceiver(mMusicinfoRec);
     }
     private boolean isSeekDrag = false;//进度是否在拖动
 
@@ -439,7 +457,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             home_search_lv.getRefreshableView().setSelection(position);
 //            aty.mediaPlayerManager.player(Constants.playAlbum.getId());
             Intent intent = new Intent(Constants.ACTION_JUMR);
-            intent.putExtra("position", position);
+            intent.putExtra("position", position-1);
             context.sendBroadcast(intent);
             playPop.dismiss();
         }
@@ -484,84 +502,39 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     /**
      * 播放器-广播接收器
      * */
-    private class MediaPlayerBroadcastReceiver extends BroadcastReceiver {
-        private Bitmap mCachedArtwork;
-        private Bitmap mDefaultArtWork;
+    private Audio audio;
+
+    private class MusicinfoRec extends BroadcastReceiver {
+
         @Override
         public void onReceive(Context context, Intent intent) {
-            aty.showLoadDialog(false);
-            int flag=intent.getIntExtra("flag", -1);
-            int lAlbum_id = intent.getIntExtra("album_id", -1);
-
-            mDefaultArtWork = BitmapFactory.decodeResource(aty.getResources(), R.mipmap.kaiping2);
-            if (lAlbum_id == -1){
-                mCachedArtwork = mDefaultArtWork;
-            }else {
-//                mCachedArtwork = MusicUtils.getCachedArtwork(mContext, lAlbum_id, mDefaultArtWork);
-            }
-
-            if(flag==MediaPlayerManager.FLAG_CHANGED){
-                if (!isSeekDrag) {
-                    int currentPosition = intent.getIntExtra("currentPosition", 0);
-                    int duration = intent.getIntExtra("duration", 0);
-                    play_time.setText(Common.formatSecondTime(currentPosition));
-                    play_alltime.setText(Common.formatSecondTime(duration));
-                    play_bar.setProgress(currentPosition);
-                    //progress change
-                    currentTime = currentPosition;
-                    play_bar.setMax(duration);
-
-                    aty.duration = duration;
-                    aty.currentDuration = currentPosition;
+            if (intent.getAction().equals(Constants.ACTION_UPDATE)) {
+                aty.showLoadDialog(false);
+                aty.position = intent.getIntExtra("position", 0);
+                audio = (Audio) intent.getSerializableExtra("music");
+                if (audio == null)return;
+                if (audio != null && playListAdapter != null){
+                    playListAdapter.setPlayId(audio.getId());
+                    for (int i = 0; i < Constants.playList.size(); i++) {
+                        if (audio.getId() == Constants.playList.get(i).getId()){
+                            home_search_lv.getRefreshableView().setSelection(i);
+                        }
+                    }
                 }
-                int currentPosition=intent.getIntExtra("currentPosition", 0);
-                int duration=intent.getIntExtra("duration", 0);
-                play_time.setText(Common.formatSecondTime(currentPosition));
-                play_alltime.setText(Common.formatSecondTime(duration));
-                play_bar.setProgress(currentPosition);
-                play_bar.setMax(duration);
-                play.setImageResource(R.mipmap.zangt);
-                aty.duration = duration;
-                aty.currentDuration = currentPosition;
-                aty.playName = intent.getStringExtra("audioName");
-                play_name.setText(intent.getStringExtra("audioName"));
-            }else if(flag==MediaPlayerManager.FLAG_PREPARE){
-                String albumPic=intent.getStringExtra("albumPic");
-                int duration=intent.getIntExtra("duration", 0);
-                int currentPosition=intent.getIntExtra("currentPosition", 0);
-                play_time.setText(Common.formatSecondTime(currentPosition));
-                play_alltime.setText(Common.formatSecondTime(duration));
-                play_bar.setProgress(currentPosition);
-                play_bar.setMax(duration);
-                play_name.setText(intent.getStringExtra("audioName"));
-//                aty.showLoadDialog(true);
-            }else if(flag==MediaPlayerManager.FLAG_INIT){//初始化播放信息
-//                int duration=intent.getIntExtra("duration", 0);
-//                int currentPosition=intent.getIntExtra("currentPosition", 0);
-//                play_time.setText(Common.formatSecondTime(currentPosition));
-//                play_alltime.setText(Common.formatSecondTime(duration));
-//                play_bar.setProgress(currentPosition);
-//                play_bar.setMax(duration);
-//                play_name.setText(intent.getStringExtra("audioName"));
-//                int playerState=intent.getIntExtra("playerState", 0);
-//                if(playerState== STATE_PLAYER||playerState==MediaPlayerManager.STATE_PREPARE
-//                        ||playerState==MediaPlayerManager.STATE_OVER){//播放
-//                    aty.showLoadDialog(false);
-//                }else{
-//                    aty.showLoadDialog(true);
-//                }
-
-            }else if(flag==MediaPlayerManager.FLAG_LIST){
-                //自动切歌播放，更新前台歌曲列表
-                //modi 发送更新歌词界面消息
-            }else if(flag==MediaPlayerManager.FLAG_BUFFERING){
-//                aty.showLoadDialog(true);
-//                play_time.setText("00:00");
-//                play_alltime.setText("00:00");
-//                play_bar.setProgress(0);
-//                play_bar.setMax(100);
+                totalms = intent.getIntExtra("totalms", 288888);// 总时长
+                play_bar.setMax(totalms);
+                play_alltime.setText(Utils.gettim(totalms));
+                play_name.setText(audio.getTitle());
+                if (MyApplication.mediaPlayer.isPlaying()) {
+                    play.setImageResource(R.mipmap.zangt);
+                    isplaying = true;
+                } else {
+                    isplaying = false;
+                    play.setImageResource(R.mipmap.bof);
+                }
             }
         }
     }
+
 
 }

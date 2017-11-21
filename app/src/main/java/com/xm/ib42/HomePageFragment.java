@@ -194,17 +194,6 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                         adapter.notifyDataSetChanged();
                     }
                 }
-            } else if (msg.what == 1){
-                Constants.playAlbum = ((Album) msg.obj);
-                if (aty.albumDao.isExist(Constants.playAlbum.getTitle()) == -1){
-                    aty.albumDao.add((Album) msg.obj);
-                } else {
-                    Constants.playAlbum = aty.albumDao.searchById(Constants.playAlbum.getId());
-                }
-//                aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
-                aty.mediaPlayerManager.player(((Album) msg.obj).getId());
-                aty.changePlay();
-                aty.showLoadDialog(false);
             } else if (msg.what == 2){
                 aty.showLoadDialog(false);
                 List<Album> list = (List<Album>) msg.obj;

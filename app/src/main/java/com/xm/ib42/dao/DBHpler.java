@@ -22,6 +22,7 @@ public class DBHpler extends SQLiteOpenHelper {
 				+ DBData.ALBUM_NAME + " NVARCHAR(100),"
 				+ DBData.ALBUM_AUDIO_ID + " INTEGER,"
 				+ DBData.ALBUM_TIME + " INTEGER,"
+				+ DBData.ALBUM_ISDELETE + " INTEGER,"
 				+ DBData.ALBUM_AUDIO_NAME + " NVARCHAR(300),"
 				+ DBData.ALBUM_IMAGEURL + " NVARCHAR(300))");
 		// 创建歌曲表

@@ -54,6 +54,12 @@ public class AlbumDao {
 			album.setImageUrl(cr.getString(cr.getColumnIndex(DBData.ALBUM_IMAGEURL)));
 			album.setAudioId(cr.getInt(cr.getColumnIndex(DBData.ALBUM_AUDIO_ID)));
 			album.setAudioName(cr.getString(cr.getColumnIndex(DBData.ALBUM_AUDIO_NAME)));
+			int d = cr.getInt(cr.getColumnIndex(DBData.ALBUM_ISDELETE));
+			if (d == 0){
+				album.setDelete(false);
+			} else {
+				album.setDelete(true);
+			}
             return album;
 		}
 		cr.close();
@@ -103,8 +109,11 @@ public class AlbumDao {
 		ContentValues values=new ContentValues();
 		values.put(DBData.ALBUM_ID, album.getId());
 		values.put(DBData.ALBUM_NAME, album.getTitle());
+		values.put(DBData.ALBUM_AUDIO_ID, album.getAudioId());
+		values.put(DBData.ALBUM_AUDIO_NAME, album.getAudioName());
 		values.put(DBData.ALBUM_IMAGEURL, album.getImageUrl());
 		values.put(DBData.ALBUM_TIME, System.currentTimeMillis());
+		values.put(DBData.ALBUM_ISDELETE, 0);
 		long rs=db.insert(DBData.ALBUM_TABLENAME, DBData.ALBUM_NAME, values);
 		db.close();
 		return rs;
@@ -115,7 +124,9 @@ public class AlbumDao {
 	 * */
 	public int delete(int id){
 		SQLiteDatabase db=dbHpler.getWritableDatabase();
-		int rs=db.delete(DBData.ALBUM_TABLENAME, DBData.ALBUM_ID+"=?",new String[]{String.valueOf(id)});
+		ContentValues values=new ContentValues();
+		values.put(DBData.ALBUM_ISDELETE, 1);
+		int rs=db.update(DBData.ALBUM_TABLENAME, values, DBData.ALBUM_ID+"=?",new String[]{String.valueOf(id)});
 		db.close();
 		return rs;
 	}
@@ -132,6 +143,7 @@ public class AlbumDao {
 		values.put(DBData.ALBUM_AUDIO_NAME, album.getAudioName());
 		values.put(DBData.ALBUM_IMAGEURL, album.getImageUrl());
 		values.put(DBData.ALBUM_TIME, System.currentTimeMillis());
+		values.put(DBData.ALBUM_ISDELETE, 0);
 		int rs=db.update(DBData.ALBUM_TABLENAME, values, DBData.ALBUM_ID+"=?", new String[]{String.valueOf(album.getId())});
 		db.close();
 		return rs;

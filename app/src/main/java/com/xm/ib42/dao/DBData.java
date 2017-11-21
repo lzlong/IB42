@@ -32,6 +32,7 @@ public class DBData {
 	public static final String ALBUM_TIME="playDate";
 	public static final String ALBUM_AUDIO_ID="audioId";
 	public static final String ALBUM_AUDIO_NAME="audioName";
+	public static final String ALBUM_ISDELETE="isDelete";
 
 	//下载信息字段
 	public static final String DOWNLOADINFO_TABLENAME="downLoadInfo";

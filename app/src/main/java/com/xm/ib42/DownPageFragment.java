@@ -159,21 +159,6 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
             aty.startActivityForResult(intent, 0);
         }
 
-
-
-//        Constants.playAlbum = (Album) parent.getAdapter().getItem(position);
-//        if (Constants.playAlbum != null){
-//            aty.showLoadDialog(true);
-//            Constants.playList.addAll(audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
-//			if (Constants.playList != null){
-//                aty.mediaPlayerManager.setPlayerFlag(MediaPlayerManager.PLAYERFLAG_WEB);
-////				aty.mediaPlayerManager.setPlayerList(Constants.audioList);
-//                aty.mediaPlayerManager.player(Constants.playAlbum.getId());
-//                aty.showLoadDialog(false);
-//                aty.changePlay();
-//			}
-//        }
-
     }
 
     private Album deleteAlbum;

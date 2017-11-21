@@ -3,7 +3,6 @@ package com.xm.ib42;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -21,6 +20,7 @@ import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Album;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -70,6 +70,7 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
         deletePop.setContentView(view);
         deletePop.setFocusable(true);
 
+        albumList = new ArrayList<>();
 
         audioDao = new AudioDao(aty);
         albumDao = new AlbumDao(aty);
@@ -83,7 +84,13 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
     }
 
     private void getData() {
-        albumList = albumDao.searchAll();
+        albumList.clear();
+        List<Album> list = albumDao.searchAll();
+        for (int i = 0; i < list.size(); i++) {
+            if (!list.get(i).isDelete()){
+                albumList.add(list.get(i));
+            }
+        }
         if (albumList != null){
 			if (adapter == null){
 				adapter = new MyAdapter(aty, albumList);
@@ -103,6 +110,7 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
             if (deleteAlbum != null){
                 //
                 audioDao.deleteByAlbum(deleteAlbum.getId());
+                getData();
             }
         } else if (v == delete_cancel){
             if (deletePop.isShowing()){
@@ -133,12 +141,12 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
-        deleteAlbum = (Album) adapterView.getAdapter().getItem(position);
-        if (deleteAlbum != null){
-            if (!deletePop.isShowing()){
-                deletePop.showAtLocation(convertView, Gravity.CENTER, 0, 0);
-            }
-        }
+//        deleteAlbum = (Album) adapterView.getAdapter().getItem(position);
+//        if (deleteAlbum != null){
+//            if (!deletePop.isShowing()){
+//                deletePop.showAtLocation(convertView, Gravity.CENTER, 0, 0);
+//            }
+//        }
         return false;
     }
 }

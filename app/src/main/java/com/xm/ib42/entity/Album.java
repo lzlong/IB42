@@ -17,6 +17,7 @@ public class Album implements Serializable{
     private String audioName;
     private List<Audio> audioList;
     private int audioNum;
+    private boolean isDelete;
 
     public int getId() {
         return id;
@@ -88,5 +89,13 @@ public class Album implements Serializable{
 
     public void setAudioNum(int audioNum) {
         this.audioNum = audioNum;
+    }
+
+    public boolean isDelete() {
+        return isDelete;
+    }
+
+    public void setDelete(boolean delete) {
+        isDelete = delete;
     }
 }

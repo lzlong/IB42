@@ -26,14 +26,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="名字"
-            android:textColor="@color/color_FFFFFFFF"/>
+            android:textColor="@color/color_FF000000"/>
 
         <TextView
             android:id="@+id/down_item_name2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="13sp"
-            android:textColor="@color/color_99F6FBE9"
+            android:textColor="@color/color_FF000000"
             />
 
     </LinearLayout>

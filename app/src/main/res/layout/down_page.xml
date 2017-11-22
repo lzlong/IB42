@@ -15,7 +15,9 @@
         android:layout_height="wrap_content"
         android:background="@color/color_F0434343"
         android:layout_below="@id/title"
-        android:visibility="gone">
+        android:backgroundTint="@color/color_FFFFFFFF"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp">
 
         <TextView
             android:layout_width="match_parent"
@@ -23,7 +25,7 @@
             android:text="下载列表"
             android:textSize="20sp"
             android:padding="10dp"
-            android:textColor="@color/color_FFFFFFFF"
+            android:textColor="@color/color_FF000000"
             />
 
         <ImageView
@@ -40,5 +42,6 @@
         android:layout_height="match_parent"
         android:scrollbars="none"
         android:layout_below="@id/down_con_layout"
-        android:footerDividersEnabled="false"/>
+        android:footerDividersEnabled="false"
+        android:background="@color/color_FFFFFFFF"/>
 </RelativeLayout>

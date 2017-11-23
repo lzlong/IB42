@@ -2,51 +2,68 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/color_FFFFFFFF"
+    android:background="@color/color_FFE8F2C9"
     >
 
-    <ImageView
-        android:id="@+id/home_page_item_img"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:padding="5dp"
-        android:src="@mipmap/kaiping02"/>
+    <RelativeLayout
+        android:id="@+id/albumLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/home_page_item_img"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:padding="5dp"
+            android:src="@mipmap/kaiping02"/>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/home_page_item_img"
-        android:orientation="vertical"
-        android:layout_centerVertical="true"
-        android:gravity="center_vertical">
-        <TextView
-            android:id="@+id/home_album_title"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:textSize="16sp"
-            android:textColor="@color/color_FF000000"
-            android:text="测试文字"
-            android:minLines="1"
-            android:maxLines="2"/>
-        <TextView
-            android:id="@+id/home_audio_num"
+            android:layout_toRightOf="@id/home_page_item_img"
+            android:orientation="vertical"
+            android:layout_centerVertical="true"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/home_album_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:textColor="@color/color_FF000000"
+                android:text="测试文字"
+                android:minLines="1"
+                android:maxLines="2"/>
+            <TextView
+                android:id="@+id/home_audio_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:textSize="16sp"
+                android:textColor="@color/color_FF000000"
+                android:text="测试文字"
+                android:minLines="1"
+                android:maxLines="2"/>
+        </LinearLayout>
+
+        <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
             android:padding="5dp"
-            android:textSize="16sp"
-            android:textColor="@color/color_FF000000"
-            android:text="测试文字"
-            android:minLines="1"
-            android:maxLines="2"/>
-    </LinearLayout>
+            android:src="@mipmap/home_a"
+            android:layout_alignParentRight="true"/>
+    </RelativeLayout>
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:padding="5dp"
-        android:src="@mipmap/home_a"
-        android:layout_alignParentRight="true"/>
+    <RelativeLayout
+        android:id="@+id/moreLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/moreTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="加载更多"/>
+    </RelativeLayout>
 
 </RelativeLayout>

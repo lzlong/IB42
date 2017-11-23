@@ -1,26 +1,19 @@
 package com.xm.ib42.adapter;
 
 import android.content.Context;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.xm.ib42.R;
-import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Column;
-import com.xm.ib42.util.HttpHelper;
-import com.xm.ib42.util.Utils;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.message.BasicNameValuePair;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.xm.ib42.R.id.home_page_item_img;
@@ -33,32 +26,17 @@ public class HomeAdapter extends BaseExpandableListAdapter {
 
     private Context mContext;
     private List<Column> data;
-    private Handler handler;
+    private boolean isAdd;
 
-    public HomeAdapter(Context context, List<Column> list, Handler handler) {
+    public HomeAdapter(Context context, List<Column> list) {
         this.mContext = context;
         this.data = list;
-        this.handler = handler;
     }
 
-//    @Override
-//    public BaseArrayListAdapter.ViewHolder getViewHolder(View convertView, ViewGroup parent, int position) {
-//        BaseArrayListAdapter.ViewHolder mViewHolder = null;
-//        Album album = (Album) this.data.get(position);
-//        mViewHolder = BaseArrayListAdapter.ViewHolder.get(mContext, convertView, parent, R.layout.home_page_item);
-//        ImageView home_page_item_img = mViewHolder.findViewById(R.id.home_page_item_img);
-//        TextView home_page_item_tv = mViewHolder.findViewById(R.id.home_page_item_tv);
-//        home_page_item_tv.setText(album.getTitle());
-//        if (album.getImageUrl() != null){
-//            Glide.with(mContext)
-//                    .load(album.getImageUrl())
-//                    .placeholder(R.mipmap.kaiping2)
-//                    .error(R.mipmap.kaiping2)
-//                    .override(100, 100)
-//                    .into(home_page_item_img);
-//        }
-//        return mViewHolder;
-//    }
+    public void setAdd(boolean add) {
+        this.isAdd = add;
+        notifyDataSetChanged();
+    }
 
     @Override
     public int getGroupCount() {
@@ -73,7 +51,7 @@ public class HomeAdapter extends BaseExpandableListAdapter {
         if (data != null
                 && data.get(i) != null
                 && data.get(i).getAlbumList() != null){
-            return data.get(i).getAlbumList().size();
+            return data.get(i).getAlbumList().size()+1;
         }
         return 0;
     }
@@ -125,27 +103,6 @@ public class HomeAdapter extends BaseExpandableListAdapter {
         }
         final Column column = data.get(i);
         groupHolder.home_column_title.setText(column.getTitle()+"("+column.getAlbumList().size()+")");
-        groupHolder.home_column_more.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                column.setPage(column.getPage()+1);
-                HttpHelper httpHelper = new HttpHelper();
-                httpHelper.connect();
-                List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
-                list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
-                list.add(new BasicNameValuePair(Constants.VALUES[2], column.getPage()+""));
-                list.add(new BasicNameValuePair(Constants.VALUES[4], column.getId()+""));
-                list.add(new BasicNameValuePair(Constants.VALUES[5], "3"));
-                HttpResponse albumResponse = httpHelper.doGet(Constants.HTTPURL, list);
-                List<Album> l = Utils.pressAlbumJson(Utils.parseResponse(albumResponse));
-                if (l != null && l.size() > 0){
-                    column.setAlbumList(l);
-                    notifyDataSetChanged();
-                } else {
-                    column.setPage(column.getPage()+1);
-                }
-            }
-        });
         return view;
     }
 
@@ -158,21 +115,36 @@ public class HomeAdapter extends BaseExpandableListAdapter {
             holder.home_page_item_img = (ImageView) view.findViewById(home_page_item_img);
             holder.home_album_title = (TextView) view.findViewById(R.id.home_album_title);
             holder.home_audio_num = (TextView) view.findViewById(R.id.home_audio_num);
+            holder.albumLayout = (RelativeLayout) view.findViewById(R.id.albumLayout);
+            holder.moreLayout = (RelativeLayout) view.findViewById(R.id.moreLayout);
+            holder.moreTv = (TextView) view.findViewById(R.id.moreTv);
             view.setTag(holder);
         } else {
             holder = (ChildHolder) view.getTag();
         }
-        Album album = data.get(i).getAlbumList().get(i1);
-        if (album.getImageUrl() != null){
-            Glide.with(mContext)
-                    .load(album.getImageUrl())
-                    .placeholder(R.mipmap.kaiping2)
-                    .error(R.mipmap.kaiping2)
-                    .override(100, 100)
-                    .into(holder.home_page_item_img);
+        if (i1 == data.get(i).getAlbumList().size()){
+            holder.albumLayout.setVisibility(View.GONE);
+            holder.moreLayout.setVisibility(View.VISIBLE);
+            if (isAdd){
+                holder.moreTv.setText("正在加载");
+            } else {
+                holder.moreTv.setText("加载更多");
+            }
+        } else {
+            holder.moreLayout.setVisibility(View.GONE);
+            holder.albumLayout.setVisibility(View.VISIBLE);
+            Album album = data.get(i).getAlbumList().get(i1);
+            if (album.getImageUrl() != null){
+                Glide.with(mContext)
+                        .load(album.getImageUrl())
+                        .placeholder(R.mipmap.kaiping2)
+                        .error(R.mipmap.kaiping2)
+                        .override(100, 100)
+                        .into(holder.home_page_item_img);
+            }
+            holder.home_album_title.setText(album.getTitle());
+            holder.home_audio_num.setText(album.getAudioNum()+"");
         }
-        holder.home_album_title.setText(album.getTitle());
-        holder.home_audio_num.setText(album.getAudioNum()+"");
         return view;
     }
 
@@ -190,5 +162,8 @@ public class HomeAdapter extends BaseExpandableListAdapter {
         ImageView home_page_item_img;
         TextView home_album_title;
         TextView home_audio_num;
+        TextView moreTv;
+        RelativeLayout albumLayout;
+        RelativeLayout moreLayout;
     }
 }

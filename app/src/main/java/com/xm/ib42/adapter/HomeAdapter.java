@@ -14,6 +14,7 @@ import com.xm.ib42.R;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Column;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.xm.ib42.R.id.home_page_item_img;
@@ -26,15 +27,25 @@ public class HomeAdapter extends BaseExpandableListAdapter {
 
     private Context mContext;
     private List<Column> data;
-    private boolean isAdd;
+    private List<Boolean> isAdd;
 
     public HomeAdapter(Context context, List<Column> list) {
         this.mContext = context;
         this.data = list;
+        getAdd();
     }
 
-    public void setAdd(boolean add) {
-        this.isAdd = add;
+    public void getAdd(){
+        isAdd = new ArrayList<>();
+        for (int i = 0; i < data.size(); i++) {
+            isAdd.add(false);
+        }
+    }
+
+    public void setAdd(int position) {
+        getAdd();
+        isAdd.remove(position);
+        isAdd.add(position, true);
         notifyDataSetChanged();
     }
 
@@ -59,7 +70,7 @@ public class HomeAdapter extends BaseExpandableListAdapter {
     @Override
     public Object getGroup(int i) {
         if (data != null){
-            data.get(i);
+            return data.get(i);
         }
         return null;
     }
@@ -69,6 +80,7 @@ public class HomeAdapter extends BaseExpandableListAdapter {
         if (data != null
                 && data.get(i) != null
                 && data.get(i).getAlbumList() != null){
+
             return data.get(i).getAlbumList().get(i1);
         }
         return null;
@@ -125,7 +137,7 @@ public class HomeAdapter extends BaseExpandableListAdapter {
         if (i1 == data.get(i).getAlbumList().size()){
             holder.albumLayout.setVisibility(View.GONE);
             holder.moreLayout.setVisibility(View.VISIBLE);
-            if (isAdd){
+            if (isAdd.get(i)){
                 holder.moreTv.setText("正在加载");
             } else {
                 holder.moreTv.setText("加载更多");

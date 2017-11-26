@@ -509,6 +509,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Constants.ACTION_UPDATE)) {
+                aty.isShow = false;
                 aty.showLoadDialog(false);
                 aty.position = intent.getIntExtra("position", 0);
                 audio = (Audio) intent.getSerializableExtra("music");

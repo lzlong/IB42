@@ -99,6 +99,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     int position;
     int nowplaymode;// 当前播放模式
 
+    public boolean isShow = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +116,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         updateVersion();
 
         getService();
+
     }
 
     private void updateVersion() {
@@ -373,6 +375,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         //播放器管理
 
         startService(new Intent(context, MediaPlayerService.class));
+//        startService(new Intent(context, LockService.class));
 
         if (mediaPlayerManager == null){
             mediaPlayerManager=new MediaPlayerManager(this);

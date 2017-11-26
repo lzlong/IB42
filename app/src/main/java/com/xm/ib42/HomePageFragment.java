@@ -124,6 +124,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
             aty.showLoadDialog(true);
             getColumnData();
         }
+        //
         if (aty.setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
             int audioId = Integer.parseInt(aty.setting.getValue(SystemSetting.KEY_PLAYER_AUDIOID));
             if (aty.mediaPlayerManager.getPlayerState() != MediaPlayerManager.STATE_PLAYER){
@@ -211,6 +212,10 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                     } else {
                         searchAdapter.notifyDataSetChanged();
                     }
+                }
+            } else if (msg.what == 3){
+                if (adapter != null){
+                    adapter.notifyDataSetChanged();
                 }
             }
         }
@@ -383,25 +388,35 @@ public class HomePageFragment extends Fragment implements OnClickListener,
 
     @Override
     public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-        Column column = (Column) expandableListView.getExpandableListAdapter().getGroup(i);
-        if (i1 == expandableListView.getExpandableListAdapter().getChildrenCount(i) && column != null){
-            adapter.setAdd(true);
+        final Column column = (Column) expandableListView.getExpandableListAdapter().getGroup(i);
+        if (i1 == expandableListView.getExpandableListAdapter().getChildrenCount(i)-1 && column != null){
+            adapter.setAdd(i);
             column.setPage(column.getPage()+1);
-            HttpHelper httpHelper = new HttpHelper();
-            httpHelper.connect();
-            List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
-            list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
-            list.add(new BasicNameValuePair(Constants.VALUES[2], column.getPage()+""));
-            list.add(new BasicNameValuePair(Constants.VALUES[4], column.getId()+""));
-            list.add(new BasicNameValuePair(Constants.VALUES[5], "3"));
-            HttpResponse albumResponse = httpHelper.doGet(Constants.HTTPURL, list);
-            List<Album> albumList = Utils.pressAlbumJson(Utils.parseResponse(albumResponse));
-            if (albumList != null && albumList.size() > 0){
-                column.setAlbumList(albumList);
-                adapter.notifyDataSetChanged();
-            } else {
-                column.setPage(column.getPage()-1);
-            }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    HttpHelper httpHelper = new HttpHelper();
+                    httpHelper.connect();
+                    List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
+                    list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
+                    list.add(new BasicNameValuePair(Constants.VALUES[2], column.getPage()+""));
+                    list.add(new BasicNameValuePair(Constants.VALUES[4], column.getId()+""));
+                    list.add(new BasicNameValuePair(Constants.VALUES[5], "3"));
+                    HttpResponse albumResponse = httpHelper.doGet(Constants.HTTPURL, list);
+                    List<Album> albumList = column.getAlbumList();
+                    List<Album> albums = Utils.pressAlbumJson(Utils.parseResponse(albumResponse));
+                    if (albums != null && albums.size() > 0){
+                        albumList.addAll(albums);
+                        column.setAlbumList(albumList);
+                        adapter.getAdd();
+                        handler.sendMessage(handler.obtainMessage(3));
+//                        adapter.notifyDataSetChanged();
+                    } else {
+                        column.setPage(column.getPage()-1);
+                    }
+                }
+            }).start();
+
         } else {
             Album album = (Album) expandableListView.getExpandableListAdapter().getChild(i, i1);
             if (album != null) {

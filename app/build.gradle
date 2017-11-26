@@ -50,4 +50,5 @@ dependencies {
     compile project(':Library')
     compile 'com.tencent.bugly:crashreport:latest.release'
     compile 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+'
+    compile 'me.imid.swipebacklayout.lib:library:1.0.0'
 }

@@ -6,7 +6,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -31,13 +30,12 @@ import com.iflytek.cloud.ui.RecognizerDialogListener;
 import com.iflytek.sunflower.FlowerCollector;
 import com.xm.ib42.adapter.HomeAdapter;
 import com.xm.ib42.adapter.HomeSearchAdapter;
+import com.xm.ib42.app.MyApplication;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Column;
-import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.util.HttpHelper;
 import com.xm.ib42.util.JsonParser;
-import com.xm.ib42.util.SystemSetting;
 import com.xm.ib42.util.Utils;
 
 import org.apache.http.HttpResponse;
@@ -125,20 +123,31 @@ public class HomePageFragment extends Fragment implements OnClickListener,
             getColumnData();
         }
         //
-        if (aty.setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
-            int audioId = Integer.parseInt(aty.setting.getValue(SystemSetting.KEY_PLAYER_AUDIOID));
-            if (aty.mediaPlayerManager.getPlayerState() != MediaPlayerManager.STATE_PLAYER){
-                for (int i = 0; i < Constants.playList.size(); i++) {
-                    if (audioId == Constants.playList.get(i).getId()){
-                        home_play_name.setText(Constants.playList.get(i).getTitle());
-                    }
-                }
+        if (!MyApplication.mediaPlayer.isPlaying() && aty.albumId != -1 && aty.isShow){
+            Album album = aty.albumDao.searchById(aty.albumId);
+            if (album != null){
+                home_play.setVisibility(View.VISIBLE);
+                home_play_name.setText(album.getTitle());
             } else {
                 home_play.setVisibility(View.GONE);
             }
         } else {
             home_play.setVisibility(View.GONE);
         }
+//        if (aty.setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
+//            int audioId = Integer.parseInt(aty.setting.getValue(SystemSetting.KEY_PLAYER_AUDIOID));
+//            if (aty.mediaPlayerManager.getPlayerState() != MediaPlayerManager.STATE_PLAYER){
+//                for (int i = 0; i < Constants.playList.size(); i++) {
+//                    if (audioId == Constants.playList.get(i).getId()){
+//                        home_play_name.setText(Constants.playList.get(i).getTitle());
+//                    }
+//                }
+//            } else {
+//                home_play.setVisibility(View.GONE);
+//            }
+//        } else {
+//            home_play.setVisibility(View.GONE);
+//        }
 
         setParam();
     }
@@ -235,11 +244,19 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     @Override
 	public void onClick(View v) {
 		if (v == home_play){
-            Fragment f = new PlayPageFragment();
-            FragmentTransaction fTransaction = getFragmentManager().beginTransaction();
-            fTransaction.replace(R.id.content_container, f, "PlayPageFragment");
-            fTransaction.commit();
-            aty.updateButtonLayout(1);
+//            Fragment f = new PlayPageFragment();
+//            FragmentTransaction fTransaction = getFragmentManager().beginTransaction();
+//            fTransaction.replace(R.id.content_container, f, "PlayPageFragment");
+//            fTransaction.commit();
+//            aty.updateButtonLayout(1);
+            Album album = aty.albumDao.searchById(aty.albumId);
+            Constants.playPage = 0;
+            Constants.playAlbum = album;
+            Constants.playList.clear();
+            Intent intent = new Intent(Constants.ACTION_JUMR_MYPAGE);
+            intent.putExtra("title", album.getAudioName());
+            aty.sendBroadcast(intent);
+            aty.changePlay();
         } else if (v == mkf_button){
             home_search.setText(null);// 清空显示内容
             mIatResults.clear();

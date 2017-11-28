@@ -105,18 +105,22 @@ public class MediaPlayerService extends Service {
 						break;
 					case 3:
 						mPlayer.pause();
-						sendBroadcast(new Intent("com.tarena.ispause"));
+                        if (mPlayer.isPlaying()){
+                            nowPlayAudio.setCurrDurationTime(mediaPlayer.getCurrentPosition());
+                            mAudioDao.updateByDuration(nowPlayAudio.getId(), nowPlayAudio.getCurrDurationTime());
+                        }
+//						sendBroadcast(new Intent("com.tarena.ispause"));
 						status = 2;
 						break;
 				}
 				status = 3;
-				sendBroadcast(new Intent("com.tarena.isplay"));
+//				sendBroadcast(new Intent("com.tarena.isplay"));
 			}
 			// 暂停
 			else if (Constants.ACTION_PAUSE.equals(intent.getAction())) {
 				mPlayer.pause();
 				status = 2;
-				sendBroadcast(new Intent("com.tarena.ispause"));
+//				sendBroadcast(new Intent("com.tarena.ispause"));
 			}
 			// 停止
 			else if (Constants.ACTION_STOP.equals(intent.getAction())) {
@@ -124,7 +128,7 @@ public class MediaPlayerService extends Service {
 				mPlayer.release();
 				//保存播放状态
 //				MyApplication.musicPreference
-//						.savaPlayPosition(mContext, current);
+//						.savePlayPosition(mContext, current);
 				stopSelf();
 			}
 			// 上一首
@@ -260,7 +264,7 @@ public class MediaPlayerService extends Service {
 		// 当前播放的音乐列表
 //		musicList = (ArrayList<Audio>) Constants.playList;
 		// 当前播放音乐的索引
-		current = MyApplication.musicPreference.getsaveposition(this);
+		current = MyApplication.musicPreference.getSavePosition(this);
 
 		mAlbumDao = new AlbumDao(context);
 		mAudioDao = new AudioDao(context);
@@ -334,11 +338,16 @@ public class MediaPlayerService extends Service {
 
 	@Override
 	public void onDestroy() {
-		Log.i("info", sp.getBoolean("isStart", false) + "");
+		Log.i("Tag", "onDestroy==========");
 		// 取消广播注册
 		unregisterReceiver(mReceiver);
 		unregisterReceiver(phoneStatRec);
-		MyApplication.musicPreference.savaPlayPosition(mContext, current);
+        if (mPlayer.isPlaying()){
+            nowPlayAudio.setCurrDurationTime(mediaPlayer.getCurrentPosition());
+            mAudioDao.updateByDuration(nowPlayAudio.getId(), nowPlayAudio.getCurrDurationTime());
+        }
+		MyApplication.musicPreference.savePlayPosition(mContext, current);
+		MyApplication.musicPreference.savePlayAlbum(mContext, Constants.playAlbum);
 		super.onDestroy();
 	}
 
@@ -511,18 +520,23 @@ public class MediaPlayerService extends Service {
 	 */
 	boolean isjump = false;
 
-	private void jump(int position) {
+	private void jump(final int position) {
 		Log.i("test", Constants.playList.size() + "--position" + position);
 		if (mPlayer.isPlaying()){
 			nowPlayAudio.setCurrDurationTime(mediaPlayer.getCurrentPosition());
 			mAudioDao.updateByDuration(nowPlayAudio.getId(), nowPlayAudio.getCurrDurationTime());
 		}
-		if (Constants.playList != null && Constants.playList.size() > 0) {
-			current = position;
-			isjump = true;
-			mode_current = current;
-			play();
-		}
+		new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (Constants.playList != null && Constants.playList.size() > 0) {
+                    current = position;
+                    isjump = true;
+                    mode_current = current;
+                    play();
+                }
+            }
+        }).start();
 	}
 
 

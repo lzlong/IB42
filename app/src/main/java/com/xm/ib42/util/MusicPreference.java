@@ -20,7 +20,7 @@ public class MusicPreference {
 	 * @param context
 	 * @param position
 	 */
-	public void savaPlayPosition(Context context, int position) {
+	public void savePlayPosition(Context context, int position) {
 		sharedPreferences.edit().putInt("position", position).commit();
 	}
 
@@ -30,7 +30,7 @@ public class MusicPreference {
 	 * @param context
 	 * @return
 	 */
-	public int getsaveposition(Context context) {
+	public int getSavePosition(Context context) {
 		return sharedPreferences.getInt("position", 0);
 	}
 
@@ -41,7 +41,7 @@ public class MusicPreference {
 	 * @param playmode
 	 *            0 顺序播放 1 随机播放 2 单曲循环
 	 */
-	public void savaPlayMode(Context context, int playmode) {
+	public void savePlayMode(Context context, int playmode) {
 		sharedPreferences.edit().putInt("playmode", playmode).commit();
 	}
 
@@ -55,8 +55,16 @@ public class MusicPreference {
 		return sharedPreferences.getInt("playmode", 0);
 	}
 
+	/**
+     *保存播放专辑
+	 */
 	public void savePlayAlbum(Context context, Album album){
-		sharedPreferences.edit().putInt("albumId", album.getId());
+		if (album == null)return;
+		sharedPreferences.edit().putInt("albumId", album.getId()).commit();
 	}
+
+	public int getAlbum(Context context){
+        return sharedPreferences.getInt("albumId", -1);
+    }
 
 }

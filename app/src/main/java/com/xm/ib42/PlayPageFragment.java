@@ -253,7 +253,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 aty.nowplaymode = 0;
                 play_model.setImageResource(R.mipmap.shuanxubf);
             }
-            musicPreference.savaPlayMode(context, aty.nowplaymode);
+            musicPreference.savePlayMode(context, aty.nowplaymode);
             broadcastIntent.setAction(Constants.ACTION_SET_PLAYMODE);
             broadcastIntent.putExtra("play_mode", aty.nowplaymode);
             aty.sendBroadcast(broadcastIntent);

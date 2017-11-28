@@ -96,8 +96,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public int currentDuration = 0;// 已经播放时长
     public String playName = "";
     public Tencent mTencent;
-    int position;
-    int nowplaymode;// 当前播放模式
+    public int position;
+    public int albumId;
+    public int nowplaymode;// 当前播放模式
 
     public boolean isShow = true;
 
@@ -191,7 +192,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         content_container = (LinearLayout) findViewById(R.id.content_container);
 
 
-        position = MyApplication.musicPreference.getsaveposition(context);
+        position = MyApplication.musicPreference.getSavePosition(context);
+        albumId = MyApplication.musicPreference.getAlbum(context);
 
         setting = new SystemSetting(this, true);
         if (setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
@@ -446,6 +448,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
 
         //保存播放状态
+        if (!MyApplication.mediaPlayer.isPlaying()){
+            MyApplication.musicPreference.savePlayAlbum(this, Constants.playAlbum);
+        }
 
 
         if (mediaPlayerManager!=null){
@@ -506,17 +511,18 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (requestCode == 0){
             if (resultCode == 0
                     && data != null){
-
+                changePlay();
+                showLoadDialog(true);
                 Intent intent = new Intent(Constants.ACTION_JUMR);
                 intent.putExtra("position", data.getIntExtra("position", position));
                 context.sendBroadcast(intent);
-                changePlay();
             } else if (resultCode == 1
                     && data != null){
+                changePlay();
+                showLoadDialog(true);
                 Intent intent = new Intent(Constants.ACTION_JUMR_MYPAGE);
                 intent.putExtra("title", data.getStringExtra("title"));
                 context.sendBroadcast(intent);
-                changePlay();
             }
         }
     }

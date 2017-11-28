@@ -28,12 +28,6 @@
             android:textColor="@color/color_FF000000"
             />
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:src="@mipmap/home_c"/>
-
     </RelativeLayout>
 
     <ListView
@@ -42,6 +36,5 @@
         android:layout_height="match_parent"
         android:scrollbars="none"
         android:layout_below="@id/down_con_layout"
-        android:footerDividersEnabled="false"
-        android:background="@color/color_FFFFFFFF"/>
+        android:footerDividersEnabled="false"/>
 </RelativeLayout>

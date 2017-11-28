@@ -63,6 +63,8 @@ public class Download implements Serializable {
 	private OnDownloadListener mListener;		// 监听器
 
 	private Audio audio;
+	private DownLoadInfoDao mDownLoadInfoDao;
+	private int downLoadInfoId;
 
 	/**
 	 * 配置下载线程池的大小
@@ -76,6 +78,7 @@ public class Download implements Serializable {
 	 * 添加下载任务
 	 */
 	public Download(Audio audio, DownLoadInfoDao mDownLoadInfoDao) {
+		this.mDownLoadInfoDao = mDownLoadInfoDao;
 		String localfile = Common.getSdCardPath()
 				+ SystemSetting.DOWNLOAD_MUSIC_DIRECTORY;
 		Common.isExistDirectory(localfile);
@@ -104,7 +107,7 @@ public class Download implements Serializable {
 		downLoadInfo.setFilePath(mLocalPath);
 		downLoadInfo.setState(DownLoadManager.STATE_WAIT);// 设置等待下载
 //		 添加到下载任务表
-		int downLoadInfoId = mDownLoadInfoDao.add(downLoadInfo);
+		downLoadInfoId = mDownLoadInfoDao.add(downLoadInfo);
 
 	}
 	
@@ -156,6 +159,7 @@ public class Download implements Serializable {
 							Long.parseLong(msg.obj.toString()));
 					break;
 				case SUCCESS:
+					mDownLoadInfoDao.delete(downLoadInfoId);
 					mListener.onSuccess(audio);
 					break;
 				case START:

@@ -114,7 +114,11 @@ public class HomeAdapter extends BaseExpandableListAdapter {
             groupHolder = (GroupHolder) view.getTag();
         }
         final Column column = data.get(i);
-        groupHolder.home_column_title.setText(column.getTitle()+"("+column.getAlbumList().size()+")");
+        if (column.getAlbumList() != null){
+            groupHolder.home_column_title.setText(column.getTitle()+"("+column.getAlbumList().size()+")");
+        } else {
+            groupHolder.home_column_title.setText(column.getTitle()+"(0)");
+        }
         return view;
     }
 

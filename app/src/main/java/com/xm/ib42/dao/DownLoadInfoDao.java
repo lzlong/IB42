@@ -103,4 +103,21 @@ public class DownLoadInfoDao {
 		db.close();
 		return rs>0;
 	}
+
+	/**
+	 * 获取记录总数
+	 * */
+	public int getCount() {
+		int count = 0;
+		SQLiteDatabase db = dbHpler.getReadableDatabase();
+		Cursor cr = db.rawQuery(
+				"SELECT COUNT(*) FROM " + DBData.DOWNLOADINFO_TABLENAME, null);
+		if (cr.moveToNext()) {
+			count = cr.getInt(0);
+		}
+		cr.close();
+		db.close();
+		return count;
+	}
+
 }

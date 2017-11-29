@@ -140,7 +140,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                     .load(Constants.playAlbum.getImageUrl())
                     .placeholder(R.mipmap.kaiping2)
                     .error(R.mipmap.kaiping2)
-                    .override(100, 100)
+                    .override(400, 400)
                     .into(play_img);
         }
         ProgeressThread thread = new ProgeressThread();

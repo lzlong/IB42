@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.xm.ib42.adapter.DownAdapter;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
+import com.xm.ib42.dao.DownLoadInfoDao;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Audio;
 import com.xm.ib42.util.Utils;
@@ -81,11 +82,13 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
         delete_true.setOnClickListener(this);
         delete_cancel.setOnClickListener(this);
         down_con_layout.setOnClickListener(this);
+        downLoadInfoDao = new DownLoadInfoDao(aty);
         audioDao = new AudioDao(aty);
         albumDao = new AlbumDao(aty);
 		getData();
 	}
 
+	private DownLoadInfoDao downLoadInfoDao;
     private AudioDao audioDao;
     private AlbumDao albumDao;
 	private List<Audio> audioList;
@@ -124,7 +127,18 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
         aty.showLoadDialog(false);
     }
 
-	@Override
+    @Override
+    public void onStart() {
+        super.onStart();
+        int count = downLoadInfoDao.getCount();
+        if (count == 0){
+            ((TextView)down_con_layout.getChildAt(0)).setText("没有正在下载的音频");
+        } else if (count > 0){
+            ((TextView)down_con_layout.getChildAt(0)).setText("正在下载的音频("+count+")");
+        }
+    }
+
+    @Override
 	public void onClick(View v) {
         if (v == delete_true){
             if (deletePop.isShowing()){

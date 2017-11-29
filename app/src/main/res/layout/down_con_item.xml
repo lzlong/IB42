@@ -5,33 +5,6 @@
               android:layout_height="match_parent"
     android:padding="5dp">
 
-    <ImageView
-        android:id="@+id/down_con_img"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@mipmap/kaiping02"/>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_toRightOf="@id/down_con_img">
-        <TextView
-            android:id="@+id/down_con_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/color_FFFFFFFF"/>
-
-        <TextView
-            android:id="@+id/down_con_name2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="13sp"
-            android:textColor="@color/color_99F6FBE9"
-            />
-
-    </LinearLayout>
-
     <ProgressBar
         android:id="@+id/down_pro"
         android:layout_width="50dp"
@@ -45,4 +18,14 @@
         android:layout_alignParentRight="true"
         android:src="@mipmap/bof"/>
 
+    <TextView
+        android:id="@+id/down_con_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_toLeftOf="@id/down_pro"
+        android:layout_margin="5dp"
+        android:textSize="17sp"
+        android:text="测试文字"
+        android:textColor="@color/color_FF000000"/>
 </RelativeLayout>

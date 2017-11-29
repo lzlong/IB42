@@ -17,6 +17,7 @@ public class DownLoadInfo {
 	private int completeSize;//总下载进度
 	private String filePath;//保存文件的路径
 	private String imageUrl;//保存文件的路径
+	private int status;//下载状态
 
 	private int state;// 下载状态
 	private int threadCount;//运行时活动线程的数量

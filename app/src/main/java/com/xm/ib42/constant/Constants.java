@@ -55,7 +55,7 @@ public class Constants {
     public static final String ACTION_DISS_DIALOG = "com.xm.ib42.DISSDIALOG";
     public static final String ACTION_SET_PLAYMODE = "com.xm.ib42.PALY_MODE";
     public static final String ACTION_STAR_THREAD = "com.xm.ib42.STAR_THREA";
-    public static final String ACTION_LRC = "com.xm.ib42.lrc";
-    
+    public static final String ACTION_DOWN_CON = "com.xm.ib42.downPro";
+
     
 }

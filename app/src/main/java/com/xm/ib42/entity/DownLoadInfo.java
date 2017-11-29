@@ -1,9 +1,11 @@
 package com.xm.ib42.entity;
 
+import java.io.Serializable;
+
 /**
  * 线程下载信息
  * */
-public class DownLoadInfo {
+public class DownLoadInfo implements Serializable{
 
 	private int id;// id
 	private String url;// 下载路径
@@ -14,7 +16,7 @@ public class DownLoadInfo {
 	private String displayName;//文件名
 	private String mimeType;//mime
 	private int durationTime;//播放时长
-	private int completeSize;//总下载进度
+	private long completeSize;//总下载进度
 	private String filePath;//保存文件的路径
 	private String imageUrl;//保存文件的路径
 	private int status;//下载状态
@@ -105,11 +107,11 @@ public class DownLoadInfo {
 		this.durationTime = durationTime;
 	}
 
-	public int getCompleteSize() {
+	public long getCompleteSize() {
 		return completeSize;
 	}
 
-	public void setCompleteSize(int completeSize) {
+	public void setCompleteSize(long completeSize) {
 		this.completeSize = completeSize;
 	}
 

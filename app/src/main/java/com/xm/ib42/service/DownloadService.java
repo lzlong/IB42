@@ -66,8 +66,9 @@ public class DownloadService extends Service {
 	}
 
 	public void download(final Audio audio) {
+		if (audio == null)return;;
 		Utils.logD("download"+audio.getNetUrl());
-		Download d = new Download(audio, mDownLoadInfoDao);
+		Download d = new Download(audio, mDownLoadInfoDao, getApplicationContext());
 		d.setOnDownloadListener(mDownloadListener).start(false);
 		mDownloads.put(audio.getId(), d);
 	}

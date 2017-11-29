@@ -52,22 +52,22 @@ public class DownLoadInfoDao {
 	 * 添加
 	 * */
 	public int add(DownLoadInfo downLoadInfo){
-		SQLiteDatabase db=dbHpler.getWritableDatabase();
-		ContentValues values=new ContentValues();
-		values.put(DBData.DOWNLOADINFO_FILESIZE, downLoadInfo.getFileSize());
-		values.put(DBData.DOWNLOADINFO_URL, downLoadInfo.getUrl());
-		values.put(DBData.DOWNLOADINFO_ALBUM, downLoadInfo.getAlbum());
-//		values.put(DBData.DOWNLOADINFO_ARTIST, downLoadInfo.getArtist());
-		values.put(DBData.DOWNLOADINFO_DISPLAYNAME, downLoadInfo.getDisplayName());
-		values.put(DBData.DOWNLOADINFO_DURATIONTIME, downLoadInfo.getDurationTime());
-		values.put(DBData.DOWNLOADINFO_FILEPATH, downLoadInfo.getFilePath());
-		values.put(DBData.DOWNLOADINFO_COMPLETESIZE, 0);
-//		values.put(DBData.DOWNLOADINFO_MIMETYPE, downLoadInfo.getMimeType());
-		values.put(DBData.DOWNLOADINFO_NAME, downLoadInfo.getName());
-		
-		int rs=(int)db.insert(DBData.DOWNLOADINFO_TABLENAME, DBData.DOWNLOADINFO_URL, values);
-		db.close();
-		return rs;
+        SQLiteDatabase db=dbHpler.getWritableDatabase();
+        ContentValues values=new ContentValues();
+        values.put(DBData.DOWNLOADINFO_FILESIZE, downLoadInfo.getFileSize());
+        values.put(DBData.DOWNLOADINFO_URL, downLoadInfo.getUrl());
+        values.put(DBData.DOWNLOADINFO_ALBUM, downLoadInfo.getAlbum());
+        //		values.put(DBData.DOWNLOADINFO_ARTIST, downLoadInfo.getArtist());
+        values.put(DBData.DOWNLOADINFO_DISPLAYNAME, downLoadInfo.getDisplayName());
+        values.put(DBData.DOWNLOADINFO_DURATIONTIME, downLoadInfo.getDurationTime());
+        values.put(DBData.DOWNLOADINFO_FILEPATH, downLoadInfo.getFilePath());
+        values.put(DBData.DOWNLOADINFO_COMPLETESIZE, 0);
+        //		values.put(DBData.DOWNLOADINFO_MIMETYPE, downLoadInfo.getMimeType());
+        values.put(DBData.DOWNLOADINFO_NAME, downLoadInfo.getName());
+        int rs = 0;
+        rs=(int)db.insert(DBData.DOWNLOADINFO_TABLENAME, DBData.DOWNLOADINFO_URL, values);
+        db.close();
+        return rs;
 	}
 	
 	/**
@@ -77,6 +77,26 @@ public class DownLoadInfoDao {
 		SQLiteDatabase db=dbHpler.getWritableDatabase();
 		db.execSQL("UPDATE "+DBData.DOWNLOADINFO_TABLENAME+" SET "+DBData.DOWNLOADINFO_COMPLETESIZE+"=? WHERE "+DBData.DOWNLOADINFO_ID+"=?",new Object[]{completeSize,id});
 		db.close();
+	}
+
+	public int update(DownLoadInfo downLoadInfo){
+		SQLiteDatabase db=dbHpler.getWritableDatabase();
+		ContentValues values=new ContentValues();
+		values.put(DBData.DOWNLOADINFO_FILESIZE, downLoadInfo.getFileSize());
+		values.put(DBData.DOWNLOADINFO_URL, downLoadInfo.getUrl());
+		values.put(DBData.DOWNLOADINFO_ALBUM, downLoadInfo.getAlbum());
+		//		values.put(DBData.DOWNLOADINFO_ARTIST, downLoadInfo.getArtist());
+		values.put(DBData.DOWNLOADINFO_DISPLAYNAME, downLoadInfo.getDisplayName());
+		values.put(DBData.DOWNLOADINFO_DURATIONTIME, downLoadInfo.getDurationTime());
+		values.put(DBData.DOWNLOADINFO_FILEPATH, downLoadInfo.getFilePath());
+		values.put(DBData.DOWNLOADINFO_COMPLETESIZE, 0);
+		//		values.put(DBData.DOWNLOADINFO_MIMETYPE, downLoadInfo.getMimeType());
+		values.put(DBData.DOWNLOADINFO_NAME, downLoadInfo.getName());
+
+		int rs = db.update(DBData.DOWNLOADINFO_TABLENAME, values,
+                DBData.DOWNLOADINFO_ID + "=?", new String[] { String.valueOf(downLoadInfo.getId()) });
+        db.close();
+		return rs;
 	}
 	
 	/**
@@ -119,5 +139,17 @@ public class DownLoadInfoDao {
 		db.close();
 		return count;
 	}
+
+    public int getId(String url){
+        DownLoadInfo downLoadInfo=null;
+        SQLiteDatabase db=dbHpler.getReadableDatabase();
+        Cursor cr=db.rawQuery("SELECT * FROM "+ DBData.DOWNLOADINFO_TABLENAME+" ORDER BY "+DBData.DOWNLOADINFO_ID, null);
+        while(cr.moveToNext()){
+            return cr.getInt(cr.getColumnIndex(DBData.DOWNLOADINFO_ID));
+        }
+        cr.close();
+        db.close();
+        return -1;
+    }
 
 }

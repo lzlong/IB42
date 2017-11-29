@@ -1,9 +1,12 @@
 package com.xm.ib42.util;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 
+import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.DownLoadInfoDao;
 import com.xm.ib42.entity.Audio;
 import com.xm.ib42.entity.DownLoadInfo;
@@ -65,6 +68,8 @@ public class Download implements Serializable {
 	private Audio audio;
 	private DownLoadInfoDao mDownLoadInfoDao;
 	private int downLoadInfoId;
+    private DownLoadInfo mDownLoadInfo;
+    private Context mContext;
 
 	/**
 	 * 配置下载线程池的大小
@@ -77,7 +82,8 @@ public class Download implements Serializable {
 	/**
 	 * 添加下载任务
 	 */
-	public Download(Audio audio, DownLoadInfoDao mDownLoadInfoDao) {
+	public Download(Audio audio, DownLoadInfoDao mDownLoadInfoDao, Context context) {
+        this.mContext = context;
 		this.mDownLoadInfoDao = mDownLoadInfoDao;
 		String localfile = Common.getSdCardPath()
 				+ SystemSetting.DOWNLOAD_MUSIC_DIRECTORY;
@@ -96,18 +102,23 @@ public class Download implements Serializable {
 		mLocalPath = localPath.replaceAll("\"|\\(|\\)", "");
 
 		// 包装成下载任务类
-		DownLoadInfo downLoadInfo = new DownLoadInfo();
-		downLoadInfo.setAlbum(audio.getAlbum().getTitle());
-		downLoadInfo.setCompleteSize(0);
-		downLoadInfo.setDurationTime(audio.getDurationTime());
-		downLoadInfo.setDisplayName(audio.getDisplayName());
-		downLoadInfo.setFileSize(audio.getSize());
-		downLoadInfo.setName(audio.getTitle());
-		downLoadInfo.setUrl(audio.getNetUrl());
-		downLoadInfo.setFilePath(mLocalPath);
-		downLoadInfo.setState(DownLoadManager.STATE_WAIT);// 设置等待下载
+		mDownLoadInfo = new DownLoadInfo();
+		mDownLoadInfo.setAlbum(audio.getAlbum().getTitle());
+		mDownLoadInfo.setCompleteSize(0);
+		mDownLoadInfo.setDurationTime(audio.getDurationTime());
+		mDownLoadInfo.setDisplayName(audio.getDisplayName());
+		mDownLoadInfo.setFileSize(audio.getSize());
+		mDownLoadInfo.setName(audio.getTitle());
+		mDownLoadInfo.setUrl(audio.getNetUrl());
+		mDownLoadInfo.setFilePath(mLocalPath);
+		mDownLoadInfo.setState(DownLoadManager.STATE_WAIT);// 设置等待下载
 //		 添加到下载任务表
-		downLoadInfoId = mDownLoadInfoDao.add(downLoadInfo);
+        if (!mDownLoadInfoDao.isExist(audio.getNetUrl())){
+            downLoadInfoId = mDownLoadInfoDao.add(mDownLoadInfo);
+        } else {
+            downLoadInfoId = mDownLoadInfoDao.getId(audio.getNetUrl());
+        }
+        mDownLoadInfo.setId(downLoadInfoId);
 
 	}
 	
@@ -236,6 +247,7 @@ public class Download implements Serializable {
 			int httpCode = response.getStatusLine().getStatusCode();
 			if (httpCode >= 200 && httpCode <= 300) {
 				InputStream in = response.getEntity().getContent();
+                mDownLoadInfo.setFileSize((int) response.getEntity().getContentLength());
 				byte[] bytes = new byte[1024];
 				int len = -1;
 				while (-1 != (len = in.read(bytes))) {
@@ -268,6 +280,11 @@ public class Download implements Serializable {
 						handler.sendEmptyMessage(CANCEL);
 						return;
 					}
+					mDownLoadInfo.setCompleteSize(downloadedLength);
+                    mDownLoadInfoDao.update(mDownLoadInfo);
+                    Intent intent = new Intent(Constants.ACTION_DOWN_CON);
+                    intent.putExtra("downLoadInfo", mDownLoadInfo);
+                    mContext.sendBroadcast(intent);
 				}
 
 				localFile.close();

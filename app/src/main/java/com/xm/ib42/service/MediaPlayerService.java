@@ -380,9 +380,14 @@ public class MediaPlayerService extends Service {
 				list.add(new BasicNameValuePair(Constants.VALUES[2], String.valueOf(Constants.playPage++)));
 				HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
 				JSONObject json = Utils.parseResponse(httpResponse);
-				Constants.playList.addAll(Utils.pressAudioJson(json, Constants.playAlbum));
-				if (Constants.playList != null || Constants.playList.size() <= 0){
-					mHandler.sendMessage(mHandler.obtainMessage(what, name));
+				List<Audio> l = Utils.pressAudioJson(json, Constants.playAlbum);
+				if (l != null){
+					Constants.playList.addAll(l);
+					if (Constants.playList != null || Constants.playList.size() <= 0){
+						mHandler.sendMessage(mHandler.obtainMessage(what, name));
+					}
+				} else {
+					getData(0, name);
 				}
 			}
 		}).start();

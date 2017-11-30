@@ -110,6 +110,7 @@ public class Download implements Serializable {
 		mDownLoadInfo.setFileSize(audio.getSize());
 		mDownLoadInfo.setName(audio.getTitle());
 		mDownLoadInfo.setUrl(audio.getNetUrl());
+		mDownLoadInfo.setAudioId(audio.getId());
 		mDownLoadInfo.setFilePath(mLocalPath);
 		mDownLoadInfo.setState(DownLoadManager.STATE_WAIT);// 设置等待下载
 //		 添加到下载任务表
@@ -266,6 +267,12 @@ public class Download implements Serializable {
 					if (isPause) {
 						// 发送暂停的消息
 						handler.sendEmptyMessage(PAUSE);
+                        mDownLoadInfo.setState(1);
+                        mDownLoadInfo.setCompleteSize(downloadedLength);
+                        mDownLoadInfoDao.update(mDownLoadInfo);
+                        Intent intent = new Intent(Constants.ACTION_DOWN_CON);
+                        intent.putExtra("downLoadInfo", mDownLoadInfo);
+                        mContext.sendBroadcast(intent);
 						Utils.logD("下载暂停...");
 						break;
 					}
@@ -278,6 +285,10 @@ public class Download implements Serializable {
 						new File(mLocalPath).delete();
 						// 发送取消下载的消息
 						handler.sendEmptyMessage(CANCEL);
+                        mDownLoadInfoDao.delete(mDownLoadInfo.getId());
+                        mDownLoadInfo.setState(2);
+                        Intent intent = new Intent(Constants.ACTION_DOWN_CON);
+                        intent.putExtra("downLoadInfo", mDownLoadInfo);
 						return;
 					}
 					mDownLoadInfo.setCompleteSize(downloadedLength);

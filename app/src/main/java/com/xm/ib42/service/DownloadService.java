@@ -2,7 +2,10 @@ package com.xm.ib42.service;
 
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.MediaScannerConnection;
 import android.os.Binder;
 import android.os.Build;
@@ -11,11 +14,15 @@ import android.os.IBinder;
 import android.util.SparseArray;
 import android.widget.Toast;
 
+import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.dao.DownLoadInfoDao;
 import com.xm.ib42.entity.Audio;
+import com.xm.ib42.entity.DownLoadInfo;
 import com.xm.ib42.util.Download;
 import com.xm.ib42.util.Utils;
+
+import java.util.List;
 
 
 /**
@@ -57,15 +64,41 @@ public class DownloadService extends Service {
 	public IBinder onBind(Intent intent) {
 		return new DownloadBinder();
 	}
-	
+
+	private DownBroadcastReceiver mReceiver;
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
         audioDao = new AudioDao(this);
 		mDownLoadInfoDao = new DownLoadInfoDao(this);
+        mReceiver = new DownBroadcastReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.ACTION_DOWN_PAUSE);
+        filter.addAction(Constants.ACTION_DOWN_DOWN);
+        filter.addAction(Constants.ACTION_DOWN_DELETE);
+        registerReceiver(mReceiver, filter);
+
+        List<DownLoadInfo> list = mDownLoadInfoDao.searchAll();
+        for (int i = 0; i < list.size(); i++) {
+            Audio audio = audioDao.searchById(list.get(i).getAudioId(), true);
+            if (audio != null){
+                Download d = new Download(audio, mDownLoadInfoDao, getApplicationContext());
+                d.setOnDownloadListener(mDownloadListener);
+                mDownloads.put(audio.getId(), d);
+            }
+        }
+
+
 	}
 
-	public void download(final Audio audio) {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
+
+    public void download(final Audio audio) {
 		if (audio == null)return;;
 		Utils.logD("download"+audio.getNetUrl());
 		Download d = new Download(audio, mDownLoadInfoDao, getApplicationContext());
@@ -156,4 +189,31 @@ public class DownloadService extends Service {
 			onDownloadComplete(audio.getId());
 		}
 	};
+
+	private class DownBroadcastReceiver extends BroadcastReceiver{
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			if (intent.getAction().equals(Constants.ACTION_DOWN_PAUSE)){
+                DownLoadInfo downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
+                if (downLoadInfo != null){
+                    Download d = mDownloads.get(downLoadInfo.getAudioId());
+                    d.pause(true);
+                }
+			} else if (intent.getAction().equals(Constants.ACTION_DOWN_DOWN)){
+                DownLoadInfo downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
+                if (downLoadInfo != null){
+                    Download d = mDownloads.get(downLoadInfo.getAudioId());
+                    d.pause(false);
+                }
+			} else if (intent.getAction().equals(Constants.ACTION_DOWN_DELETE)){
+                DownLoadInfo downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
+                if (downLoadInfo != null){
+                    Download d = mDownloads.get(downLoadInfo.getAudioId());
+                    d.cancel();
+                }
+            }
+		}
+	}
+
 }

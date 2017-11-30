@@ -3,7 +3,8 @@
               android:orientation="horizontal"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-    android:padding="5dp">
+    android:padding="5dp"
+    android:background="@color/color_FFFFFFFF">
 
     <com.xm.ib42.util.CircleNumberProgress
         android:id="@+id/down_pro"
@@ -11,12 +12,14 @@
         android:layout_height="50dp"
         android:layout_alignParentRight="true"/>
 
-    <ImageView
+    <TextView
         android:id="@+id/down_con"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_alignParentRight="true"
-        android:src="@mipmap/bof"/>
+        android:layout_centerVertical="true"
+        android:gravity="center"
+        android:text="下载中"/>
 
     <TextView
         android:id="@+id/down_con_name"

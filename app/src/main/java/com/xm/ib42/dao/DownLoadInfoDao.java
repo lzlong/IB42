@@ -4,12 +4,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.xm.ib42.entity.DownLoadInfo;
 import com.xm.ib42.service.DownLoadManager;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 
 public class DownLoadInfoDao {
 	private DBHpler dbHpler;
@@ -37,6 +40,8 @@ public class DownLoadInfoDao {
 			downLoadInfo.setDurationTime(cr.getInt(cr.getColumnIndex(DBData.DOWNLOADINFO_DURATIONTIME)));
 			downLoadInfo.setCompleteSize(cr.getInt(cr.getColumnIndex(DBData.DOWNLOADINFO_COMPLETESIZE)));
 			downLoadInfo.setFilePath(cr.getString(cr.getColumnIndex(DBData.DOWNLOADINFO_FILEPATH)));
+			downLoadInfo.setState(cr.getInt(cr.getColumnIndex(DBData.DOWNLOADINFO_STATUS)));
+			downLoadInfo.setAudioId(cr.getInt(cr.getColumnIndex(DBData.DOWNLOADINFO_AUDIOID)));
 //			downLoadInfo.setMimeType(cr.getString(cr.getColumnIndex(DBData.DOWNLOADINFO_MIMETYPE)));
 			downLoadInfo.setName(cr.getString(cr.getColumnIndex(DBData.DOWNLOADINFO_NAME)));
 			downLoadInfo.setState(DownLoadManager.STATE_PAUSE);
@@ -62,6 +67,8 @@ public class DownLoadInfoDao {
         values.put(DBData.DOWNLOADINFO_DURATIONTIME, downLoadInfo.getDurationTime());
         values.put(DBData.DOWNLOADINFO_FILEPATH, downLoadInfo.getFilePath());
         values.put(DBData.DOWNLOADINFO_COMPLETESIZE, 0);
+        values.put(DBData.DOWNLOADINFO_STATUS, downLoadInfo.getState());
+        values.put(DBData.DOWNLOADINFO_AUDIOID, downLoadInfo.getAudioId());
         //		values.put(DBData.DOWNLOADINFO_MIMETYPE, downLoadInfo.getMimeType());
         values.put(DBData.DOWNLOADINFO_NAME, downLoadInfo.getName());
         int rs = 0;
@@ -80,22 +87,28 @@ public class DownLoadInfoDao {
 	}
 
 	public int update(DownLoadInfo downLoadInfo){
-		SQLiteDatabase db=dbHpler.getWritableDatabase();
 		ContentValues values=new ContentValues();
 		values.put(DBData.DOWNLOADINFO_FILESIZE, downLoadInfo.getFileSize());
-		values.put(DBData.DOWNLOADINFO_URL, downLoadInfo.getUrl());
-		values.put(DBData.DOWNLOADINFO_ALBUM, downLoadInfo.getAlbum());
-		//		values.put(DBData.DOWNLOADINFO_ARTIST, downLoadInfo.getArtist());
-		values.put(DBData.DOWNLOADINFO_DISPLAYNAME, downLoadInfo.getDisplayName());
+//		values.put(DBData.DOWNLOADINFO_URL, downLoadInfo.getUrl());
+//		values.put(DBData.DOWNLOADINFO_ALBUM, downLoadInfo.getAlbum());
+//		values.put(DBData.DOWNLOADINFO_DISPLAYNAME, downLoadInfo.getDisplayName());
 		values.put(DBData.DOWNLOADINFO_DURATIONTIME, downLoadInfo.getDurationTime());
-		values.put(DBData.DOWNLOADINFO_FILEPATH, downLoadInfo.getFilePath());
-		values.put(DBData.DOWNLOADINFO_COMPLETESIZE, 0);
-		//		values.put(DBData.DOWNLOADINFO_MIMETYPE, downLoadInfo.getMimeType());
-		values.put(DBData.DOWNLOADINFO_NAME, downLoadInfo.getName());
+//		values.put(DBData.DOWNLOADINFO_FILEPATH, downLoadInfo.getFilePath());
+		values.put(DBData.DOWNLOADINFO_COMPLETESIZE, downLoadInfo.getCompleteSize());
+//		values.put(DBData.DOWNLOADINFO_NAME, downLoadInfo.getName());
 
-		int rs = db.update(DBData.DOWNLOADINFO_TABLENAME, values,
-                DBData.DOWNLOADINFO_ID + "=?", new String[] { String.valueOf(downLoadInfo.getId()) });
-        db.close();
+        SQLiteDatabase db=dbHpler.getWritableDatabase();
+        int rs = 0;
+        try {
+            rs = db.update(DBData.DOWNLOADINFO_TABLENAME, values,
+                    DBData.DOWNLOADINFO_ID + "=?", new String[] { String.valueOf(downLoadInfo.getId()) });
+        }  catch (Exception e) {
+            Log.d(TAG, "isExist: error");
+        } finally {
+            if (db != null){
+                db.close();
+            }
+        }
 		return rs;
 	}
 	
@@ -104,8 +117,16 @@ public class DownLoadInfoDao {
 	 * */
 	public int delete(int id){
 		SQLiteDatabase db=dbHpler.getWritableDatabase();
-		int rs=db.delete(DBData.DOWNLOADINFO_TABLENAME, DBData.DOWNLOADINFO_ID+"=?", new String[]{String.valueOf(id)});
-		db.close();
+        int rs = 0;
+        try {
+            rs = db.delete(DBData.DOWNLOADINFO_TABLENAME, DBData.DOWNLOADINFO_ID+"=?", new String[]{String.valueOf(id)});
+        }  catch (Exception e) {
+            Log.d(TAG, "isExist: error");
+        } finally {
+            if (db != null){
+                db.close();
+            }
+        }
 		return rs;
 	}
 	
@@ -116,11 +137,20 @@ public class DownLoadInfoDao {
 		int rs=-1;
 		SQLiteDatabase db=dbHpler.getReadableDatabase();
 		Cursor cr=db.rawQuery("SELECT COUNT(*) FROM "+DBData.DOWNLOADINFO_TABLENAME+" WHERE "+DBData.DOWNLOADINFO_URL+"=?", new String[]{url});
-		while(cr.moveToNext()){
-			rs=cr.getInt(0);
+		try {
+			while(cr.moveToNext()){
+				rs=cr.getInt(0);
+			}
+		}  catch (Exception e) {
+			Log.d(TAG, "isExist: error");
+		} finally {
+			if (cr != null) {
+				cr.close();
+			}
+			if (db != null){
+				db.close();
+			}
 		}
-		cr.close();
-		db.close();
 		return rs>0;
 	}
 
@@ -144,11 +174,20 @@ public class DownLoadInfoDao {
         DownLoadInfo downLoadInfo=null;
         SQLiteDatabase db=dbHpler.getReadableDatabase();
         Cursor cr=db.rawQuery("SELECT * FROM "+ DBData.DOWNLOADINFO_TABLENAME+" ORDER BY "+DBData.DOWNLOADINFO_ID, null);
-        while(cr.moveToNext()){
-            return cr.getInt(cr.getColumnIndex(DBData.DOWNLOADINFO_ID));
+        try {
+            while(cr.moveToNext()){
+                return cr.getInt(cr.getColumnIndex(DBData.DOWNLOADINFO_ID));
+            }
+        }  catch (Exception e) {
+            Log.d(TAG, "getId: error");
+        } finally {
+            if (cr != null) {
+                cr.close();
+            }
+            if (db != null){
+                db.close();
+            }
         }
-        cr.close();
-        db.close();
         return -1;
     }
 

@@ -64,10 +64,17 @@ public class DownConActivity extends Activity {
             if (intent.getAction().equals(Constants.ACTION_DOWN_CON)){
                 DownLoadInfo downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
                 if (downLoadInfo != null){
+                    int index = 0;
                     for (int i = 0; i < list.size(); i++) {
                         if (downLoadInfo.getId() == list.get(i).getId()){
                             list.get(i).setCompleteSize(downLoadInfo.getCompleteSize());
+                            list.get(i).setState(downLoadInfo.getState());
+                            index = i;
+                            break;
                         }
+                    }
+                    if (downLoadInfo.getState() == 3){
+                        list.remove(index);
                     }
                     mDownAdapter.notifyDataSetChanged();
                 }

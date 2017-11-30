@@ -56,6 +56,9 @@ public class Constants {
     public static final String ACTION_SET_PLAYMODE = "com.xm.ib42.PALY_MODE";
     public static final String ACTION_STAR_THREAD = "com.xm.ib42.STAR_THREA";
     public static final String ACTION_DOWN_CON = "com.xm.ib42.downPro";
+    public static final String ACTION_DOWN_PAUSE = "com.xm.ib42.pause";
+    public static final String ACTION_DOWN_DOWN = "com.xm.ib42.down";
+    public static final String ACTION_DOWN_DELETE = "com.xm.ib42.delete";
 
     
 }

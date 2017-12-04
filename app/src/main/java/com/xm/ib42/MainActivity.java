@@ -37,13 +37,12 @@ import com.xm.ib42.app.MyApplication;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
+import com.xm.ib42.dao.DownLoadInfoDao;
 import com.xm.ib42.entity.Column;
 import com.xm.ib42.service.DownLoadManager;
-import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.service.MediaPlayerService;
 import com.xm.ib42.util.DialogUtils;
 import com.xm.ib42.util.HttpHelper;
-import com.xm.ib42.util.SystemSetting;
 import com.xm.ib42.util.UpdateUtil;
 import com.xm.ib42.util.Utils;
 import com.xm.ib42.util.VersionUpdateDialog;
@@ -72,17 +71,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private FragmentManager mFM = null;
 
     LinearLayout content_container;
-    public MediaPlayerManager mediaPlayerManager;
     Intent m_Intent;
 
     public AlbumDao albumDao;
     public AudioDao audioDao;
+    public DownLoadInfoDao mDownLoadInfoDao;
 
 //    public List<Album> homeList;
     public List<Column> homeList;
 
     private Dialog loadDialog;
-    public SystemSetting setting;
 
     // 语音听写对象
     public SpeechRecognizer mIat;
@@ -186,6 +184,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         albumDao = new AlbumDao(this);
         audioDao = new AudioDao(this);
+        mDownLoadInfoDao = new DownLoadInfoDao(this);
 
         homeList = new ArrayList<>();
 
@@ -194,13 +193,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         position = MyApplication.musicPreference.getSavePosition(context);
         albumId = MyApplication.musicPreference.getAlbum(context);
-
-        setting = new SystemSetting(this, true);
-        if (setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
-            int albumId = Integer.parseInt(setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID));
-            Constants.playAlbum = albumDao.searchById(albumId);
-//            Constants.playList = audioDao.searchByAlbum(albumId+"");
-        }
 
         api = WXAPIFactory.createWXAPI(getApplicationContext(), Constants.APP_ID);
         api.registerApp(Constants.APP_ID);
@@ -370,7 +362,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     public static DownLoadManager downLoadManager;
-    private DownLoadBroadcastRecevier downLoadBroadcastRecevier;
     private IatBroadcast iatBroadcast;
 
     private void getService(){
@@ -378,19 +369,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         startService(new Intent(context, MediaPlayerService.class));
 //        startService(new Intent(context, LockService.class));
-
-        if (mediaPlayerManager == null){
-            mediaPlayerManager=new MediaPlayerManager(this);
-        }
-        mediaPlayerManager.setConnectionListener(mConnectionListener);
-        mediaPlayerManager.startAndBindService();
-
-        //注册播放器-广播接收器
-        //        mediaPlayerBroadcastReceiver=new MediaPlayerBroadcastReceiver();
-        //        registerReceiver(mediaPlayerBroadcastReceiver, new IntentFilter(MediaPlayerManager.BROADCASTRECEVIER_ACTON));
-        //注册下载任务-广播接收器
-        downLoadBroadcastRecevier=new DownLoadBroadcastRecevier();
-        registerReceiver(downLoadBroadcastRecevier, new IntentFilter(DownLoadManager.BROADCASTRECEVIER_ACTON));
 
         downLoadManager=new DownLoadManager(this);
         downLoadManager.startAndBindService();
@@ -402,37 +380,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     protected void onStart() {
         super.onStart();
-
-    }
-
-
-    private MediaPlayerManager.ServiceConnectionListener mConnectionListener=new MediaPlayerManager.ServiceConnectionListener() {
-        @Override
-        public void onServiceDisconnected() {
-        }
-        @Override
-        public void onServiceConnected() {
-
-        }
-    };
-
-    /**
-     * 下载任务-广播接收器
-     * */
-    private class DownLoadBroadcastRecevier extends BroadcastReceiver{
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            int flag=intent.getIntExtra("flag", -1);
-            if(flag==DownLoadManager.FLAG_CHANGED){
-            }else if(flag==DownLoadManager.FLAG_WAIT){
-            }else if(flag==DownLoadManager.FLAG_COMPLETED){
-            }else if(flag==DownLoadManager.FLAG_FAILED){
-            }else if(flag==DownLoadManager.FLAG_TIMEOUT){
-            }else if(flag==DownLoadManager.FLAG_ERROR){
-            }else if(flag==DownLoadManager.FLAG_COMMON){
-            }
-        }
 
     }
 
@@ -452,14 +399,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             MyApplication.musicPreference.savePlayAlbum(this, Constants.playAlbum);
         }
 
+        unregisterReceiver(iatBroadcast);
 
-        if (mediaPlayerManager!=null){
-//            unregisterReceiver(mediaPlayerBroadcastReceiver);
-            unregisterReceiver(downLoadBroadcastRecevier);
-//            mediaPlayerManager.unbindService();
-            //mediaPlayerManager = null;
-            unregisterReceiver(iatBroadcast);
-        }
     }
 
     public void showLoadDialog(boolean isShow){

@@ -33,7 +33,7 @@ public class DownConAdapter extends BaseArrayListAdapter<DownLoadInfo> {
         mViewHolder = ViewHolder.get(mContext, convertView, parent, R.layout.down_con_item);
         TextView down_con_name = mViewHolder.findViewById(R.id.down_con_name);
         CircleNumberProgress down_pro = mViewHolder.findViewById(R.id.down_pro);
-        TextView down_con = mViewHolder.findViewById(R.id.down_con);
+        final TextView down_con = mViewHolder.findViewById(R.id.down_con);
         down_con_name.setText(downLoadInfo.getName());
 //        down_pro.setMax(downLoadInfo.getFileSize());
         if (downLoadInfo.getFileSize() > 0){
@@ -49,18 +49,21 @@ public class DownConAdapter extends BaseArrayListAdapter<DownLoadInfo> {
             public void onClick(View view) {
                 switch (downLoadInfo.getState()){
                     case 0:
+                        down_con.setText("暂停");
                         downLoadInfo.setState(1);
                         Intent intent = new Intent(Constants.ACTION_DOWN_PAUSE);
                         intent.putExtra("downLoadInfo", downLoadInfo);
                         mContext.sendBroadcast(intent);
                         break;
                     case 1:
+                        down_con.setText("下载中");
                         downLoadInfo.setState(0);
                         Intent intent2 = new Intent(Constants.ACTION_DOWN_DOWN);
                         intent2.putExtra("downLoadInfo", downLoadInfo);
                         mContext.sendBroadcast(intent2);
                         break;
                 }
+                notifyDataSetChanged();
             }
         });
         return mViewHolder;

@@ -3,7 +3,6 @@ package com.xm.ib42.util;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -73,17 +72,6 @@ public class Common {
 		return toastMsg;
 	}
 
-	/**
-	 * 单个按钮对话框
-	 * */
-	public static XfDialog createConfirmDialog(Context context, String text,
-																		String title, String msg, DialogInterface.OnClickListener listener) {
-		XfDialog.Builder builder = new XfDialog.Builder(context);
-		builder.setTitle(title);
-		builder.setMessage(msg);
-		builder.setPositiveButton(text, listener);
-		return builder.create();
-	}
 
 	/**
 	 * 根据文件名获取不带后缀名的文件名

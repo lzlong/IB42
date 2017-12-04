@@ -34,6 +34,12 @@ public class AlbumDao {
 			album.setImageUrl(cr.getString(cr.getColumnIndex(DBData.ALBUM_IMAGEURL)));
 			album.setAudioName(cr.getString(cr.getColumnIndex(DBData.ALBUM_AUDIO_NAME)));
 			album.setAudioId(cr.getInt(cr.getColumnIndex(DBData.ALBUM_AUDIO_ID)));
+			int isDelete = cr.getInt(cr.getColumnIndex(DBData.ALBUM_ISDELETE));
+			if (isDelete == 0){
+				album.setDelete(false);
+			} else {
+				album.setDelete(true);
+			}
 			list.add(album);
 		}
 		cr.close();

@@ -16,7 +16,7 @@
             android:id="@+id/audio_search"
             android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:background="@color/color_FFFFFFFF"
+            android:background="@drawable/search"
             android:layout_margin="5dp"
             android:paddingLeft="5dp"
             android:hint="请输入栏目名称"

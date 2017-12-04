@@ -86,7 +86,7 @@ public class Download implements Serializable {
         this.mContext = context;
 		this.mDownLoadInfoDao = mDownLoadInfoDao;
 		String localfile = Common.getSdCardPath()
-				+ SystemSetting.DOWNLOAD_MUSIC_DIRECTORY;
+				+ Constants.DOWNLOAD_MUSIC_DIRECTORY;
 		Common.isExistDirectory(localfile);
 		String localPath = localfile + audio.getTitle() + ".mp3";
 		File file = new File(localPath);
@@ -112,7 +112,7 @@ public class Download implements Serializable {
 		mDownLoadInfo.setUrl(audio.getNetUrl());
 		mDownLoadInfo.setAudioId(audio.getId());
 		mDownLoadInfo.setFilePath(mLocalPath);
-		mDownLoadInfo.setState(DownLoadManager.STATE_WAIT);// 设置等待下载
+		mDownLoadInfo.setState(DownLoadManager.STATE_DOWNLOADING);// 设置等待下载
 //		 添加到下载任务表
         if (!mDownLoadInfoDao.isExist(audio.getNetUrl())){
             downLoadInfoId = mDownLoadInfoDao.add(mDownLoadInfo);
@@ -172,6 +172,10 @@ public class Download implements Serializable {
 					break;
 				case SUCCESS:
 					mDownLoadInfoDao.delete(downLoadInfoId);
+                    mDownLoadInfo.setState(3);
+					Intent intent = new Intent(Constants.ACTION_DOWN_CON);
+					intent.putExtra("downLoadInfo", mDownLoadInfo);
+                    mContext.sendBroadcast(intent);
 					mListener.onSuccess(audio);
 					break;
 				case START:

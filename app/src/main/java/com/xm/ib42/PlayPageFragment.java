@@ -32,10 +32,8 @@ import com.xm.ib42.adapter.PlayListAdapter;
 import com.xm.ib42.app.MyApplication;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Audio;
-import com.xm.ib42.service.MediaPlayerManager;
 import com.xm.ib42.util.Common;
 import com.xm.ib42.util.HttpHelper;
-import com.xm.ib42.util.SystemSetting;
 import com.xm.ib42.util.Utils;
 
 import org.apache.http.HttpResponse;
@@ -105,8 +103,6 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         play_bar = (SeekBar) convertView.findViewById(R.id.play_bar);
         play_name = (TextView) convertView.findViewById(R.id.play_name);
 
-        mSetting = new SystemSetting(aty, false);
-
         View view = aty.getLayoutInflater().inflate(R.layout.home_search, null);
         home_search_lv = (PullToRefreshListView) view.findViewById(R.id.home_search_lv);
         playPop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, 600);
@@ -125,7 +121,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         sharePop.setFocusable(true);
 
         click();
-        if (aty.mediaPlayerManager.getPlayerState() == MediaPlayerManager.STATE_PLAYER){
+        if (MyApplication.mediaPlayer.isPlaying()){
             play.setImageResource(R.mipmap.zangt);
         }
 
@@ -177,15 +173,9 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             super.handleMessage(msg);
             switch (msg.what) {
                 case 20:
-//                    try {
-//                        int progress = curms * 100 / totalms;
-//                        // 设置当前进度
-//                        play_bar.setProgress(progress);
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                    }
                     play_bar.setProgress(curms);
                     play_time.setText(Utils.gettim(curms));
+                    aty.audioDao.updateByDuration(Constants.playAlbum.getAudioId(), MyApplication.mediaPlayer.getCurrentPosition());
                     break;
             }
         }
@@ -223,14 +213,14 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 Utils.showToast(aty, "请先插入SD卡");
                 return;
             }
-//            //判断是否在下载列表中
-//            if(aty.downLoadInfoDao.isExist(aty.mediaPlayerManager.getAudio().getNetUrl())){
-//                Utils.showToast(aty, "此歌曲已经在下载列表中");
-//                return;
-//            }
+            //判断是否在下载列表中
+            if(aty.mDownLoadInfoDao.isExist(Constants.playAlbum.getAudioId())){
+                Utils.showToast(aty, "此歌曲已经在下载列表中");
+                return;
+            }
             //判断是否已经下载过
             if(aty.audioDao.isDownFinish(Constants.playAlbum.getAudioId())){
-                Utils.showToast(aty, "此歌曲已经在下载过了");
+                Utils.showToast(aty, "此歌曲已经下载过了");
                 return;
             }
             //添加到下载列表中
@@ -264,7 +254,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
-
+            aty.showLoadDialog(true);
             if (audio != null){
                 audio.setCurrDurationTime(MyApplication.mediaPlayer.getCurrentPosition());
                 aty.audioDao.updateByDuration(audio.getId(), audio.getCurrDurationTime());
@@ -290,11 +280,6 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             }
             broadcastIntent = new Intent();
             if (!isplaying) {
-//                if (aty.position > 0) {// 如果大于0说明我们记忆了上次退出时候的歌曲
-//                    broadcastIntent.setAction(Constants.ACTION_JUMR);
-//                    broadcastIntent.putExtra("position", aty.position);
-//                } else {
-//                }
                 broadcastIntent.setAction(Constants.ACTION_PLAY);
                 context.sendBroadcast(broadcastIntent);
                 isplaying = true;
@@ -311,6 +296,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
+            aty.showLoadDialog(true);
             if (audio != null){
                 audio.setCurrDurationTime(MyApplication.mediaPlayer.getCurrentPosition());
                 aty.audioDao.updateByDuration(audio.getId(), audio.getCurrDurationTime());
@@ -322,7 +308,6 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 }
             }
             broadcastIntent = new Intent();
-            aty.showLoadDialog(true);
             play.setImageResource(R.mipmap.zangt);
             isplaying = true;
             broadcastIntent.setAction(Constants.ACTION_NEXT);
@@ -336,15 +321,6 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 } else {
                     playListAdapter.notifyDataSetChanged();
                 }
-//                Audio audio = null;
-//                if (audio != null){
-//                    playListAdapter.setPlayId(audio.getId());
-//                    for (int i = 0; i < Constants.playList.size(); i++) {
-//                        if (audio.getId() == Constants.playList.get(i).getId()){
-//                            home_search_lv.getRefreshableView().setSelection(i);
-//                        }
-//                    }
-//                }
                 if (!playPop.isShowing()){
                     playPop.showAtLocation(convertView, Gravity.BOTTOM, 0, 0);
                 }
@@ -398,9 +374,6 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         return (type == null) ? String.valueOf(System.currentTimeMillis()) : type + System.currentTimeMillis();
     }
 
-    private SystemSetting mSetting;
-    private int currentTime = 0;
-
     private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
 
         public void onStopTrackingTouch(SeekBar seekBar) {
@@ -426,7 +399,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     public void onStart() {
         super.onStart();
         mMusicinfoRec=new MusicinfoRec();
-        IntentFilter filter = new IntentFilter(MediaPlayerManager.BROADCASTRECEVIER_ACTON);
+        IntentFilter filter = new IntentFilter();
         filter.addAction(Constants.ACTION_UPDATE);
         filter.addAction(Constants.ACTION_UPDATE_LRC);
         aty.registerReceiver(mMusicinfoRec, filter);
@@ -451,6 +424,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Audio audio = (Audio) parent.getAdapter().getItem(position);
         if (audio != null){
+            aty.showLoadDialog(true);
             Constants.playAlbum.setAudioId(audio.getId());
             Constants.playAlbum.setAudioName(audio.getTitle());
             playListAdapter.setPlayId(audio.getId());
@@ -509,8 +483,6 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         @Override
         public void onReceive(Context context, Intent intent) {
             if (intent.getAction().equals(Constants.ACTION_UPDATE)) {
-                aty.isShow = false;
-                aty.showLoadDialog(false);
                 aty.position = intent.getIntExtra("position", 0);
                 audio = (Audio) intent.getSerializableExtra("music");
                 if (audio == null)return;
@@ -527,6 +499,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 play_alltime.setText(Utils.gettim(totalms));
                 play_name.setText(audio.getTitle());
                 if (MyApplication.mediaPlayer.isPlaying()) {
+                    aty.isShow = false;
+                    aty.showLoadDialog(false);
                     play.setImageResource(R.mipmap.zangt);
                     isplaying = true;
                 } else {

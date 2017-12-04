@@ -34,6 +34,10 @@ public class Constants {
     public static final List<Audio> playList = new ArrayList<>();
     public static int playPage = 1;
 
+    public static final String DOWNLOAD_MUSIC_DIRECTORY="/IB42/download_music/";
+    public static final String CACHE_MUSIC_DIRECTORY="/IB42/cache_music/";
+    public static final String APK_DIRECTORY="/IB42/apk/";
+
 
     public static final String ACTION_PLAY = "com.xm.ib42.PLAY";
     public static final String ACTION_NET_PLAY = "com.xm.ib42.NET_PLAY";

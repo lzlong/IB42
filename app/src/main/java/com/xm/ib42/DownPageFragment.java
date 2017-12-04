@@ -85,7 +85,7 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
         downLoadInfoDao = new DownLoadInfoDao(aty);
         audioDao = new AudioDao(aty);
         albumDao = new AlbumDao(aty);
-		getData();
+
 	}
 
 	private DownLoadInfoDao downLoadInfoDao;
@@ -101,15 +101,15 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
 	private void getData() {
         audioList = audioDao.searchByDownLoad();
         albumList.clear();
+        albumMap.clear();
 		for (int i = 0; audioList != null && i < audioList.size(); i++) {
 			Audio audio = audioList.get(i);
             if (!albumMap.containsKey(audio.getAlbum().getId())){
-//				albumMap.put(audio.getAlbum().getId(), audio.getAlbum());
+				albumMap.put(audio.getAlbum().getId(), audio.getAlbum());
 				Album album = albumDao.searchById(audio.getAlbum().getId());
                 album.setAudioName(audio.getTitle());
                 album.setAudioId(audio.getId());
 				albumList.add(album);
-			} else {
 			}
 		}
 //		albumList.addAll(albumMap.values());
@@ -130,6 +130,18 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
     @Override
     public void onStart() {
         super.onStart();
+        getData();
+        int count = downLoadInfoDao.getCount();
+        if (count == 0){
+            ((TextView)down_con_layout.getChildAt(0)).setText("没有正在下载的音频");
+        } else if (count > 0){
+            ((TextView)down_con_layout.getChildAt(0)).setText("正在下载的音频("+count+")");
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         int count = downLoadInfoDao.getCount();
         if (count == 0){
             ((TextView)down_con_layout.getChildAt(0)).setText("没有正在下载的音频");

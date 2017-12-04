@@ -145,6 +145,20 @@ public class AudioDao {
 		db.close();
 		return rs;
 	}
+	/**
+	 * 删除下载音频
+	 * */
+	public int updateDownByAudio(int audioId){
+		SQLiteDatabase db = dbHpler.getWritableDatabase();
+		int rs = 0;
+		ContentValues values = new ContentValues();
+		values.put(DBData.SONG_ISDOWNFINISH, 0);
+		values.put(DBData.SONG_FILEPATH, "");
+		rs = db.update(DBData.SONG_TABLENAME, values,
+				DBData.SONG_ID + "=?", new String[] { String.valueOf(audioId) });
+		db.close();
+		return rs;
+	}
 
 	/**
 	 * 删除

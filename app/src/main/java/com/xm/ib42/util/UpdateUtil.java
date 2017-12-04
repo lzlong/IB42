@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Message;
 
 import com.xm.ib42.MainActivity;
+import com.xm.ib42.constant.Constants;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -56,7 +57,7 @@ public class UpdateUtil implements Serializable {
 	public UpdateUtil(Context context, String url) {
 		mUrl = url;
 		String localfile = Common.getSdCardPath()
-				+ SystemSetting.APK_DIRECTORY;
+				+ Constants.APK_DIRECTORY;
 		Common.isExistDirectory(localfile);
 		String localPath = localfile + "update.apk";
 		File file = new File(localPath);

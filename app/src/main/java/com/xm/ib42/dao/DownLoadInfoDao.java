@@ -111,7 +111,25 @@ public class DownLoadInfoDao {
         }
 		return rs;
 	}
-	
+	public int updateStatus(DownLoadInfo downLoadInfo){
+		ContentValues values=new ContentValues();
+		values.put(DBData.DOWNLOADINFO_STATUS, downLoadInfo.getState());
+
+        SQLiteDatabase db=dbHpler.getWritableDatabase();
+        int rs = 0;
+        try {
+            rs = db.update(DBData.DOWNLOADINFO_TABLENAME, values,
+                    DBData.DOWNLOADINFO_ID + "=?", new String[] { String.valueOf(downLoadInfo.getId()) });
+        }  catch (Exception e) {
+            Log.d(TAG, "isExist: error");
+        } finally {
+            if (db != null){
+                db.close();
+            }
+        }
+		return rs;
+	}
+
 	/**
 	 * 删除
 	 * */
@@ -137,6 +155,29 @@ public class DownLoadInfoDao {
 		int rs=-1;
 		SQLiteDatabase db=dbHpler.getReadableDatabase();
 		Cursor cr=db.rawQuery("SELECT COUNT(*) FROM "+DBData.DOWNLOADINFO_TABLENAME+" WHERE "+DBData.DOWNLOADINFO_URL+"=?", new String[]{url});
+		try {
+			while(cr.moveToNext()){
+				rs=cr.getInt(0);
+			}
+		}  catch (Exception e) {
+			Log.d(TAG, "isExist: error");
+		} finally {
+			if (cr != null) {
+				cr.close();
+			}
+			if (db != null){
+				db.close();
+			}
+		}
+		return rs>0;
+	}
+	/**
+	 * 判断下载任务是否存在
+	 * */
+	public boolean isExist(int audioId){
+		int rs=-1;
+		SQLiteDatabase db=dbHpler.getReadableDatabase();
+		Cursor cr=db.rawQuery("SELECT COUNT(*) FROM "+DBData.DOWNLOADINFO_TABLENAME+" WHERE "+DBData.DOWNLOADINFO_AUDIOID+"=?", new String[]{audioId+""});
 		try {
 			while(cr.moveToNext()){
 				rs=cr.getInt(0);

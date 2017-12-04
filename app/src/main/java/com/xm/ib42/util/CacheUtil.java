@@ -5,6 +5,7 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 
+import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Audio;
 
@@ -60,7 +61,7 @@ public class CacheUtil implements Serializable {
 	public CacheUtil(Audio audio, Context context) {
 		audioDao = new AudioDao(context);
 		String localfile = Common.getSdCardPath()
-				+ SystemSetting.CACHE_MUSIC_DIRECTORY;
+				+ Constants.CACHE_MUSIC_DIRECTORY;
 		Common.isExistDirectory(localfile);
 		String localPath = localfile + audio.getTitle() + ".cache";
 		File file = new File(localPath);

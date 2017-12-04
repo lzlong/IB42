@@ -3,6 +3,7 @@ package com.xm.ib42;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -50,23 +51,27 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
 	}
 
 	private TextView title_name;
+    private TextView title_delete;
     private ListView my_lv;
-	private List<Album> albumList;
-	private AlbumDao albumDao;
-	private MyAdapter adapter;
+    private List<Album> albumList;
+    private AlbumDao albumDao;
+    private MyAdapter adapter;
     private AudioDao audioDao;
     private PopupWindow deletePop;
+    private int deleteState = 0;//0 删除单个 1 全部删除
     private Button delete_true, delete_cancel;
 
 	private void init(View v) {
         title_name = (TextView) convertView.findViewById(R.id.title_name);
         title_name.setText("收听历史");
+        title_delete = (TextView) convertView.findViewById(R.id.title_delete);
+        title_delete.setVisibility(View.VISIBLE);
         my_lv = (ListView) convertView.findViewById(R.id.my_lv);
 
         View view = aty.getLayoutInflater().inflate(R.layout.delete_dialog, null);
         delete_true = (Button) view.findViewById(R.id.delete_true);
         delete_cancel = (Button) view.findViewById(R.id.delete_cancel);
-        deletePop = new PopupWindow(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        deletePop = new PopupWindow(LinearLayout.LayoutParams.WRAP_CONTENT, 600);
         deletePop.setContentView(view);
         deletePop.setFocusable(true);
 
@@ -81,6 +86,7 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
         my_lv.setOnItemLongClickListener(this);
         delete_true.setOnClickListener(this);
         delete_cancel.setOnClickListener(this);
+        title_delete.setOnClickListener(this);
     }
 
     private void getData() {
@@ -95,7 +101,9 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
 			if (adapter == null){
 				adapter = new MyAdapter(aty, albumList);
 				my_lv.setAdapter(adapter);
-			}
+			} else {
+                adapter.notifyDataSetChanged();
+            }
         }
     }
 
@@ -107,14 +115,26 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
             if (deletePop.isShowing()){
                 deletePop.dismiss();
             }
-            if (deleteAlbum != null){
-                //
-                audioDao.deleteByAlbum(deleteAlbum.getId());
+            if (deleteState == 0){
+                if (deleteAlbum != null){
+                    //软删除
+                    albumDao.delete(deleteAlbum.getId());
+                    getData();
+                }
+            } else if (deleteState == 1){
+                for (int i = 0; i < albumList.size(); i++) {
+                    albumDao.delete(albumList.get(i).getId());
+                }
                 getData();
             }
         } else if (v == delete_cancel){
             if (deletePop.isShowing()){
                 deletePop.dismiss();
+            }
+        } else if (v == title_delete){
+            deleteState = 1;
+            if (!deletePop.isShowing()){
+                deletePop.showAtLocation(convertView, Gravity.CENTER, 0, 0);
             }
         }
 	}
@@ -128,6 +148,7 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
 //            }
 //        } else {
 //        }
+        aty.showLoadDialog(true);
         Constants.playPage = 0;
         Constants.playAlbum = album;
         Constants.playList.clear();
@@ -141,12 +162,13 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
 
     @Override
     public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
-//        deleteAlbum = (Album) adapterView.getAdapter().getItem(position);
-//        if (deleteAlbum != null){
-//            if (!deletePop.isShowing()){
-//                deletePop.showAtLocation(convertView, Gravity.CENTER, 0, 0);
-//            }
-//        }
+        deleteAlbum = (Album) adapterView.getAdapter().getItem(position);
+        if (deleteAlbum != null){
+            deleteState = 0;
+            if (!deletePop.isShowing()){
+                deletePop.showAtLocation(convertView, Gravity.CENTER, 0, 0);
+            }
+        }
         return false;
     }
 }

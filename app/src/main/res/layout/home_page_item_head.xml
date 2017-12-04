@@ -1,25 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     >
 
-    <TextView
-        android:id="@+id/home_column_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@color/color_FFFFFFFF"
-        android:padding="5dp"
-        android:text="测试文字"/>
-
     <ImageView
-        android:id="@+id/home_coulmn_more"
-        android:layout_width="wrap_content"
+        android:id="@+id/iv"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"/>
+    
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:src="@mipmap/home_c"
-        android:layout_alignParentRight="true"/>
+        android:background="@color/color_F0434343">
+        <TextView
+            android:id="@+id/home_column_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:textColor="@color/color_FFFFFFFF"
+            android:padding="5dp"
+            android:text="测试文字"/>
 
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/home_coulmn_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:src="@mipmap/home_c"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+</LinearLayout>

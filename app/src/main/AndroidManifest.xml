@@ -72,11 +72,7 @@
                 <action android:name="com.xm.ib42.service.Lock"/>
             </intent-filter>
         </service>
-        <service android:name=".service.MediaPlayerService2">
-            <intent-filter>
-                <action android:name="com.xm.ib42.service.meidaplayer"/>
-            </intent-filter>
-        </service>
+
         <activity
             android:name="com.tencent.tauth.AuthActivity"
             android:noHistory="true"

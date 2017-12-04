@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import com.xm.ib42.R;
 import com.xm.ib42.entity.Audio;
+import com.xm.ib42.util.GifView;
 
 import java.util.List;
 
@@ -32,6 +33,8 @@ public class PlayListAdapter extends BaseArrayListAdapter {
         Audio audio = (Audio) this.data.get(position);
         mViewHolder = ViewHolder.get(mContext, convertView, parent, R.layout.play_list_item);
         TextView play_list_tv = mViewHolder.findViewById(R.id.play_list_tv);
+        GifView img = mViewHolder.findViewById(R.id.img);
+        img.setMovieResource(R.mipmap.bfdhua);
         if (playId == audio.getId()){
             play_list_tv.setTextColor(Color.RED);
         } else {

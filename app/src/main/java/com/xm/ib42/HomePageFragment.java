@@ -175,7 +175,9 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                         list.add(new BasicNameValuePair(Constants.VALUES[4], column.getId()+""));
                         list.add(new BasicNameValuePair(Constants.VALUES[5], "3"));
                         HttpResponse albumResponse = httpHelper.doGet(Constants.HTTPURL, list);
-                        column.setAlbumList(Utils.pressAlbumJson(Utils.parseResponse(albumResponse)));
+                        JSONObject j = Utils.parseResponse(albumResponse);
+                        column.setCount(j.optInt("count_total"));
+                        column.setAlbumList(Utils.pressAlbumJson(j));
                     }
                 }
                 handler.sendMessage(handler.obtainMessage(0));

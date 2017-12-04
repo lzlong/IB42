@@ -11,6 +11,7 @@ public class Column {
     private String title;
     private String url;
     private int page = 1;
+    private int count;
     private List<Album> mAlbumList;
 
     public int getId() {
@@ -51,5 +52,13 @@ public class Column {
 
     public void setAlbumList(List<Album> albumList) {
         mAlbumList = albumList;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }

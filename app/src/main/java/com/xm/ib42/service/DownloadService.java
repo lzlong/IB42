@@ -194,25 +194,29 @@ public class DownloadService extends Service {
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
+			DownLoadInfo downLoadInfo = null;
 			if (intent.getAction().equals(Constants.ACTION_DOWN_PAUSE)){
-                DownLoadInfo downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
+                downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
                 if (downLoadInfo != null){
                     Download d = mDownloads.get(downLoadInfo.getAudioId());
                     d.pause(true);
                 }
 			} else if (intent.getAction().equals(Constants.ACTION_DOWN_DOWN)){
-                DownLoadInfo downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
+                downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
                 if (downLoadInfo != null){
                     Download d = mDownloads.get(downLoadInfo.getAudioId());
                     d.pause(false);
                 }
 			} else if (intent.getAction().equals(Constants.ACTION_DOWN_DELETE)){
-                DownLoadInfo downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
+                downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
                 if (downLoadInfo != null){
                     Download d = mDownloads.get(downLoadInfo.getAudioId());
                     d.cancel();
                 }
             }
+            if (downLoadInfo != null){
+				mDownLoadInfoDao.update(downLoadInfo);
+			}
 		}
 	}
 

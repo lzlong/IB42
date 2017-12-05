@@ -1,6 +1,7 @@
 package com.xm.ib42.util;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -311,4 +312,56 @@ public class Utils {
             return "00:00";
         }
     }
+
+    public static void saveHome(SharedPreferences preferences, List<Column> list){
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("columnNum", list.size());
+        for (int i = 0; i < list.size(); i++) {
+            Column column = list.get(i);
+            editor.putInt("columnId"+i, column.getId());
+            editor.putInt("columnCount"+i, column.getCount());
+            editor.putString("columnTitle"+i, column.getTitle());
+            editor.putString("columnUrl"+i, column.getUrl());
+            List<Album> albumList = column.getAlbumList();
+            editor.putInt("albumCount", albumList.size());
+            for (int j = 0; j < albumList.size(); j++) {
+                Album album = albumList.get(j);
+                editor.putInt("albumId"+i, album.getId());
+                editor.putInt("albumAudioId"+i, album.getAudioId());
+                editor.putInt("albumAudioNum"+i, album.getAudioNum());
+                editor.putString("albumTitle"+i, album.getTitle());
+                editor.putString("albumImg"+i, album.getImageUrl());
+                editor.putString("albumAudioName"+i, album.getAudioName());
+            }
+            editor.commit();
+        }
+    }
+
+    public static List<Column> getColumn(SharedPreferences preferences){
+        List<Column> list = new ArrayList<>();
+        int columnNum = preferences.getInt("columNum", 0);
+        for (int i = 0; i < columnNum; i++) {
+            Column column = new Column();
+            column.setId(preferences.getInt("columnId"+i, 0));
+            column.setCount(preferences.getInt("columnCount"+i, 0));
+            column.setTitle(preferences.getString("columnTitle"+i, ""));
+            column.setUrl(preferences.getString("columnUrl"+i, ""));
+            int albumCount = preferences.getInt("albumCount", 0);
+            List<Album> albumList = new ArrayList<>();
+            for (int j = 0; j < albumCount; j++) {
+                Album album = new Album();
+                album.setId(preferences.getInt("albumId"+i, 0));
+                album.setAudioId(preferences.getInt("albumAudioId"+i, 0));
+                album.setAudioNum(preferences.getInt("albumAudioNum"+i, 0));
+                album.setAudioName(preferences.getString("albumAudioName"+i, ""));
+                album.setTitle(preferences.getString("albumTitle"+i, ""));
+                album.setImageUrl(preferences.getString("albumImg"+i, ""));
+                albumList.add(album);
+            }
+            column.setAlbumList(albumList);
+            list.add(column);
+        }
+        return list;
+    }
+
 }

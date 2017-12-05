@@ -134,20 +134,19 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         } else {
             home_play.setVisibility(View.GONE);
         }
-//        if (aty.setting.getValue(SystemSetting.KEY_PLAYER_ALBUMID) != null){
-//            int audioId = Integer.parseInt(aty.setting.getValue(SystemSetting.KEY_PLAYER_AUDIOID));
-//            if (aty.mediaPlayerManager.getPlayerState() != MediaPlayerManager.STATE_PLAYER){
-//                for (int i = 0; i < Constants.playList.size(); i++) {
-//                    if (audioId == Constants.playList.get(i).getId()){
-//                        home_play_name.setText(Constants.playList.get(i).getTitle());
-//                    }
-//                }
-//            } else {
-//                home_play.setVisibility(View.GONE);
-//            }
-//        } else {
-//            home_play.setVisibility(View.GONE);
-//        }
+
+        if (aty.homeList != null){
+            if (adapter == null){
+                adapter = new HomeAdapter(aty, aty.homeList);
+                home_lv.setAdapter(adapter);
+                int groupCount = home_lv.getCount();
+                for (int i=0; i<groupCount; i++) {
+                    home_lv.expandGroup(i);
+                }
+            } else {
+                adapter.notifyDataSetChanged();
+            }
+        }
 
         setParam();
     }
@@ -165,6 +164,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                 list.add(new BasicNameValuePair(Constants.VALUES[0], "2"));
                 HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
                 json = Utils.parseResponse(httpResponse);
+                aty.homeList.clear();
                 aty.homeList = Utils.pressColumnJson(json);
                 if (aty.homeList != null){
                     for (int i = 0; i < aty.homeList.size(); i++) {
@@ -205,6 +205,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                     } else {
                         adapter.notifyDataSetChanged();
                     }
+                    Utils.saveHome(aty.mSharedPreferences, aty.homeList);
                 }
             } else if (msg.what == 2){
                 aty.showLoadDialog(false);
@@ -429,7 +430,6 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                         column.setAlbumList(albumList);
                         adapter.getAdd();
                         handler.sendMessage(handler.obtainMessage(3));
-//                        adapter.notifyDataSetChanged();
                     } else {
                         column.setPage(column.getPage()-1);
                     }

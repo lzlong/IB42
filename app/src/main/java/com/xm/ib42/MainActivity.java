@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -99,6 +100,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public int nowplaymode;// 当前播放模式
 
     public boolean isShow = true;
+
+    public SharedPreferences mSharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -204,6 +207,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         // 初始化听写Dialog，如果只使用有UI听写功能，无需创建SpeechRecognizer
         // 使用UI听写功能，请根据sdk文件目录下的notice.txt,放置布局文件和图片资源
         mIatDialog = new RecognizerDialog(this, mInitListener);
+
+        mSharedPreferences = getSharedPreferences("column", Context.MODE_PRIVATE);
+        homeList = Utils.getColumn(mSharedPreferences);
 
     }
 

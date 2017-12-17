@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="bass">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/AudioLibrary/libs/bass.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

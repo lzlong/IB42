@@ -7,10 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaScannerConnection;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.annotation.RequiresApi;
 import android.util.SparseArray;
 import android.widget.Toast;
 
@@ -23,6 +27,8 @@ import com.xm.ib42.util.Download;
 import com.xm.ib42.util.Utils;
 
 import java.util.List;
+
+import static com.xm.ib42.app.MyApplication.context;
 
 
 /**
@@ -85,12 +91,64 @@ public class DownloadService extends Service {
             if (audio != null){
                 Download d = new Download(audio, mDownLoadInfoDao, getApplicationContext());
                 d.setOnDownloadListener(mDownloadListener);
+                if (Build.VERSION.SDK_INT < 23){
+                    if (checkState_21()){
+                        d.pause(false);
+                    }
+                } else if(Build.VERSION.SDK_INT >= 23){
+                    if (checkState_21orNew()){
+                        d.pause(false);
+                    }
+                }
                 mDownloads.put(audio.getId(), d);
             }
         }
 
 
 	}
+
+    //检测当前的网络状态
+    //API版本23以下时调用此方法进行检测
+    //因为API23后getNetworkInfo(int networkType)方法被弃用
+    public boolean checkState_21(){
+        //步骤1：通过Context.getSystemService(Context.CONNECTIVITY_SERVICE)获得ConnectivityManager对象
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        //步骤2：获取ConnectivityManager对象对应的NetworkInfo对象
+        //NetworkInfo对象包含网络连接的所有信息
+        //步骤3：根据需要取出网络连接信息
+        //获取WIFI连接的信息
+        NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        Boolean isWifiConn = networkInfo.isConnected();
+
+        if (isWifiConn){
+            return true;
+        }
+        return false;
+    }
+
+    //API版本23及以上时调用此方法进行网络的检测
+    //步骤非常类似
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public boolean checkState_21orNew(){
+        //获得ConnectivityManager对象
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        //获取所有网络连接的信息
+        Network[] networks = connMgr.getAllNetworks();
+        //用于存放网络连接信息
+        StringBuilder sb = new StringBuilder();
+        //通过循环将网络信息逐个取出来
+        for (int i=0; i < networks.length; i++){
+            //获取ConnectivityManager对象对应的NetworkInfo对象
+            NetworkInfo networkInfo = connMgr.getNetworkInfo(networks[i]);
+            if (networkInfo.isConnected() && networkInfo.getTypeName().equals("WIFI")){
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     public void onDestroy() {

@@ -35,10 +35,13 @@ public class PlayListAdapter extends BaseArrayListAdapter {
         TextView play_list_tv = mViewHolder.findViewById(R.id.play_list_tv);
         GifView img = mViewHolder.findViewById(R.id.img);
         img.setMovieResource(R.mipmap.bfdhua);
-        if (playId == audio.getId()){
+        if (playId == audio.getId()
+                || audio.getState() == 1){
+            img.setVisibility(View.VISIBLE);
             play_list_tv.setTextColor(Color.RED);
         } else {
             play_list_tv.setTextColor(Color.BLACK);
+            img.setVisibility(View.INVISIBLE);
         }
         play_list_tv.setText(audio.getTitle());
         return mViewHolder;

@@ -20,7 +20,9 @@ public class Constants {
     public static final String APPDOWNURL = "http://app.webfuwu.com";
     public static final String SHAREURL = "http://app.webfuwu.com/?appid=1696";
     public static final String URLPAGE = "&page=";
-    public static final String[] VALUES = {"json", "p", "page", "keyword", "lm_id", "pn"};
+    public static final String[] VALUES = {"json", "p", "page", "keyword", "lm_id", "pn", "yppx"};
+    public static final String YPPXDESC = "desc";//升序
+    public static final String YPPXASC = "asc";//降序
 
     public static String MSG_SONG_PLAY_OVER = "歌曲播放完成切换下一曲";
 
@@ -39,6 +41,7 @@ public class Constants {
     public static final String APK_DIRECTORY="/IB42/apk/";
 
 
+    public static final String ACTION_HISTORY = "com.xm.ib42.HISTORY";
     public static final String ACTION_PLAY = "com.xm.ib42.PLAY";
     public static final String ACTION_NET_PLAY = "com.xm.ib42.NET_PLAY";
     public static final String ACTION_PAUSE = "com.xm.ib42.PAUSE";

@@ -27,7 +27,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
-import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,6 +114,12 @@ public class MediaPlayerService extends Service {
 				}
 				status = 3;
 //				sendBroadcast(new Intent("com.tarena.isplay"));
+			}
+			//
+			else if (Constants.ACTION_HISTORY.equals(intent.getAction())) {
+				int position = intent.getIntExtra("position", 0);
+				current = position;
+				mode_current = current;
 			}
 			// 暂停
 			else if (Constants.ACTION_PAUSE.equals(intent.getAction())) {
@@ -296,6 +301,7 @@ public class MediaPlayerService extends Service {
 		filter.addAction(Constants.ACTION_PREVIOUS);
 		filter.addAction(ACTION_NEXT);
 		filter.addAction(Constants.ACTION_SEEK);
+		filter.addAction(Constants.ACTION_HISTORY);
 		filter.addAction(Constants.ACTION_STOP);
 		filter.addAction(Constants.ACTION_JUMR);
 		filter.addAction(Constants.ACTION_JUMR_OTHER);
@@ -430,6 +436,7 @@ public class MediaPlayerService extends Service {
 	 * 播放当前音乐
 	 */
 	private void play() {
+
 		if (Constants.playList != null && Constants.playList.size() > 0) {
 			Log.i("cpu", "" + playmode + isjump);
 			if (playmode == 1) {// 单曲
@@ -458,8 +465,8 @@ public class MediaPlayerService extends Service {
 						next();
 						return;
 					}
-					String name = path.substring(path.lastIndexOf("/"), path.length());
-					path = path.substring(0, path.lastIndexOf("/")) + URLEncoder.encode(name, "utf-8");
+//					String name = path.substring(path.lastIndexOf("/"), path.length());
+					path = Utils.pressUrl(path);
 					mPlayer.setDataSource(path);
 					mPlayer.prepare();
 					CacheUtil cacheUtil = new CacheUtil(nowPlayAudio, getApplicationContext());
@@ -479,6 +486,8 @@ public class MediaPlayerService extends Service {
 					mAlbumDao.add(Constants.playAlbum);
 				}
 				mAudioDao.add(nowPlayAudio);
+                MyApplication.musicPreference.savePlayPosition(mContext, current);
+                MyApplication.musicPreference.savePlayAlbum(mContext, Constants.playAlbum);
 			} catch (IllegalArgumentException e) {
 				e.printStackTrace();
 			} catch (IllegalStateException e) {

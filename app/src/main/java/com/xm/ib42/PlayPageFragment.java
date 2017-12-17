@@ -6,11 +6,14 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -41,6 +44,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static com.xm.ib42.app.MyApplication.context;
@@ -86,7 +90,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     public boolean isplaying = false;
     public Intent broadcastIntent;
 
-	private void init(View convertView) {
+	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void init(View convertView) {
 
         title_name = (TextView) convertView.findViewById(R.id.title_name);
         title_name.setText("印心讲堂播放器");
@@ -103,8 +108,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         play_bar = (SeekBar) convertView.findViewById(R.id.play_bar);
         play_name = (TextView) convertView.findViewById(R.id.play_name);
 
-        View view = aty.getLayoutInflater().inflate(R.layout.home_search, null);
-        home_search_lv = (PullToRefreshListView) view.findViewById(R.id.home_search_lv);
+        View view = aty.getLayoutInflater().inflate(R.layout.play_list, null);
+        home_search_lv = (PullToRefreshListView) view.findViewById(R.id.play_lv);
         playPop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, 600);
         playPop.setContentView(view);
         playPop.setFocusable(true);
@@ -141,11 +146,123 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         }
         ProgeressThread thread = new ProgeressThread();
         thread.start();
+
+        if (Constants.playAlbum == null && !MyApplication.mediaPlayer.isPlaying() && aty.isShow){
+            if (aty.albumId == -1){
+                Constants.playAlbum = aty.homeList.get(0).getAlbumList().get(0);
+                Constants.playList.clear();
+                if (Build.VERSION.SDK_INT >= 23){
+                    if (!Utils.checkState_21orNew()){
+                        Constants.playList.addAll(aty.audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+                        int p = 0;
+                        for (int i = 0; i < Constants.playList.size(); i++) {
+                            if (Constants.playList.get(i).getId() == Constants.playAlbum.getId()){
+                                p = i;
+                            }
+                        }
+                        Intent broadcastIntent = new Intent();
+                        broadcastIntent.setAction(Constants.ACTION_HISTORY);
+                        broadcastIntent.putExtra("", p);
+                        context.sendBroadcast(broadcastIntent);
+                    } else {
+                        getData();
+                    }
+                } else if(Build.VERSION.SDK_INT < 23){
+                    if (!Utils.checkState_21()){
+                        Constants.playList.addAll(aty.audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+                        int p = 0;
+                        for (int i = 0; i < Constants.playList.size(); i++) {
+                            if (Constants.playList.get(i).getId() == Constants.playAlbum.getId()){
+                                p = i;
+                            }
+                        }
+                        Intent broadcastIntent = new Intent();
+                        broadcastIntent.setAction(Constants.ACTION_HISTORY);
+                        broadcastIntent.putExtra("", p);
+                        context.sendBroadcast(broadcastIntent);
+                    } else {
+                        getData();
+                    }
+                }
+            } else if (Constants.playList == null
+                    || Constants.playList.size() == 0){
+                Constants.playAlbum = aty.albumDao.searchById(aty.albumId);
+                Constants.playList.clear();
+                if (Build.VERSION.SDK_INT >= 23){
+                    if (!Utils.checkState_21orNew()){
+                        Constants.playList.addAll(aty.audioDao.searchByAlbum(aty.albumId+""));
+                        int p = 0;
+                        for (int i = 0; i < Constants.playList.size(); i++) {
+                            if (Constants.playList.get(i).getId() == Constants.playAlbum.getId()){
+                                p = i;
+                            }
+                        }
+                        Intent broadcastIntent = new Intent();
+                        broadcastIntent.setAction(Constants.ACTION_HISTORY);
+                        broadcastIntent.putExtra("", p);
+                        context.sendBroadcast(broadcastIntent);
+                    } else {
+                        getData();
+                    }
+                } else if(Build.VERSION.SDK_INT < 23){
+                    if (!Utils.checkState_21()){
+                        Constants.playList.addAll(aty.audioDao.searchByAlbum(aty.albumId+""));
+                        int p = 0;
+                        for (int i = 0; i < Constants.playList.size(); i++) {
+                            if (Constants.playList.get(i).getId() == Constants.playAlbum.getId()){
+                                p = i;
+                            }
+                        }
+                        Intent broadcastIntent = new Intent();
+                        broadcastIntent.setAction(Constants.ACTION_HISTORY);
+                        broadcastIntent.putExtra("", p);
+                        context.sendBroadcast(broadcastIntent);
+                    } else {
+                        getData();
+                    }
+                }
+            }
+        }
+
+        getView().setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+                if(keyCode == KeyEvent.KEYCODE_BACK ){
+                   if (playPop.isShowing()){
+                       playPop.dismiss();
+                   }
+                   if (sharePop.isShowing()){
+                       sharePop.dismiss();
+                   }
+                }
+                return false;
+            }
+        });
+
     }
 
     boolean isrunable = true;
     int curms;
     int totalms = 1;
+
+    public void getData() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                HttpHelper httpHelper = new HttpHelper();
+                httpHelper.connect();
+                List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
+                list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
+                list.add(new BasicNameValuePair(Constants.VALUES[1], Constants.playAlbum.getId()+""));
+                list.add(new BasicNameValuePair(Constants.VALUES[2], "1"));
+                list.add(new BasicNameValuePair(Constants.VALUES[5], "10"));
+                HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
+                JSONObject json = Utils.parseResponse(httpResponse);
+                List<Audio> audioList = Utils.pressAudioJson(json, Constants.playAlbum);
+                nameshandler.sendMessage(nameshandler.obtainMessage(0, audioList));
+            }
+        }).start();
+    }
 
     class ProgeressThread extends Thread {
         @Override
@@ -172,6 +289,13 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             switch (msg.what) {
+                case 0:
+                    Constants.playList.addAll((Collection<? extends Audio>) msg.obj);
+                    Intent broadcastIntent = new Intent();
+                    broadcastIntent.setAction(Constants.ACTION_HISTORY);
+                    broadcastIntent.putExtra("position", 0);
+                    context.sendBroadcast(broadcastIntent);
+                    break;
                 case 20:
                     play_bar.setProgress(curms);
                     play_time.setText(Utils.gettim(curms));
@@ -428,7 +552,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             Constants.playAlbum.setAudioId(audio.getId());
             Constants.playAlbum.setAudioName(audio.getTitle());
             playListAdapter.setPlayId(audio.getId());
-            home_search_lv.getRefreshableView().setSelection(position);
+//            home_search_lv.getRefreshableView().setSelection(position);
 //            aty.mediaPlayerManager.player(Constants.playAlbum.getId());
             Intent intent = new Intent(Constants.ACTION_JUMR);
             intent.putExtra("position", position-1);
@@ -486,12 +610,24 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 aty.position = intent.getIntExtra("position", 0);
                 audio = (Audio) intent.getSerializableExtra("music");
                 if (audio == null)return;
-                if (audio != null && playListAdapter != null){
-                    playListAdapter.setPlayId(audio.getId());
+                if (audio != null){
+//                    playListAdapter.setPlayId(audio.getId());
                     for (int i = 0; i < Constants.playList.size(); i++) {
                         if (audio.getId() == Constants.playList.get(i).getId()){
+                            Constants.playList.get(i).setState(1);
                             home_search_lv.getRefreshableView().setSelection(i);
+                        } else {
+                            Constants.playList.get(i).setState(0);
                         }
+                    }
+//                    if (playListAdapter != null){
+//                        playListAdapter.notifyDataSetChanged();
+//                    }
+                    if (playListAdapter == null){
+                        playListAdapter = new PlayListAdapter(aty, Constants.playList);
+                        home_search_lv.setAdapter(playListAdapter);
+                    } else {
+                        playListAdapter.notifyDataSetChanged();
                     }
                 }
                 totalms = intent.getIntExtra("totalms", 288888);// 总时长

@@ -5,6 +5,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -25,10 +30,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static com.xm.ib42.app.MyApplication.context;
 
 
 /**
@@ -323,45 +334,106 @@ public class Utils {
             editor.putString("columnTitle"+i, column.getTitle());
             editor.putString("columnUrl"+i, column.getUrl());
             List<Album> albumList = column.getAlbumList();
-            editor.putInt("albumCount", albumList.size());
+            editor.putInt("albumCount"+i, albumList.size());
             for (int j = 0; j < albumList.size(); j++) {
                 Album album = albumList.get(j);
-                editor.putInt("albumId"+i, album.getId());
-                editor.putInt("albumAudioId"+i, album.getAudioId());
-                editor.putInt("albumAudioNum"+i, album.getAudioNum());
-                editor.putString("albumTitle"+i, album.getTitle());
-                editor.putString("albumImg"+i, album.getImageUrl());
-                editor.putString("albumAudioName"+i, album.getAudioName());
+                editor.putInt(i+"albumId"+j, album.getId());
+                editor.putInt(i+"albumAudioId"+j, album.getAudioId());
+                editor.putInt(i+"albumAudioNum"+j, album.getAudioNum());
+                editor.putString(i+"albumTitle"+j, album.getTitle());
+                editor.putString(i+"albumImg"+j, album.getImageUrl());
+                editor.putString(i+"albumAudioName"+j, album.getAudioName());
             }
-            editor.commit();
         }
+        editor.commit();
     }
 
     public static List<Column> getColumn(SharedPreferences preferences){
         List<Column> list = new ArrayList<>();
-        int columnNum = preferences.getInt("columNum", 0);
+        int columnNum = preferences.getInt("columnNum", 0);
         for (int i = 0; i < columnNum; i++) {
             Column column = new Column();
             column.setId(preferences.getInt("columnId"+i, 0));
             column.setCount(preferences.getInt("columnCount"+i, 0));
             column.setTitle(preferences.getString("columnTitle"+i, ""));
             column.setUrl(preferences.getString("columnUrl"+i, ""));
-            int albumCount = preferences.getInt("albumCount", 0);
+            int albumCount = preferences.getInt("albumCount"+i, 0);
             List<Album> albumList = new ArrayList<>();
             for (int j = 0; j < albumCount; j++) {
                 Album album = new Album();
-                album.setId(preferences.getInt("albumId"+i, 0));
-                album.setAudioId(preferences.getInt("albumAudioId"+i, 0));
-                album.setAudioNum(preferences.getInt("albumAudioNum"+i, 0));
-                album.setAudioName(preferences.getString("albumAudioName"+i, ""));
-                album.setTitle(preferences.getString("albumTitle"+i, ""));
-                album.setImageUrl(preferences.getString("albumImg"+i, ""));
+                album.setId(preferences.getInt(i+"albumId"+j, 0));
+                album.setAudioId(preferences.getInt(i+"albumAudioId"+j, 0));
+                album.setAudioNum(preferences.getInt(i+"albumAudioNum"+j, 0));
+                album.setAudioName(preferences.getString(i+"albumAudioName"+j, ""));
+                album.setTitle(preferences.getString(i+"albumTitle"+j, ""));
+                album.setImageUrl(preferences.getString(i+"albumImg"+j, ""));
                 albumList.add(album);
             }
             column.setAlbumList(albumList);
             list.add(column);
         }
         return list;
+    }
+
+    //检测当前的网络状态
+    //API版本23以下时调用此方法进行检测
+    //因为API23后getNetworkInfo(int networkType)方法被弃用
+    public static boolean checkState_21(){
+        //步骤1：通过Context.getSystemService(Context.CONNECTIVITY_SERVICE)获得ConnectivityManager对象
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        //步骤2：获取ConnectivityManager对象对应的NetworkInfo对象
+        //NetworkInfo对象包含网络连接的所有信息
+        //步骤3：根据需要取出网络连接信息
+        //获取WIFI连接的信息
+        NetworkInfo networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        Boolean isWifiConn = networkInfo.isConnected();
+
+        //获取移动数据连接的信息
+        networkInfo = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        Boolean isMobileConn = networkInfo.isConnected();
+        if (isWifiConn || isMobileConn){
+            return true;
+        }
+        return false;
+    }
+
+    //API版本23及以上时调用此方法进行网络的检测
+    //步骤非常类似
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static boolean checkState_21orNew(){
+        //获得ConnectivityManager对象
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        //获取所有网络连接的信息
+        Network[] networks = connMgr.getAllNetworks();
+        //用于存放网络连接信息
+        StringBuilder sb = new StringBuilder();
+        //通过循环将网络信息逐个取出来
+        for (int i=0; i < networks.length; i++){
+            //获取ConnectivityManager对象对应的NetworkInfo对象
+            NetworkInfo networkInfo = connMgr.getNetworkInfo(networks[i]);
+            if (networkInfo.isConnected()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static String pressUrl(String path){
+        String name = path.substring(path.lastIndexOf("/")+1, path.length());
+        Pattern p = Pattern.compile("[\\u4e00-\\u9fcc]+");
+        Matcher m = p.matcher(name);
+        while (m.find()) {
+            String n = m.group();
+            try {
+                String s = URLEncoder.encode(n, "UTF-8");
+                path = path.replace(n, s);
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return path;
     }
 
 }

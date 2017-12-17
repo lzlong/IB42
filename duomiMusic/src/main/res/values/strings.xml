@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <string name="app_name">多米音乐</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="about">此版本适用于android2.1及以上固件设备,欢迎使用多米音乐</string>
-
-</resources>

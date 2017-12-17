@@ -80,6 +80,8 @@ public class DownConActivity extends Activity implements View.OnClickListener, A
         }
     }
 
+    private long currTime = 0;
+
     private class ProBroadcastReceiver extends BroadcastReceiver {
 
         @Override
@@ -98,8 +100,13 @@ public class DownConActivity extends Activity implements View.OnClickListener, A
                     }
                     if (downLoadInfo.getState() == 3){
                         list.remove(index);
+                        mDownAdapter.notifyDataSetChanged();
+                    } else {
+                        if (System.currentTimeMillis() - currTime == 5000){
+                            mDownAdapter.notifyDataSetChanged();
+                            currTime = System.currentTimeMillis();
+                        }
                     }
-                    mDownAdapter.notifyDataSetChanged();
                 }
             }
         }

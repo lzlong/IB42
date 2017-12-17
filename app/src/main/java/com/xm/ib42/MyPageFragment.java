@@ -1,7 +1,9 @@
 package com.xm.ib42;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -20,6 +22,7 @@ import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AlbumDao;
 import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Album;
+import com.xm.ib42.util.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -139,6 +142,7 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
         }
 	}
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Album album = (Album) parent.getAdapter().getItem(position);
@@ -148,10 +152,20 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
 //            }
 //        } else {
 //        }
+
         aty.showLoadDialog(true);
         Constants.playPage = 0;
         Constants.playAlbum = album;
         Constants.playList.clear();
+        if (Build.VERSION.SDK_INT < 23){
+            if (!Utils.checkState_21()){
+                Constants.playList.addAll(aty.audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+            }
+        } else if(Build.VERSION.SDK_INT >= 23){
+            if (!Utils.checkState_21orNew()){
+                Constants.playList.addAll(aty.audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+            }
+        }
         Intent intent = new Intent(Constants.ACTION_JUMR_MYPAGE);
         intent.putExtra("title", album.getAudioName());
         aty.sendBroadcast(intent);

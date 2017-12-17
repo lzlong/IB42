@@ -4,11 +4,14 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,12 +22,22 @@ import android.widget.TextView;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.iflytek.cloud.ErrorCode;
+import com.iflytek.cloud.InitListener;
+import com.iflytek.cloud.RecognizerResult;
+import com.iflytek.cloud.SpeechConstant;
+import com.iflytek.cloud.SpeechError;
+import com.iflytek.cloud.SpeechRecognizer;
+import com.iflytek.cloud.ui.RecognizerDialog;
+import com.iflytek.cloud.ui.RecognizerDialogListener;
+import com.iflytek.sunflower.FlowerCollector;
 import com.xm.ib42.adapter.AudioListAdapter;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.entity.Album;
 import com.xm.ib42.entity.Audio;
 import com.xm.ib42.util.DialogUtils;
 import com.xm.ib42.util.HttpHelper;
+import com.xm.ib42.util.JsonParser;
 import com.xm.ib42.util.Utils;
 
 import org.apache.http.HttpResponse;
@@ -32,6 +45,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -94,6 +109,15 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         audio_lv.setOnItemClickListener(this);
         audio_search.addTextChangedListener(this);
         title_back.setOnClickListener(this);
+        audio_mkf_button.setOnClickListener(this);
+
+        // 初始化识别无UI识别对象
+        // 使用SpeechRecognizer对象，可根据回调消息自定义界面；
+        mIat = SpeechRecognizer.createRecognizer(getApplicationContext(), mInitListener);
+
+        // 初始化听写Dialog，如果只使用有UI听写功能，无需创建SpeechRecognizer
+        // 使用UI听写功能，请根据sdk文件目录下的notice.txt,放置布局文件和图片资源
+        mIatDialog = new RecognizerDialog(this, mInitListener);
 
         itemListener();
     }
@@ -167,6 +191,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     };
 
     private List<Audio> searchList;
+    private String yppx = Constants.YPPXDESC;
 
     private void getdata() {
         new Thread(new Runnable() {
@@ -179,6 +204,7 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
                 list.add(new BasicNameValuePair(Constants.VALUES[1], album.getId()+""));
                 list.add(new BasicNameValuePair(Constants.VALUES[2], page+""));
                 list.add(new BasicNameValuePair(Constants.VALUES[5], pageNum+""));
+                list.add(new BasicNameValuePair(Constants.VALUES[6], yppx));
                 HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
                 JSONObject json = Utils.parseResponse(httpResponse);
                 List<Audio> audioList = Utils.pressAudioJson(json, album);
@@ -231,9 +257,9 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     }
 
     private void getSearchData() {
-        if (!loadDialog.isShowing()){
-            loadDialog.show();
-        }
+//        if (!loadDialog.isShowing()){
+//            loadDialog.show();
+//        }
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -261,6 +287,109 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     public void onClick(View view) {
         if (view == title_back){
             finish();
+        } else if (view == audio_mkf_button){
+            setParam();
+            audio_search.setText(null);// 清空显示内容
+            mIatResults.clear();
+            mIatDialog.setListener(mRecognizerDialogListener);
+            // 移动数据分析，收集开始听写事件
+            FlowerCollector.onEvent(getApplicationContext(), "iat_recognize");
+            // 显示听写对话框
+            mIatDialog.show();
         }
     }
+
+    // 语音听写对象
+    public SpeechRecognizer mIat;
+    // 语音听写UI
+    public RecognizerDialog mIatDialog;
+    // 用HashMap存储听写结果
+    private HashMap<String, String> mIatResults = new LinkedHashMap<String, String>();
+
+    /**
+     * 初始化监听器。
+     */
+    private InitListener mInitListener = new InitListener() {
+
+        @Override
+        public void onInit(int code) {
+            Log.d("Tag", "SpeechRecognizer init() code = " + code);
+            if (code != ErrorCode.SUCCESS) {
+            }
+        }
+    };
+
+
+    /**
+     * 听写UI监听器
+     */
+    private RecognizerDialogListener mRecognizerDialogListener = new RecognizerDialogListener() {
+        public void onResult(RecognizerResult results, boolean isLast) {
+            printTransResult( results );
+        }
+
+        /**
+         * 识别回调错误.
+         */
+        public void onError(SpeechError error) {
+            if(error.getErrorCode() == 14002) {
+                Utils.showToast(AudioListActivity.this, "识别失败,请确认是否已开通翻译功能");
+            } else {
+                Utils.showToast(AudioListActivity.this, "识别失败");
+            }
+        }
+
+    };
+
+    /**
+     * 参数设置
+     *
+     * @return
+     */
+    public void setParam() {
+        // 清空参数
+        mIat.setParameter(SpeechConstant.PARAMS, null);
+
+        // 设置听写引擎
+        mIat.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
+        // 设置返回结果格式
+        mIat.setParameter(SpeechConstant.RESULT_TYPE, "json");
+
+        mIat.setParameter( SpeechConstant.ASR_SCH, "1" );
+        mIat.setParameter( SpeechConstant.ADD_CAP, "translate" );
+        mIat.setParameter( SpeechConstant.TRS_SRC, "its" );
+        // 设置语言
+        mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+        mIat.setParameter(SpeechConstant.ACCENT, "en_us");
+        mIat.setParameter( SpeechConstant.ORI_LANG, "cn" );
+        mIat.setParameter( SpeechConstant.TRANS_LANG, "en" );
+
+
+        // 设置语音前端点:静音超时时间，即用户多长时间不说话则当做超时处理
+        mIat.setParameter(SpeechConstant.VAD_BOS, "4000");
+
+        // 设置语音后端点:后端点静音检测时间，即用户停止说话多长时间内即认为不再输入， 自动停止录音
+        mIat.setParameter(SpeechConstant.VAD_EOS, "1000");
+
+        // 设置标点符号,设置为"0"返回结果无标点,设置为"1"返回结果有标点
+        mIat.setParameter(SpeechConstant.ASR_PTT, "1");
+
+        // 设置音频保存路径，保存音频格式支持pcm、wav，设置路径为sd卡请注意WRITE_EXTERNAL_STORAGE权限
+        // 注：AUDIO_FORMAT参数语记需要更新版本才能生效
+        mIat.setParameter(SpeechConstant.AUDIO_FORMAT,"wav");
+        mIat.setParameter(SpeechConstant.ASR_AUDIO_PATH, Environment.getExternalStorageDirectory()+"/msc/iat.wav");
+    }
+
+    private void printTransResult (RecognizerResult results) {
+        String trans  = JsonParser.parseTransResult(results.getResultString(),"dst");
+        String oris = JsonParser.parseTransResult(results.getResultString(),"src");
+
+        if( TextUtils.isEmpty(trans)||TextUtils.isEmpty(oris) ){
+            Utils.showToast(this, "解析结果失败，请确认是否已开通翻译功能。");
+        }else{
+            audio_search.setText(oris);
+        }
+
+    }
+    
 }

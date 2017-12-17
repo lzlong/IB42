@@ -1,10 +1,12 @@
 package com.xm.ib42;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -105,23 +107,6 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         searchPop.setContentView(view);
 
         click();
-        if (aty.homeList != null && aty.homeList.size() > 0){
-            if (adapter == null){
-                adapter = new HomeAdapter(aty, aty.homeList);
-                home_lv.setAdapter(adapter);
-
-            } else {
-                adapter.notifyDataSetChanged();
-            }
-            int groupCount = home_lv.getCount();
-            for (int i=0; i<groupCount; i++) {
-                home_lv.expandGroup(i);
-            }
-
-        } else {
-            aty.showLoadDialog(true);
-            getColumnData();
-        }
         //
         if (!MyApplication.mediaPlayer.isPlaying() && aty.albumId != -1 && aty.isShow){
             Album album = aty.albumDao.searchById(aty.albumId);
@@ -135,20 +120,19 @@ public class HomePageFragment extends Fragment implements OnClickListener,
             home_play.setVisibility(View.GONE);
         }
 
-        if (aty.homeList != null){
-            if (adapter == null){
-                adapter = new HomeAdapter(aty, aty.homeList);
-                home_lv.setAdapter(adapter);
-                int groupCount = home_lv.getCount();
-                for (int i=0; i<groupCount; i++) {
-                    home_lv.expandGroup(i);
-                }
-            } else {
-                adapter.notifyDataSetChanged();
-            }
-        }
+//        if (aty.homeList != null){
+//            if (adapter == null){
+//                adapter = new HomeAdapter(aty, aty.homeList);
+//                home_lv.setAdapter(adapter);
+//                int groupCount = home_lv.getCount();
+//                for (int i=0; i<groupCount; i++) {
+//                    home_lv.expandGroup(i);
+//                }
+//            } else {
+//                adapter.notifyDataSetChanged();
+//            }
+//        }
 
-        setParam();
     }
 
     private JSONObject json;
@@ -164,7 +148,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                 list.add(new BasicNameValuePair(Constants.VALUES[0], "2"));
                 HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
                 json = Utils.parseResponse(httpResponse);
-                aty.homeList.clear();
+//                aty.homeList.clear();
                 aty.homeList = Utils.pressColumnJson(json);
                 if (aty.homeList != null){
                     for (int i = 0; i < aty.homeList.size(); i++) {
@@ -261,6 +245,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
             aty.sendBroadcast(intent);
             aty.changePlay();
         } else if (v == mkf_button){
+            setParam();
             home_search.setText(null);// 清空显示内容
             mIatResults.clear();
             aty.mIatDialog.setListener(mRecognizerDialogListener);
@@ -295,7 +280,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     }
 
     private void getSearchData() {
-        aty.showLoadDialog(true);
+//        aty.showLoadDialog(true);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -317,12 +302,39 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     public void afterTextChanged(Editable s) {
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onStart() {
         super.onStart();
         // 开放统计 移动数据统计分析
         FlowerCollector.onResume(aty);
         FlowerCollector.onPageStart("Tag");
+        if (aty.homeList != null && aty.homeList.size() > 0){
+            adapter = new HomeAdapter(aty, aty.homeList);
+            home_lv.setAdapter(adapter);
+//            if (adapter == null){
+//
+//            } else {
+//                adapter.notifyDataSetChanged();
+//            }
+            int groupCount = home_lv.getCount();
+            for (int i=0; i<groupCount; i++) {
+                home_lv.expandGroup(i);
+            }
+        }
+        if (Build.VERSION.SDK_INT >= 23){
+            if (!Utils.checkState_21orNew()){
+                Utils.showToast(aty, "没有网络");
+                return;
+            }
+        } else if(Build.VERSION.SDK_INT < 23){
+            if (!Utils.checkState_21()){
+                Utils.showToast(aty, "没有网络");
+                return;
+            }
+        }
+//        aty.showLoadDialog(true);
+        getColumnData();
     }
 
     @Override
@@ -373,10 +385,10 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         aty.mIat.setParameter( SpeechConstant.ADD_CAP, "translate" );
         aty.mIat.setParameter( SpeechConstant.TRS_SRC, "its" );
         // 设置语言
-        aty.mIat.setParameter(SpeechConstant.LANGUAGE, "en_us");
-        aty.mIat.setParameter(SpeechConstant.ACCENT, null);
-        aty.mIat.setParameter( SpeechConstant.ORI_LANG, "en" );
-        aty.mIat.setParameter( SpeechConstant.TRANS_LANG, "cn" );
+        aty.mIat.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+        aty.mIat.setParameter(SpeechConstant.ACCENT, "en_us");
+        aty.mIat.setParameter( SpeechConstant.ORI_LANG, "cn" );
+        aty.mIat.setParameter( SpeechConstant.TRANS_LANG, "en" );
 
 
         // 设置语音前端点:静音超时时间，即用户多长时间不说话则当做超时处理
@@ -401,7 +413,7 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         if( TextUtils.isEmpty(trans)||TextUtils.isEmpty(oris) ){
             Utils.showToast(aty, "解析结果失败，请确认是否已开通翻译功能。");
         }else{
-            home_search.setText( "原始语言:\n"+oris+"\n目标语言:\n"+trans );
+            home_search.setText(oris);
         }
 
     }
@@ -410,6 +422,9 @@ public class HomePageFragment extends Fragment implements OnClickListener,
     public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
         final Column column = (Column) expandableListView.getExpandableListAdapter().getGroup(i);
         if (i1 == expandableListView.getExpandableListAdapter().getChildrenCount(i)-1 && column != null){
+            if (column.getCount() == column.getAlbumList().size()){
+                return false;
+            }
             adapter.setAdd(i);
             column.setPage(column.getPage()+1);
             new Thread(new Runnable() {

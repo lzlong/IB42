@@ -22,6 +22,7 @@ public class Audio implements Serializable{
     private boolean isNet;// 是否是网络音乐
     private boolean isDownFinish;// 是否是下载完成
     private boolean isCacheFinish;// 是否缓存完成
+    private int state;
 
     public int getId() {
         return id;
@@ -133,5 +134,13 @@ public class Audio implements Serializable{
 
     public void setCachePath(String cachePath) {
         this.cachePath = cachePath;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
     }
 }

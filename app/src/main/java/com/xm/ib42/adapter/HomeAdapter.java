@@ -137,7 +137,9 @@ public class HomeAdapter extends BaseExpandableListAdapter {
         if (i1 == data.get(i).getAlbumList().size()){
             holder.albumLayout.setVisibility(View.GONE);
             holder.moreLayout.setVisibility(View.VISIBLE);
-            if (isAdd.get(i)){
+            if (data.get(i).getCount() == data.get(i).getAlbumList().size()){
+                holder.moreTv.setText("没有更多了");
+            } else if (isAdd.get(i)){
                 holder.moreTv.setText("正在加载");
             } else {
                 holder.moreTv.setText("加载更多");
@@ -155,7 +157,7 @@ public class HomeAdapter extends BaseExpandableListAdapter {
                         .into(holder.home_page_item_img);
             }
             holder.home_album_title.setText(album.getTitle());
-            holder.home_audio_num.setText(album.getAudioNum()+"");
+            holder.home_audio_num.setText("节目数("+album.getAudioNum()+")");
         }
         return view;
     }

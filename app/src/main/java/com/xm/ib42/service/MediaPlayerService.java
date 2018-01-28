@@ -153,13 +153,13 @@ public class MediaPlayerService extends Service {
 				status = 3;
 			}
 			// JUMP
-			else if (Constants.ACTION_JUMR.equals(intent.getAction())) {
+			else if (Constants.ACTION_JUMP.equals(intent.getAction())) {
 				int position = intent.getIntExtra("position", 0);
 				if (position >= 0) {
 					jump(position);
 				}
 				// JUMP_OTHER
-			} else if (Constants.ACTION_JUMR_OTHER.equals(intent.getAction())) {
+			} else if (Constants.ACTION_JUMP_OTHER.equals(intent.getAction())) {
 				String name = intent.getStringExtra("name");
 				Log.i("test", Constants.playList.size() + "--position" + "---" + name);
 				int position = getdataindex(name);
@@ -172,7 +172,7 @@ public class MediaPlayerService extends Service {
 				if (position >= 0) {
 					jump(position);
 				}
-			} else if (Constants.ACTION_JUMR_MYPAGE.equals(intent.getAction())){
+			} else if (Constants.ACTION_JUMP_MYPAGE.equals(intent.getAction())){
 				String name = intent.getStringExtra("title");
 				int position = getindex(name);
 				if (position == -1){
@@ -303,9 +303,9 @@ public class MediaPlayerService extends Service {
 		filter.addAction(Constants.ACTION_SEEK);
 		filter.addAction(Constants.ACTION_HISTORY);
 		filter.addAction(Constants.ACTION_STOP);
-		filter.addAction(Constants.ACTION_JUMR);
-		filter.addAction(Constants.ACTION_JUMR_OTHER);
-		filter.addAction(Constants.ACTION_JUMR_MYPAGE);
+		filter.addAction(Constants.ACTION_JUMP);
+		filter.addAction(Constants.ACTION_JUMP_OTHER);
+		filter.addAction(Constants.ACTION_JUMP_MYPAGE);
 		filter.addAction(Constants.ACTION_UPDATE_ALL);
 		filter.addAction(Constants.ACTION_FIND);
 		filter.addAction(Constants.ACTION_NET_PLAY);
@@ -384,6 +384,11 @@ public class MediaPlayerService extends Service {
 				list.add(new BasicNameValuePair(Constants.VALUES[0], "1"));
 				list.add(new BasicNameValuePair(Constants.VALUES[1], Constants.playAlbum.getId()+""));
 				list.add(new BasicNameValuePair(Constants.VALUES[2], String.valueOf(Constants.playPage++)));
+                if (Constants.playAlbum.getYppx() == 0){
+                    list.add(new BasicNameValuePair(Constants.VALUES[6], Constants.YPPXDESC));
+                } else {
+                    list.add(new BasicNameValuePair(Constants.VALUES[6], Constants.YPPXASC));
+                }
 				HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
 				JSONObject json = Utils.parseResponse(httpResponse);
 				List<Audio> l = Utils.pressAudioJson(json, Constants.playAlbum);
@@ -407,7 +412,7 @@ public class MediaPlayerService extends Service {
 			if (index == -1){
 				getData(0, name);
 			} else {
-				Intent intent = new Intent(Constants.ACTION_JUMR_MYPAGE);
+				Intent intent = new Intent(Constants.ACTION_JUMP_MYPAGE);
 				intent.putExtra("title", name);
 				context.sendBroadcast(intent);
 			}
@@ -468,6 +473,8 @@ public class MediaPlayerService extends Service {
 //					String name = path.substring(path.lastIndexOf("/"), path.length());
 					path = Utils.pressUrl(path);
 					mPlayer.setDataSource(path);
+//					Uri uri = Uri.parse(path);
+//					mPlayer.setDataSource(getApplicationContext(), uri);
 					mPlayer.prepare();
 					CacheUtil cacheUtil = new CacheUtil(nowPlayAudio, getApplicationContext());
 					cacheUtil.start(false, getApplicationContext());
@@ -478,8 +485,13 @@ public class MediaPlayerService extends Service {
 				status = 3;
 				totalms = mPlayer.getDuration();
 				updataAllMusicInfo(false, null);
-				Constants.playAlbum.setAudioId(nowPlayAudio.getId());
-				Constants.playAlbum.setAudioName(nowPlayAudio.getTitle());
+				if (Constants.playAlbum.getYppx() == 0){
+					Constants.playAlbum.setAudioIdDesc(nowPlayAudio.getId());
+					Constants.playAlbum.setAudioNameDesc(nowPlayAudio.getTitle());
+				} else {
+					Constants.playAlbum.setAudioIdAsc(nowPlayAudio.getId());
+					Constants.playAlbum.setAudioNameAsc(nowPlayAudio.getTitle());
+				}
 				if (mAlbumDao.isExist(Constants.playAlbum.getTitle()) == 1){
 					mAlbumDao.update(Constants.playAlbum);
 				} else {

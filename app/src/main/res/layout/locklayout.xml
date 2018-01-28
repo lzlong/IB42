@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@mipmap/background">
+    <!--<com.facebook.drawee.view.SimpleDraweeView
+        android:src="@drawable/login_bg_night"
+        android:scaleType="centerCrop"
+        android:id="@+id/lock_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#70000000" />-->
+    <com.xm.ib42.util.SildingFinishLayout
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:id="@+id/lock_root"
+        android:layout_height="match_parent">
+        <TextView
+            android:textColor="@color/color_FFE8F2C9"
+            android:layout_marginTop="140dp"
+            android:textSize="20sp"
+            android:text="空"
+            android:id="@+id/lock_music_name"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:textColor="@color/color_FFE8F2C9"
+            android:layout_marginTop="5dp"
+            android:layout_alignLeft="@+id/lock_music_name"
+            android:layout_below="@+id/lock_music_name"
+            android:text="什么"
+            android:textSize="18sp"
+            android:id="@+id/lock_music_artsit"
+            android:gravity="center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:layout_marginBottom="30dp"
+            android:layout_above="@+id/lock_tip"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:id="@+id/lock_control"
+            android:orientation="horizontal">
+            <ImageView
+                android:src="@mipmap/shangyiq"
+                android:id="@+id/lock_music_pre"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:src="@mipmap/bof"
+                android:id="@+id/lock_music_play"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:src="@mipmap/xiayiq"
+                android:id="@+id/lock_music_next"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <com.xm.ib42.util.CustomTextView
+            android:layout_centerHorizontal="true"
+            android:text=">>> 滑动解锁"
+            android:textColor="@color/color_FFE8F2C9"
+            android:textSize="20sp"
+            android:layout_marginBottom="30dp"
+            android:layout_alignParentBottom="true"
+            android:id="@+id/lock_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp" />
+
+    </com.xm.ib42.util.SildingFinishLayout>
+</FrameLayout>

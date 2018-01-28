@@ -125,8 +125,13 @@ public class DownActivity extends Activity implements View.OnClickListener, Adap
         Constants.playList.clear();
         Constants.playList.addAll(mAudioList);
         Audio audio = (Audio) adapterView.getAdapter().getItem(i);
-        Constants.playAlbum.setAudioId(audio.getId());
-        Constants.playAlbum.setAudioName(audio.getTitle());
+        if (Constants.playAlbum.getYppx() == 0){
+            Constants.playAlbum.setAudioIdDesc(audio.getId());
+            Constants.playAlbum.setAudioNameDesc(audio.getTitle());
+        } else {
+            Constants.playAlbum.setAudioIdAsc(audio.getId());
+            Constants.playAlbum.setAudioNameAsc(audio.getTitle());
+        }
 //        Constants.playPage = Constants.playList.size() / 10;
         intent.putExtra("position", i);
         setResult(0, intent);

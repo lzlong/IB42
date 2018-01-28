@@ -11,11 +11,14 @@ public class Album implements Serializable{
     private int id;
     private String title;
     private String imageUrl;
-    private int audioId;
-    private String audioName;
+    private int audioIdDesc;
+    private int audioIdAsc;
+    private String audioNameDesc;
+    private String audioNameAsc;
     private List<Audio> audioList;
     private int audioNum;
     private boolean isDelete;
+    private int yppx; // 0 升序, 1 降序
 
     public int getId() {
         return id;
@@ -49,20 +52,36 @@ public class Album implements Serializable{
         this.audioList = audioList;
     }
 
-    public int getAudioId() {
-        return audioId;
+    public int getAudioIdDesc() {
+        return audioIdDesc;
     }
 
-    public void setAudioId(int audioId) {
-        this.audioId = audioId;
+    public void setAudioIdDesc(int audioIdDesc) {
+        this.audioIdDesc = audioIdDesc;
     }
 
-    public String getAudioName() {
-        return audioName;
+    public int getAudioIdAsc() {
+        return audioIdAsc;
     }
 
-    public void setAudioName(String audioName) {
-        this.audioName = audioName;
+    public void setAudioIdAsc(int audioIdAsc) {
+        this.audioIdAsc = audioIdAsc;
+    }
+
+    public String getAudioNameDesc() {
+        return audioNameDesc;
+    }
+
+    public void setAudioNameDesc(String audioNameDesc) {
+        this.audioNameDesc = audioNameDesc;
+    }
+
+    public String getAudioNameAsc() {
+        return audioNameAsc;
+    }
+
+    public void setAudioNameAsc(String audioNameAsc) {
+        this.audioNameAsc = audioNameAsc;
     }
 
     public int getAudioNum() {
@@ -79,5 +98,13 @@ public class Album implements Serializable{
 
     public void setDelete(boolean delete) {
         isDelete = delete;
+    }
+
+    public int getYppx() {
+        return yppx;
+    }
+
+    public void setYppx(int yppx) {
+        this.yppx = yppx;
     }
 }

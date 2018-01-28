@@ -2,7 +2,10 @@ package com.xm.ib42;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -12,9 +15,11 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.PopupWindow;
@@ -62,13 +67,14 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         initView();
     }
 
-    private TextView title_back;
+    private TextView title_back, title_delete;
     private PullToRefreshListView audio_lv;
 //    private int albumId;
     private Album album;
     private int page = 1;
     private int pageNum = 20;
-    private List<Audio> audioList;
+    private List<Audio> audioListDesc;
+    private List<Audio> audioListAsc;
     private AudioListAdapter adapter;
     private AudioListAdapter searchAdapter;
     private Intent intent;
@@ -77,11 +83,24 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
     private ImageButton audio_mkf_button;
     private PopupWindow searchPop;
     private PullToRefreshListView home_search_lv;
+    private TextView desc, asc;
+
+    public SharedPreferences mSharedPreferences;
+
+    private PopupWindow downPop;
+    private Button adtn;
 
     private void initView() {
         title_back = (TextView) findViewById(R.id.title_back);
         title_back.setVisibility(View.VISIBLE);
+        title_delete = (TextView) findViewById(R.id.title_delete);
+        title_delete.setVisibility(View.VISIBLE);
+        title_delete.setText("下载");
         audio_lv = (PullToRefreshListView) findViewById(R.id.audio_lv);
+        desc = (TextView) findViewById(R.id.desc);
+        desc.setTextColor(0xFFFF5267);
+        asc = (TextView) findViewById(R.id.asc);
+        asc.setTextColor(0xFF000000);
 
         audio_search = (EditText) findViewById(R.id.audio_search);
         audio_mkf_button = (ImageButton) findViewById(R.id.audio_mkf_button);
@@ -93,14 +112,26 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         searchPop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         searchPop.setContentView(view);
+        searchPop.setOutsideTouchable(true);
+        searchPop.setBackgroundDrawable(new BitmapDrawable());
 
-        audioList = new ArrayList<>();
+        audioListDesc = new ArrayList<>();
+        audioListAsc = new ArrayList<>();
         searchList = new ArrayList<>();
         intent = getIntent();
         album = (Album) intent.getSerializableExtra("album");
+
+        mSharedPreferences = getSharedPreferences("audio", Context.MODE_PRIVATE);
+
         if (album != null) {
-            if (!loadDialog.isShowing()){
-                loadDialog.show();
+            audioListDesc = Utils.getAudioList(mSharedPreferences, album);
+            if (audioListDesc.size() <= 0){
+                if (!loadDialog.isShowing()){
+                    loadDialog.show();
+                }
+            } else {
+                adapter = new AudioListAdapter(AudioListActivity.this, audioListDesc);
+                audio_lv.setAdapter(adapter);
             }
             getdata();
         }
@@ -109,7 +140,10 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         audio_lv.setOnItemClickListener(this);
         audio_search.addTextChangedListener(this);
         title_back.setOnClickListener(this);
+        title_delete.setOnClickListener(this);
         audio_mkf_button.setOnClickListener(this);
+        desc.setOnClickListener(this);
+        asc.setOnClickListener(this);
 
         // 初始化识别无UI识别对象
         // 使用SpeechRecognizer对象，可根据回调消息自定义界面；
@@ -120,6 +154,15 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
         mIatDialog = new RecognizerDialog(this, mInitListener);
 
         itemListener();
+
+        View downView = getLayoutInflater().inflate(R.layout.audiodown, null);
+        adtn = (Button) downView.findViewById(R.id.adtn);
+        adtn.setOnClickListener(this);
+        downPop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, 200);
+        downPop.setContentView(downView);
+        downPop.setOutsideTouchable(false);
+//        downPop.setBackgroundDrawable(new BitmapDrawable());
+
     }
 
     private void itemListener() {
@@ -128,10 +171,19 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Constants.playAlbum = album;
                 Constants.playList.clear();
-                Constants.playList.addAll(audioList);
+                if (yppx.equals(Constants.YPPXDESC)){
+                    Constants.playList.addAll(audioListDesc);
+                } else {
+                    Constants.playList.addAll(audioListAsc);
+                }
                 Audio audio = (Audio) adapterView.getAdapter().getItem(i);
-                Constants.playAlbum.setAudioId(audio.getId());
-                Constants.playAlbum.setAudioName(audio.getTitle());
+                if (Constants.playAlbum.getYppx() == 0){
+                    Constants.playAlbum.setAudioIdDesc(audio.getId());
+                    Constants.playAlbum.setAudioNameDesc(audio.getTitle());
+                } else {
+                    Constants.playAlbum.setAudioIdAsc(audio.getId());
+                    Constants.playAlbum.setAudioNameAsc(audio.getTitle());
+                }
                 Constants.playPage = Constants.playList.size() / 10;
                 intent.putExtra("title", audio.getTitle());
                 setResult(1, intent);
@@ -150,18 +202,31 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
                 }
                 List<Audio> list = (List<Audio>) msg.obj;
                 if (list != null){
-                    if (page == 1){
-                        audioList.clear();
-                        audioList.addAll(list);
-                    } else {
-                        audioList.addAll(list);
-                    }
-                    if (adapter == null){
-                        adapter = new AudioListAdapter(AudioListActivity.this, audioList);
+                    if (yppx.equals(Constants.YPPXDESC)){
+                        if (page == 1){
+                            audioListDesc.clear();
+                            audioListDesc.addAll(list);
+                        } else {
+                            audioListDesc.addAll(list);
+                        }
+                        adapter = new AudioListAdapter(AudioListActivity.this, audioListDesc);
                         audio_lv.setAdapter(adapter);
+                        Utils.saveAudioList(mSharedPreferences, audioListDesc, album);
                     } else {
-                        adapter.notifyDataSetChanged();
+                        if (page == 1){
+                            audioListAsc.clear();
+                            audioListAsc.addAll(list);
+                        } else {
+                            audioListAsc.addAll(list);
+                        }
+                        adapter = new AudioListAdapter(AudioListActivity.this, audioListAsc);
+                        audio_lv.setAdapter(adapter);
+                        Utils.saveAudioList(mSharedPreferences, audioListAsc, album);
                     }
+//                    if (adapter == null){
+//                    } else {
+//                        adapter.notifyDataSetChanged();
+//                    }
                     audio_lv.onRefreshComplete();
                 }
             } else if (msg.what == 2){
@@ -179,11 +244,11 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
                     if (searchAdapter == null){
                         searchAdapter = new AudioListAdapter(AudioListActivity.this, searchList);
                         home_search_lv.setAdapter(searchAdapter);
-                        if (!searchPop.isShowing()){
-                            searchPop.showAsDropDown(audio_search, 0, 20);
-                        }
                     } else {
                         searchAdapter.notifyDataSetChanged();
+                    }
+                    if (searchList != null && searchList.size() > 0 && !searchPop.isShowing()){
+                        searchPop.showAsDropDown(audio_search, 0, 20);
                     }
                 }
             }
@@ -215,18 +280,23 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//        if (Constants.playAlbum != null){
-//            if (Constants.playAlbum.getId() != album.getId()){
-//                Constants.playAlbum = album;
-//            }
-//        } else {
-//        }
         Constants.playAlbum = album;
         Constants.playList.clear();
-        Constants.playList.addAll(audioList);
+        if (yppx.equals(Constants.YPPXDESC)){
+            Constants.playAlbum.setYppx(0);
+            Constants.playList.addAll(audioListDesc);
+        } else {
+            Constants.playAlbum.setYppx(1);
+            Constants.playList.addAll(audioListAsc);
+        }
         Audio audio = (Audio) adapterView.getAdapter().getItem(i);
-        Constants.playAlbum.setAudioId(audio.getId());
-        Constants.playAlbum.setAudioName(audio.getTitle());
+        if (Constants.playAlbum.getYppx() == 0){
+            Constants.playAlbum.setAudioIdDesc(audio.getId());
+            Constants.playAlbum.setAudioNameDesc(audio.getTitle());
+        } else {
+            Constants.playAlbum.setAudioIdAsc(audio.getId());
+            Constants.playAlbum.setAudioNameAsc(audio.getTitle());
+        }
         Constants.playPage = Constants.playList.size() / 10;
         intent.putExtra("position", i-1);
         setResult(0, intent);
@@ -296,6 +366,100 @@ public class AudioListActivity extends Activity implements AdapterView.OnItemCli
             FlowerCollector.onEvent(getApplicationContext(), "iat_recognize");
             // 显示听写对话框
             mIatDialog.show();
+        } else if (view == desc){
+            if (yppx.equals(Constants.YPPXASC)){
+                yppx = Constants.YPPXDESC;
+                desc.setTextColor(0xFFFF5267);
+                asc.setTextColor(0xFF000000);
+                adapter.setDown(false);
+                title_delete.setText("下载");
+                if (downPop.isShowing()){
+                    downPop.dismiss();
+                }
+                if (audioListDesc != null && audioListDesc.size() > 0){
+                    adapter = new AudioListAdapter(this, audioListDesc);
+                    audio_lv.setAdapter(adapter);
+                } else {
+                    audioListDesc = Utils.getAudioList(mSharedPreferences, album);
+                    adapter = new AudioListAdapter(this, audioListDesc);
+                    audio_lv.setAdapter(adapter);
+                    getdata();
+                }
+            }
+        } else if (view == asc){
+            if (yppx.equals(Constants.YPPXDESC)){
+                yppx = Constants.YPPXASC;
+                asc.setTextColor(0xFFFF5267);
+                desc.setTextColor(0xFF000000);
+                adapter.setDown(false);
+                title_delete.setText("下载");
+                if (downPop.isShowing()){
+                    downPop.dismiss();
+                }
+                if (audioListAsc != null && audioListAsc.size() > 0){
+                    adapter = new AudioListAdapter(this, audioListAsc);
+                    audio_lv.setAdapter(adapter);
+                } else {
+                    audioListAsc = Utils.getAudioList(mSharedPreferences, album);
+                    adapter = new AudioListAdapter(this, audioListAsc);
+                    audio_lv.setAdapter(adapter);
+                    getdata();
+                }
+            }
+        } else if (view == title_delete){
+            if (adapter != null){
+                if (adapter.isDown()){
+                    adapter.setDown(false);
+                    title_delete.setText("下载");
+                    if (downPop.isShowing()){
+                        downPop.dismiss();
+                    }
+                    if (yppx.equals(Constants.YPPXDESC)){
+                        for (int i = 0; i < audioListDesc.size(); i++) {
+                            audioListDesc.get(i).setCheck(false);
+                        }
+                    } else {
+                        for (int i = 0; i < audioListAsc.size(); i++) {
+                            audioListAsc.get(i).setCheck(false);
+                        }
+                    }
+                } else {
+                    adapter.setDown(true);
+                    title_delete.setText("取消");
+                    downPop.showAtLocation(getLayoutInflater().inflate(R.layout.audiolist, null), Gravity.BOTTOM, 0, 0);
+                }
+                adapter.notifyDataSetChanged();
+            }
+        } else if (view == adtn){
+            List<Audio> list = new ArrayList<>();
+            if (yppx.equals(Constants.YPPXDESC)){
+                for (int i = 0; i < audioListDesc.size(); i++) {
+                    Audio audio = audioListDesc.get(i);
+                    if (audio.isCheck()){
+                        list.add(audio);
+                        audio.setCheck(false);
+                    }
+                }
+            } else {
+                for (int i = 0; i < audioListAsc.size(); i++) {
+                    Audio audio = audioListAsc.get(i);
+                    if (audio.isCheck()){
+                        list.add(audio);
+                        audio.setCheck(false);
+                    }
+                }
+            }
+            if (list.size() > 0){
+                MainActivity.downLoadManager.add(list);
+                if (downPop.isShowing()){
+                    downPop.dismiss();
+                }
+                adapter.setDown(false);
+                title_delete.setText("下载");
+                adapter.notifyDataSetChanged();
+           } else {
+                Utils.showToast(AudioListActivity.this, "请选择要下载的音频");
+            }
         }
     }
 

@@ -30,9 +30,12 @@ public class DBData {
 	public static final String ALBUM_NAME="title";
 	public static final String ALBUM_IMAGEURL="imageUrl";
 	public static final String ALBUM_TIME="playDate";
-	public static final String ALBUM_AUDIO_ID="audioId";
-	public static final String ALBUM_AUDIO_NAME="audioName";
+	public static final String ALBUM_AUDIO_ID_DESC="audioIdDesc";
+	public static final String ALBUM_AUDIO_NAME_DESC="audioNameDesc";
+	public static final String ALBUM_AUDIO_ID_ASC="audioIdAsc";
+	public static final String ALBUM_AUDIO_NAME_ASC="audioNameAsc";
 	public static final String ALBUM_ISDELETE="isDelete";
+	public static final String ALBUM_YPPX="yppx";
 
 	//下载信息字段
 	public static final String DOWNLOADINFO_TABLENAME="downLoadInfo";

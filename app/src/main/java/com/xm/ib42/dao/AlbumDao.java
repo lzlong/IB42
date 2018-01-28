@@ -32,8 +32,11 @@ public class AlbumDao {
 			album.setId(cr.getInt(cr.getColumnIndex(DBData.ALBUM_ID)));
 			album.setTitle(cr.getString(cr.getColumnIndex(DBData.ALBUM_NAME)));
 			album.setImageUrl(cr.getString(cr.getColumnIndex(DBData.ALBUM_IMAGEURL)));
-			album.setAudioName(cr.getString(cr.getColumnIndex(DBData.ALBUM_AUDIO_NAME)));
-			album.setAudioId(cr.getInt(cr.getColumnIndex(DBData.ALBUM_AUDIO_ID)));
+			album.setAudioNameDesc(cr.getString(cr.getColumnIndex(DBData.ALBUM_AUDIO_NAME_DESC)));
+			album.setAudioIdDesc(cr.getInt(cr.getColumnIndex(DBData.ALBUM_AUDIO_ID_DESC)));
+			album.setAudioNameAsc(cr.getString(cr.getColumnIndex(DBData.ALBUM_AUDIO_NAME_ASC)));
+			album.setAudioIdAsc(cr.getInt(cr.getColumnIndex(DBData.ALBUM_AUDIO_ID_ASC)));
+			album.setYppx(cr.getInt(cr.getColumnIndex(DBData.ALBUM_YPPX)));
 			int isDelete = cr.getInt(cr.getColumnIndex(DBData.ALBUM_ISDELETE));
 			if (isDelete == 0){
 				album.setDelete(false);
@@ -58,8 +61,11 @@ public class AlbumDao {
 			album.setId(cr.getInt(cr.getColumnIndex(DBData.ALBUM_ID)));
 			album.setTitle(cr.getString(cr.getColumnIndex(DBData.ALBUM_NAME)));
 			album.setImageUrl(cr.getString(cr.getColumnIndex(DBData.ALBUM_IMAGEURL)));
-			album.setAudioId(cr.getInt(cr.getColumnIndex(DBData.ALBUM_AUDIO_ID)));
-			album.setAudioName(cr.getString(cr.getColumnIndex(DBData.ALBUM_AUDIO_NAME)));
+			album.setAudioNameDesc(cr.getString(cr.getColumnIndex(DBData.ALBUM_AUDIO_NAME_DESC)));
+			album.setAudioIdDesc(cr.getInt(cr.getColumnIndex(DBData.ALBUM_AUDIO_ID_DESC)));
+			album.setAudioNameAsc(cr.getString(cr.getColumnIndex(DBData.ALBUM_AUDIO_NAME_ASC)));
+			album.setAudioIdAsc(cr.getInt(cr.getColumnIndex(DBData.ALBUM_AUDIO_ID_ASC)));
+			album.setYppx(cr.getInt(cr.getColumnIndex(DBData.ALBUM_YPPX)));
 			int d = cr.getInt(cr.getColumnIndex(DBData.ALBUM_ISDELETE));
 			if (d == 0){
 				album.setDelete(false);
@@ -115,10 +121,13 @@ public class AlbumDao {
 		ContentValues values=new ContentValues();
 		values.put(DBData.ALBUM_ID, album.getId());
 		values.put(DBData.ALBUM_NAME, album.getTitle());
-		values.put(DBData.ALBUM_AUDIO_ID, album.getAudioId());
-		values.put(DBData.ALBUM_AUDIO_NAME, album.getAudioName());
+		values.put(DBData.ALBUM_AUDIO_ID_DESC, album.getAudioIdDesc());
+		values.put(DBData.ALBUM_AUDIO_NAME_DESC, album.getAudioNameDesc());
+		values.put(DBData.ALBUM_AUDIO_ID_ASC, album.getAudioIdAsc());
+		values.put(DBData.ALBUM_AUDIO_NAME_ASC, album.getAudioNameAsc());
 		values.put(DBData.ALBUM_IMAGEURL, album.getImageUrl());
 		values.put(DBData.ALBUM_TIME, System.currentTimeMillis());
+		values.put(DBData.ALBUM_YPPX, album.getYppx());
 		values.put(DBData.ALBUM_ISDELETE, 0);
 		long rs=db.insert(DBData.ALBUM_TABLENAME, DBData.ALBUM_NAME, values);
 		db.close();
@@ -145,10 +154,13 @@ public class AlbumDao {
 		ContentValues values=new ContentValues();
 		values.put(DBData.ALBUM_ID, album.getId());
 		values.put(DBData.ALBUM_NAME, album.getTitle());
-		values.put(DBData.ALBUM_AUDIO_ID, album.getAudioId());
-		values.put(DBData.ALBUM_AUDIO_NAME, album.getAudioName());
+		values.put(DBData.ALBUM_AUDIO_ID_DESC, album.getAudioIdDesc());
+		values.put(DBData.ALBUM_AUDIO_NAME_DESC, album.getAudioNameDesc());
+		values.put(DBData.ALBUM_AUDIO_ID_ASC, album.getAudioIdAsc());
+		values.put(DBData.ALBUM_AUDIO_NAME_ASC, album.getAudioNameAsc());
 		values.put(DBData.ALBUM_IMAGEURL, album.getImageUrl());
 		values.put(DBData.ALBUM_TIME, System.currentTimeMillis());
+		values.put(DBData.ALBUM_YPPX, album.getYppx());
 		values.put(DBData.ALBUM_ISDELETE, 0);
 		int rs=db.update(DBData.ALBUM_TABLENAME, values, DBData.ALBUM_ID+"=?", new String[]{String.valueOf(album.getId())});
 		db.close();

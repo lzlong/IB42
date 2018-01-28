@@ -70,6 +70,7 @@ public class Download implements Serializable {
 	private int downLoadInfoId;
     private DownLoadInfo mDownLoadInfo;
     private Context mContext;
+	private boolean isDown;
 
 	/**
 	 * 配置下载线程池的大小
@@ -146,12 +147,17 @@ public class Download implements Serializable {
 		return split[split.length-1];
 	}
 
-	/**
+    public boolean isDown() {
+        return isDown;
+    }
+
+    /**
 	 * 开始下载
 	 * params isGoon是否为继续下载
 	 */
 	@SuppressLint("HandlerLeak")
 	public void start(final boolean isGoon) {
+        isDown = true;
 		// 处理消息
 		final Handler handler = new Handler() {
 			@Override
@@ -327,9 +333,11 @@ public class Download implements Serializable {
 	public synchronized boolean pause(boolean pause) {
 		if(!pause) {
 			Utils.logD("继续下载");
+            isDown = true;
 			isPause = false;
 			start(true); // 开始下载
 		}else {
+            isDown = false;
 			Utils.logD("暂停下载");
 			isPause = true;
 		}

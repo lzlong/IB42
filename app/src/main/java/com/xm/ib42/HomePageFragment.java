@@ -1,6 +1,7 @@
 package com.xm.ib42;
 
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -105,6 +106,8 @@ public class HomePageFragment extends Fragment implements OnClickListener,
         searchPop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
         searchPop.setContentView(view);
+        searchPop.setOutsideTouchable(true);
+        searchPop.setBackgroundDrawable(new BitmapDrawable());
 
         click();
         //
@@ -198,15 +201,16 @@ public class HomePageFragment extends Fragment implements OnClickListener,
                     if (searchList == null){
                         searchList = new ArrayList<>();
                     }
+                    searchList.clear();
                     searchList.addAll(list);
                     if (searchAdapter == null){
                         searchAdapter = new HomeSearchAdapter(aty, searchList);
                         home_search_lv.setAdapter(searchAdapter);
-                        if (!searchPop.isShowing()){
-                            searchPop.showAsDropDown(home_search, 0, 20);
-                        }
                     } else {
                         searchAdapter.notifyDataSetChanged();
+                    }
+                    if (searchList != null && searchList.size() > 0 && !searchPop.isShowing()){
+                        searchPop.showAsDropDown(home_search, 0, 20);
                     }
                 }
             } else if (msg.what == 3){
@@ -240,8 +244,12 @@ public class HomePageFragment extends Fragment implements OnClickListener,
             Constants.playPage = 0;
             Constants.playAlbum = album;
             Constants.playList.clear();
-            Intent intent = new Intent(Constants.ACTION_JUMR_MYPAGE);
-            intent.putExtra("title", album.getAudioName());
+            Intent intent = new Intent(Constants.ACTION_JUMP_MYPAGE);
+            if (album.getYppx() == 0){
+                intent.putExtra("title", album.getAudioNameDesc());
+            } else {
+                intent.putExtra("title", album.getAudioNameAsc());
+            }
             aty.sendBroadcast(intent);
             aty.changePlay();
         } else if (v == mkf_button){

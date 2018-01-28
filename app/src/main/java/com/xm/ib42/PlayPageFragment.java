@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -68,7 +69,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
 		return convertView;
 	}
 
-	@Override
+	@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    @Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		aty = (MainActivity) getActivity();
@@ -86,6 +88,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     private PlayListAdapter playListAdapter;
     private ImageView session, timeline, favorite, qq, qzone;
     private PopupWindow sharePop;
+    private TextView desc, asc;
 
     public boolean isplaying = false;
     public Intent broadcastIntent;
@@ -110,9 +113,20 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
 
         View view = aty.getLayoutInflater().inflate(R.layout.play_list, null);
         home_search_lv = (PullToRefreshListView) view.findViewById(R.id.play_lv);
+        desc = (TextView) view.findViewById(R.id.play_desc);
+        asc = (TextView) view.findViewById(R.id.play_asc);
+        if (Constants.playAlbum != null && Constants.playAlbum.getYppx() == 0){
+            desc.setTextColor(0xFFFF5267);
+            asc.setTextColor(0xFF000000);
+        } else if(Constants.playAlbum != null){
+            asc.setTextColor(0xFFFF5267);
+            desc.setTextColor(0xFF000000);
+        }
         playPop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, 600);
         playPop.setContentView(view);
-        playPop.setFocusable(true);
+//        playPop.setFocusable(false);
+        playPop.setOutsideTouchable(true);
+        playPop.setBackgroundDrawable(new BitmapDrawable());
         home_search_lv.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
 
         View shareView = aty.getLayoutInflater().inflate(R.layout.sharepop, null);
@@ -123,7 +137,9 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         qzone = (ImageView) shareView.findViewById(R.id.qzone);
         sharePop = new PopupWindow(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         sharePop.setContentView(shareView);
-        sharePop.setFocusable(true);
+//        sharePop.setFocusable(false);
+        sharePop.setOutsideTouchable(true);
+        sharePop.setBackgroundDrawable(new BitmapDrawable());
 
         click();
         if (MyApplication.mediaPlayer.isPlaying()){
@@ -148,45 +164,50 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         thread.start();
 
         if (Constants.playAlbum == null && !MyApplication.mediaPlayer.isPlaying() && aty.isShow){
-            if (aty.albumId == -1){
-                Constants.playAlbum = aty.homeList.get(0).getAlbumList().get(0);
-                Constants.playList.clear();
-                if (Build.VERSION.SDK_INT >= 23){
-                    if (!Utils.checkState_21orNew()){
-                        Constants.playList.addAll(aty.audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
-                        int p = 0;
-                        for (int i = 0; i < Constants.playList.size(); i++) {
-                            if (Constants.playList.get(i).getId() == Constants.playAlbum.getId()){
-                                p = i;
+            if (aty.albumId == -1 && aty.homeList.size() > 0){
+                if (aty.homeList.get(0).getAlbumList() != null && aty.homeList.get(0).getAlbumList().size() > 0){
+                    Constants.playAlbum = aty.homeList.get(0).getAlbumList().get(0);
+                    Constants.playList.clear();
+                    if (Build.VERSION.SDK_INT >= 23){
+                        if (!Utils.checkState_21orNew()){
+                            Constants.playList.addAll(aty.audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+                            int p = 0;
+                            for (int i = 0; i < Constants.playList.size(); i++) {
+                                if (Constants.playList.get(i).getId() == Constants.playAlbum.getId()){
+                                    p = i;
+                                }
                             }
+                            Intent broadcastIntent = new Intent();
+                            broadcastIntent.setAction(Constants.ACTION_HISTORY);
+                            broadcastIntent.putExtra("", p);
+                            context.sendBroadcast(broadcastIntent);
+                        } else {
+                            getData(0);
                         }
-                        Intent broadcastIntent = new Intent();
-                        broadcastIntent.setAction(Constants.ACTION_HISTORY);
-                        broadcastIntent.putExtra("", p);
-                        context.sendBroadcast(broadcastIntent);
-                    } else {
-                        getData();
-                    }
-                } else if(Build.VERSION.SDK_INT < 23){
-                    if (!Utils.checkState_21()){
-                        Constants.playList.addAll(aty.audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
-                        int p = 0;
-                        for (int i = 0; i < Constants.playList.size(); i++) {
-                            if (Constants.playList.get(i).getId() == Constants.playAlbum.getId()){
-                                p = i;
+                    } else if(Build.VERSION.SDK_INT < 23){
+                        if (!Utils.checkState_21()){
+                            Constants.playList.addAll(aty.audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
+                            int p = 0;
+                            for (int i = 0; i < Constants.playList.size(); i++) {
+                                if (Constants.playList.get(i).getId() == Constants.playAlbum.getId()){
+                                    p = i;
+                                }
                             }
+                            Intent broadcastIntent = new Intent();
+                            broadcastIntent.setAction(Constants.ACTION_HISTORY);
+                            broadcastIntent.putExtra("", p);
+                            context.sendBroadcast(broadcastIntent);
+                        } else {
+                            getData(0);
                         }
-                        Intent broadcastIntent = new Intent();
-                        broadcastIntent.setAction(Constants.ACTION_HISTORY);
-                        broadcastIntent.putExtra("", p);
-                        context.sendBroadcast(broadcastIntent);
-                    } else {
-                        getData();
                     }
                 }
             } else if (Constants.playList == null
                     || Constants.playList.size() == 0){
                 Constants.playAlbum = aty.albumDao.searchById(aty.albumId);
+                if (Constants.playAlbum == null){
+                    Constants.playAlbum = aty.homeList.get(0).getAlbumList().get(0);
+                }
                 Constants.playList.clear();
                 if (Build.VERSION.SDK_INT >= 23){
                     if (!Utils.checkState_21orNew()){
@@ -202,7 +223,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                         broadcastIntent.putExtra("", p);
                         context.sendBroadcast(broadcastIntent);
                     } else {
-                        getData();
+                        getData(0);
                     }
                 } else if(Build.VERSION.SDK_INT < 23){
                     if (!Utils.checkState_21()){
@@ -218,7 +239,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                         broadcastIntent.putExtra("", p);
                         context.sendBroadcast(broadcastIntent);
                     } else {
-                        getData();
+                        getData(0);
                     }
                 }
             }
@@ -245,10 +266,11 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     int curms;
     int totalms = 1;
 
-    public void getData() {
+    public void getData(final  int what) {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                if (Constants.playAlbum == null)return;
                 HttpHelper httpHelper = new HttpHelper();
                 httpHelper.connect();
                 List<BasicNameValuePair> list = new ArrayList<BasicNameValuePair>();
@@ -256,10 +278,15 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 list.add(new BasicNameValuePair(Constants.VALUES[1], Constants.playAlbum.getId()+""));
                 list.add(new BasicNameValuePair(Constants.VALUES[2], "1"));
                 list.add(new BasicNameValuePair(Constants.VALUES[5], "10"));
+                if (Constants.playAlbum.getYppx() == 0){
+                    list.add(new BasicNameValuePair(Constants.VALUES[6], Constants.YPPXDESC));
+                } else {
+                    list.add(new BasicNameValuePair(Constants.VALUES[6], Constants.YPPXASC));
+                }
                 HttpResponse httpResponse = httpHelper.doGet(Constants.HTTPURL, list);
                 JSONObject json = Utils.parseResponse(httpResponse);
                 List<Audio> audioList = Utils.pressAudioJson(json, Constants.playAlbum);
-                nameshandler.sendMessage(nameshandler.obtainMessage(0, audioList));
+                nameshandler.sendMessage(nameshandler.obtainMessage(what, audioList));
             }
         }).start();
     }
@@ -299,7 +326,30 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 case 20:
                     play_bar.setProgress(curms);
                     play_time.setText(Utils.gettim(curms));
-                    aty.audioDao.updateByDuration(Constants.playAlbum.getAudioId(), MyApplication.mediaPlayer.getCurrentPosition());
+                    if (Constants.playAlbum.getYppx() == 0){
+                        aty.audioDao.updateByDuration(Constants.playAlbum.getAudioIdDesc(), MyApplication.mediaPlayer.getCurrentPosition());
+                    } else {
+                        aty.audioDao.updateByDuration(Constants.playAlbum.getAudioIdAsc(), MyApplication.mediaPlayer.getCurrentPosition());
+                    }
+                    break;
+                case 99:
+                    Constants.playList.addAll((Collection<? extends Audio>) msg.obj);
+                    int position = 0;
+                    for (int i = 0; i < Constants.playList.size(); i++) {
+                        if (Constants.playAlbum.getYppx() == 0){
+                            if (Constants.playAlbum.getAudioIdDesc() == Constants.playList.get(i).getId()){
+                                position = i;
+                            }
+                        } else {
+                            if (Constants.playAlbum.getAudioIdAsc() == Constants.playList.get(i).getId()){
+                                position = i;
+                            }
+                        }
+                    }
+                    Intent intent = new Intent();
+                    intent.setAction(Constants.ACTION_JUMP);
+                    intent.putExtra("position", position);
+                    context.sendBroadcast(intent);
                     break;
             }
         }
@@ -321,6 +371,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         home_search_lv.setOnItemClickListener(this);
         home_search_lv.setOnRefreshListener(this);
         play_bar.setOnSeekBarChangeListener(seekBarChangeListener);
+        desc.setOnClickListener(this);
+        asc.setOnClickListener(this);
     }
 
     @Override
@@ -338,17 +390,35 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 return;
             }
             //判断是否在下载列表中
-            if(aty.mDownLoadInfoDao.isExist(Constants.playAlbum.getAudioId())){
-                Utils.showToast(aty, "此歌曲已经在下载列表中");
-                return;
+            if (Constants.playAlbum.getYppx() == 0){
+                if(aty.mDownLoadInfoDao.isExist(Constants.playAlbum.getAudioIdDesc())){
+                    Utils.showToast(aty, "此歌曲已经在下载列表中");
+                    return;
+                }
+            } else {
+                if(aty.mDownLoadInfoDao.isExist(Constants.playAlbum.getAudioIdAsc())){
+                    Utils.showToast(aty, "此歌曲已经在下载列表中");
+                    return;
+                }
             }
             //判断是否已经下载过
-            if(aty.audioDao.isDownFinish(Constants.playAlbum.getAudioId())){
-                Utils.showToast(aty, "此歌曲已经下载过了");
-                return;
+            if (Constants.playAlbum.getYppx() == 0){
+                if(aty.audioDao.isDownFinish(Constants.playAlbum.getAudioIdDesc())){
+                    Utils.showToast(aty, "此歌曲已经下载过了");
+                    return;
+                }
+            } else {
+                if(aty.audioDao.isDownFinish(Constants.playAlbum.getAudioIdAsc())){
+                    Utils.showToast(aty, "此歌曲已经下载过了");
+                    return;
+                }
             }
             //添加到下载列表中
-            aty.downLoadManager.add(aty.audioDao.searchById(Constants.playAlbum.getAudioId(), true));
+            if (Constants.playAlbum.getYppx() == 0){
+                aty.downLoadManager.add(aty.audioDao.searchById(Constants.playAlbum.getAudioIdDesc(), true));
+            } else {
+                aty.downLoadManager.add(aty.audioDao.searchById(Constants.playAlbum.getAudioIdAsc(), true));
+            }
         } else if (v == play_share){
             if (!sharePop.isShowing()){
                 sharePop.showAtLocation(convertView, Gravity.BOTTOM, 0, 0);
@@ -439,6 +509,13 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
 
         } else if (v == play_list){
             if (Constants.playList != null){
+                if (Constants.playAlbum != null && Constants.playAlbum.getYppx() == 0){
+                    desc.setTextColor(0xFFFF5267);
+                    asc.setTextColor(0xFF000000);
+                } else if(Constants.playAlbum != null){
+                    asc.setTextColor(0xFFFF5267);
+                    desc.setTextColor(0xFF000000);
+                }
                 if (playListAdapter == null){
                     playListAdapter = new PlayListAdapter(aty, Constants.playList);
                     home_search_lv.setAdapter(playListAdapter);
@@ -462,6 +539,22 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             shareApp2QQ();
         } else if (v == qzone){
             shareApp2QQ();
+        } else if (v == desc){
+            if (Constants.playAlbum.getYppx() != 0){
+                desc.setTextColor(0xFFFF5267);
+                asc.setTextColor(0xFF000000);
+                Constants.playAlbum.setYppx(0);
+                Constants.playList.clear();
+                getData(99);
+            }
+        } else if (v == asc){
+            if (Constants.playAlbum.getYppx() != 1){
+                asc.setTextColor(0xFFFF5267);
+                desc.setTextColor(0xFF000000);
+                Constants.playAlbum.setYppx(1);
+                Constants.playList.clear();
+                getData(99);
+            }
         }
 	}
 
@@ -483,7 +576,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         WXMediaMessage msg = new WXMediaMessage(webpage);
         msg.title = "欢迎使用「印心讲堂」";
         msg.description = "";
-        Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.bai);
+        Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
         Bitmap thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE, THUMB_SIZE, true);
         bmp.recycle();
         msg.thumbData = Utils.bmpToByteArray(thumbBmp, true);
@@ -549,12 +642,17 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         Audio audio = (Audio) parent.getAdapter().getItem(position);
         if (audio != null){
             aty.showLoadDialog(true);
-            Constants.playAlbum.setAudioId(audio.getId());
-            Constants.playAlbum.setAudioName(audio.getTitle());
+            if (Constants.playAlbum.getYppx() == 0){
+                Constants.playAlbum.setAudioIdDesc(audio.getId());
+                Constants.playAlbum.setAudioNameDesc(audio.getTitle());
+            } else {
+                Constants.playAlbum.setAudioIdAsc(audio.getId());
+                Constants.playAlbum.setAudioNameAsc(audio.getTitle());
+            }
             playListAdapter.setPlayId(audio.getId());
 //            home_search_lv.getRefreshableView().setSelection(position);
 //            aty.mediaPlayerManager.player(Constants.playAlbum.getId());
-            Intent intent = new Intent(Constants.ACTION_JUMR);
+            Intent intent = new Intent(Constants.ACTION_JUMP);
             intent.putExtra("position", position-1);
             context.sendBroadcast(intent);
             playPop.dismiss();
@@ -611,7 +709,6 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 audio = (Audio) intent.getSerializableExtra("music");
                 if (audio == null)return;
                 if (audio != null){
-//                    playListAdapter.setPlayId(audio.getId());
                     for (int i = 0; i < Constants.playList.size(); i++) {
                         if (audio.getId() == Constants.playList.get(i).getId()){
                             Constants.playList.get(i).setState(1);
@@ -620,14 +717,18 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                             Constants.playList.get(i).setState(0);
                         }
                     }
-//                    if (playListAdapter != null){
-//                        playListAdapter.notifyDataSetChanged();
-//                    }
                     if (playListAdapter == null){
                         playListAdapter = new PlayListAdapter(aty, Constants.playList);
                         home_search_lv.setAdapter(playListAdapter);
                     } else {
                         playListAdapter.notifyDataSetChanged();
+                    }
+                    if (Constants.playAlbum.getYppx() == 0){
+                        desc.setTextColor(0xFFFF5267);
+                        asc.setTextColor(0xFF000000);
+                    } else {
+                        asc.setTextColor(0xFFFF5267);
+                        desc.setTextColor(0xFF000000);
                     }
                 }
                 totalms = intent.getIntExtra("totalms", 288888);// 总时长

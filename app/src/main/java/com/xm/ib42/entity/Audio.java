@@ -23,6 +23,7 @@ public class Audio implements Serializable{
     private boolean isDownFinish;// 是否是下载完成
     private boolean isCacheFinish;// 是否缓存完成
     private int state;
+    private boolean isCheck;
 
     public int getId() {
         return id;
@@ -142,5 +143,13 @@ public class Audio implements Serializable{
 
     public void setState(int state) {
         this.state = state;
+    }
+
+    public boolean isCheck() {
+        return isCheck;
+    }
+
+    public void setCheck(boolean check) {
+        isCheck = check;
     }
 }

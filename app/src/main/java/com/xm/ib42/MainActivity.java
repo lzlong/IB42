@@ -1,5 +1,6 @@
 package com.xm.ib42;
 
+
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
@@ -14,10 +16,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,19 +46,22 @@ import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.dao.DownLoadInfoDao;
 import com.xm.ib42.entity.Column;
 import com.xm.ib42.service.DownLoadManager;
+import com.xm.ib42.service.LockService;
 import com.xm.ib42.service.MediaPlayerService;
+import com.xm.ib42.util.AppUtils;
 import com.xm.ib42.util.DialogUtils;
 import com.xm.ib42.util.HttpHelper;
-import com.xm.ib42.util.UpdateUtil;
+import com.xm.ib42.util.SmartDownloadProgressListener;
+import com.xm.ib42.util.SmartFileDownloader;
 import com.xm.ib42.util.Utils;
-import com.xm.ib42.util.VersionUpdateDialog;
+import com.xm.ib42.util.WPopupWindow;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.conn.ConnectTimeoutException;
-import org.greenrobot.eventbus.EventBus;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -96,10 +104,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     public String playName = "";
     public Tencent mTencent;
     public int position;
-    public int albumId;
+    public int albumId = -1;
     public int nowplaymode;// 当前播放模式
 
     public boolean isShow = true;
+    public boolean isFrist = true;
 
     public SharedPreferences mSharedPreferences;
 
@@ -115,13 +124,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         changeHome();
 
-        updateVersion();
-
         getService();
 
     }
 
+    int versionCode;
     private void updateVersion() {
+        if (!isShow)return;
+        versionCode = AppUtils.getAppVersionCode(MainActivity.this);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -139,36 +149,112 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     private Map<String, String> updateMap;
-    private VersionUpdateDialog versionUpdateDlg = null;
-    public Handler updateHandler = new Handler(){
+    String dir = Environment.getExternalStorageDirectory().toString() +
+            File.separator + Constants.APK_DIRECTORY + File.separator;//文件保存目录
+    String path = "";
+    Handler updateHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (msg.what == 0){
-                if (versionUpdateDlg == null){
-                    versionUpdateDlg = new VersionUpdateDialog(
-                            MainActivity.this, updateMap.get("mess"),
-                            "更新说明", new VersionUpdateDialog.DialogListener() {
-                        @Override
-                        public void onSure() {
-                            UpdateUtil updateUtil = new UpdateUtil(MainActivity.this,
-                                    Constants.APPDOWNURL+updateMap.get("urls"));
-                            updateUtil.start(false, MainActivity.this);
-                            versionUpdateDlg.dismiss();
-                            showLoadDialog(true);
-                        }
-
-                        @Override
-                        public void onCancel() {
-                            // 强制升级
-                            versionUpdateDlg.dismiss();
-                        }
-                    });
+                if (updateMap != null){
+                    path = Constants.APPDOWNURL+updateMap.get("urls");
+                    showDownload();
                 }
-                versionUpdateDlg.show();
+            } else if (msg.what == 1){
+                int size = msg.getData().getInt("size");
+                pro.setProgress(size);
+                float result = (float)pro.getProgress()/ (float)pro.getMax();
+                int p = (int)(result*100);
+                if(pro.getProgress()==pro.getMax()) {
+                    Utils.showToast(MainActivity.this, "下载成功, 正在准备安装");
+                    if (popupWindow.isShowing()) {
+                        popupWindow.dismiss();
+                    }
+                    AppUtils.installApp(MainActivity.this, dir + path.substring(path.lastIndexOf('/') + 1));
+                }
+            } else if (msg.what == -1){
+                wh.findViewById(R.id.down_l).setVisibility(View.VISIBLE);
+                wh.findViewById(R.id.down_ll).setVisibility(View.GONE);
+                Utils.showToast(MainActivity.this, msg.getData().getString("error"));
             }
         }
     };
+    private ProgressBar pro;
+    WPopupWindow popupWindow;
+    View wh;
+    private void showDownload() {
+        wh = LayoutInflater.from(this).inflate(R.layout.downpop,null);
+        pro = (ProgressBar) wh.findViewById(R.id.down_pro);
+        popupWindow = new WPopupWindow(wh);
+        popupWindow.showAtLocation(Utils.getContentView(MainActivity.this), Gravity.CENTER, 0, 0);
+        wh.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+                    File file = new File(dir);
+                    if (!file.exists()) {
+                        file.mkdirs();
+                    }
+                    ((TextView)wh.findViewById(R.id.down_t)).setText("正在下载");
+                    wh.findViewById(R.id.down_l).setVisibility(View.GONE);
+                    wh.findViewById(R.id.down_ll).setVisibility(View.VISIBLE);
+                    download(wh, pro, path, file);
+                }else{
+                    Utils.showToast(MainActivity.this, "SDCard不存在或者写保护");
+                }
+            }
+        });
+        wh.findViewById(R.id.cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+        wh.findViewById(R.id.houtai).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+        wh.findViewById(R.id.cancel_down).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (loader != null){
+                    loader.pause(true);
+                }
+                popupWindow.dismiss();
+            }
+        });
+    }
+    SmartFileDownloader loader;
+    private void download(final View wh, final ProgressBar pro, final String path, final File dir) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    loader = new SmartFileDownloader(MainActivity.this, path, dir, 3);
+                    int length = loader.getFileSize();//获取文件的长度
+                    pro.setMax(length);
+                    loader.download(new SmartDownloadProgressListener() {
+                        @Override
+                        public void onDownloadSize(int size) {//可以实时得到文件下载的长度
+                            Message msg = new Message();
+                            msg.what = 1;
+                            msg.getData().putInt("size", size);
+                            updateHandler.sendMessage(msg);
+                        }
+                    });
+                } catch (Exception e) {
+                    Message msg = new Message();//信息提示
+                    msg.what = -1;
+                    msg.getData().putString("error", "下载失败, 点击确定重新下载");//如果下载错误，显示提示失败！
+                    updateHandler.sendMessage(msg);
+                }
+            }
+        }).start();//开始
+    }
+
 
     private void init() {
         mTab_item_container = (LinearLayout) findViewById(R.id.tab_item_container);
@@ -374,7 +460,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         //播放器管理
 
         startService(new Intent(context, MediaPlayerService.class));
-//        startService(new Intent(context, LockService.class));
+        startService(new Intent(context, LockService.class));
 
         downLoadManager=new DownLoadManager(this);
         downLoadManager.startAndBindService();
@@ -386,14 +472,17 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     @Override
     protected void onStart() {
         super.onStart();
-
+        if (isFrist){
+            isFrist = false;
+            updateVersion();
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         downLoadManager.unbindService();
-        EventBus.getDefault().unregister(this);
+//        EventBus.getDefault().unregister(this);
         if( null != mIat ){
             // 退出时释放连接
             mIat.cancel();
@@ -433,7 +522,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     };
 
-    class IatBroadcast extends BroadcastReceiver{
+    class IatBroadcast extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -460,21 +549,21 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     && data != null){
                 changePlay();
                 showLoadDialog(true);
-                Intent intent = new Intent(Constants.ACTION_JUMR);
+                Intent intent = new Intent(Constants.ACTION_JUMP);
                 intent.putExtra("position", data.getIntExtra("position", position));
                 context.sendBroadcast(intent);
             } else if (resultCode == 1
                     && data != null){
                 changePlay();
                 showLoadDialog(true);
-                Intent intent = new Intent(Constants.ACTION_JUMR_MYPAGE);
+                Intent intent = new Intent(Constants.ACTION_JUMP_MYPAGE);
                 intent.putExtra("title", data.getStringExtra("title"));
                 context.sendBroadcast(intent);
             }
         }
     }
 
-    static class BaseUiListener implements IUiListener{
+    static class BaseUiListener implements IUiListener {
 
         @Override
         public void onComplete(Object o) {
@@ -493,7 +582,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
-    class BaseApiListener implements IRequestListener{
+    class BaseApiListener implements IRequestListener {
 
         @Override
         public void onComplete(JSONObject jsonObject) {

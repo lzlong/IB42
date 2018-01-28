@@ -166,8 +166,12 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
                 Constants.playList.addAll(aty.audioDao.searchByAlbum(Constants.playAlbum.getId()+""));
             }
         }
-        Intent intent = new Intent(Constants.ACTION_JUMR_MYPAGE);
-        intent.putExtra("title", album.getAudioName());
+        Intent intent = new Intent(Constants.ACTION_JUMP_MYPAGE);
+        if (album.getYppx() == 0){
+            intent.putExtra("title", album.getAudioNameDesc());
+        } else {
+            intent.putExtra("title", album.getAudioNameAsc());
+        }
         aty.sendBroadcast(intent);
         aty.changePlay();
     }
@@ -183,6 +187,6 @@ public class MyPageFragment extends Fragment implements OnClickListener, Adapter
                 deletePop.showAtLocation(convertView, Gravity.CENTER, 0, 0);
             }
         }
-        return false;
+        return true;
     }
 }

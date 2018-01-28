@@ -20,10 +20,13 @@ public class DBHpler extends SQLiteOpenHelper {
 		db.execSQL("CREATE TABLE " + DBData.ALBUM_TABLENAME + "("
 				+ DBData.ALBUM_ID + " INTEGER,"
 				+ DBData.ALBUM_NAME + " NVARCHAR(100),"
-				+ DBData.ALBUM_AUDIO_ID + " INTEGER,"
+				+ DBData.ALBUM_AUDIO_ID_DESC + " INTEGER,"
+				+ DBData.ALBUM_AUDIO_ID_ASC + " INTEGER,"
 				+ DBData.ALBUM_TIME + " INTEGER,"
 				+ DBData.ALBUM_ISDELETE + " INTEGER,"
-				+ DBData.ALBUM_AUDIO_NAME + " NVARCHAR(300),"
+				+ DBData.ALBUM_YPPX + " INTEGER,"
+				+ DBData.ALBUM_AUDIO_NAME_DESC + " NVARCHAR(300),"
+				+ DBData.ALBUM_AUDIO_NAME_ASC + " NVARCHAR(300),"
 				+ DBData.ALBUM_IMAGEURL + " NVARCHAR(300))");
 		// 创建歌曲表
 		db.execSQL("CREATE TABLE " + DBData.SONG_TABLENAME + "("
@@ -57,24 +60,12 @@ public class DBHpler extends SQLiteOpenHelper {
 				+ DBData.DOWNLOADINFO_STATUS + " INTEGER,"
 				+ DBData.DOWNLOADINFO_AUDIOID + " INTEGER,"
 				+ DBData.DOWNLOADINFO_FILESIZE + " INTEGER)");
-//
-//		// 多线程下载-每个线程信息表
-//		db.execSQL("CREATE TABLE " + DBData.THREADINFO_TABLENAME + "("
-//				+ DBData.THREADINFO_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-//				+ DBData.THREADINFO_STARTPOSITION + " INTEGER,"
-//				+ DBData.THREADINFO_ENDPOSITION + " INTEGER,"
-//				+ DBData.THREADINFO_COMPLETESIZE + " INTEGER,"
-//				+ DBData.THREADINFO_DOWNLOADINFOID + " INTEGER)");
-		
+
 	}
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		// 删除表
-//		db.execSQL("DROP TABLE IF EXISTS " + DBData.ALBUM_TABLENAME);
-//		db.execSQL("DROP TABLE IF EXISTS " + DBData.SONG_TABLENAME);
-//		db.execSQL("DROP TABLE IF EXISTS " + DBData.THREADINFO_TABLENAME);
-//		db.execSQL("DROP TABLE IF EXISTS " + DBData.DOWNLOADINFO_TABLENAME);
+
 	}
 
 }

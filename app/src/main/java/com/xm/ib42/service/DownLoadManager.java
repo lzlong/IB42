@@ -9,6 +9,8 @@ import android.os.IBinder;
 
 import com.xm.ib42.entity.Audio;
 
+import java.util.List;
+
 public class DownLoadManager {
 	// 下载状态
 	public static final int STATE_DOWNLOADING = 0;// 下载中
@@ -30,7 +32,10 @@ public class DownLoadManager {
 	public static final int FLAG_TIMEOUT=4;//下载超时
 	public static final int FLAG_ERROR=5;//发生错误
 	public static final int FLAG_COMMON=6;//删除
-	
+
+	//最大下载任务数
+	public static final int DOWN_COUNT=3;
+
 	//DownLoadService action
 	public static final String SERVICE_ACTION="com.xm.ib42.service.download";
 	
@@ -62,7 +67,18 @@ public class DownLoadManager {
 			mDownLoadService.download(audio);
 		}
 	}
-	
+
+	/**
+	 * 添加多个下载任务
+	 * */
+	public void add(List<Audio> list){
+		if(mDownLoadService!=null){
+            for (int i = 0; i < list.size(); i++) {
+                mDownLoadService.download(list.get(i));
+            }
+		}
+	}
+
 	/**
 	 * 删除某个下载任务
 	 * */

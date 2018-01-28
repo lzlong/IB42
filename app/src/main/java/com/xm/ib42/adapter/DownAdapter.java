@@ -34,7 +34,11 @@ public class DownAdapter extends BaseArrayListAdapter {
         ImageView down_item_img = mViewHolder.findViewById(R.id.down_item_img);
         TextView down_item_name = mViewHolder.findViewById(R.id.down_item_name);
         TextView down_item_name2 = mViewHolder.findViewById(R.id.down_item_name2);
-        down_item_name.setText(album.getAudioName());
+        if (album.getYppx() == 0){
+            down_item_name.setText(album.getAudioNameDesc());
+        } else {
+            down_item_name.setText(album.getAudioNameAsc());
+        }
         down_item_name2.setText(album.getTitle());
         if (album.getImageUrl() != null){
             Glide.with(mContext)

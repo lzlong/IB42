@@ -26,6 +26,7 @@ import com.xm.ib42.entity.DownLoadInfo;
 import com.xm.ib42.util.Download;
 import com.xm.ib42.util.Utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.xm.ib42.app.MyApplication.context;
@@ -36,7 +37,7 @@ import static com.xm.ib42.app.MyApplication.context;
  * 博文地址：http://blog.csdn.net/u010156024
  */
 public class DownloadService extends Service {
-	private SparseArray<Download> mDownloads = new SparseArray<Download>();
+	private List<Download> mDownloads = new ArrayList<>();
     private AudioDao audioDao;
 	private DownLoadInfoDao mDownLoadInfoDao;
 
@@ -100,7 +101,7 @@ public class DownloadService extends Service {
                         d.pause(false);
                     }
                 }
-                mDownloads.put(audio.getId(), d);
+                mDownloads.add(d);
             }
         }
 
@@ -156,12 +157,18 @@ public class DownloadService extends Service {
         unregisterReceiver(mReceiver);
     }
 
+    private int down_count = 0;
+
     public void download(final Audio audio) {
 		if (audio == null)return;;
 		Utils.logD("download"+audio.getNetUrl());
 		Download d = new Download(audio, mDownLoadInfoDao, getApplicationContext());
-		d.setOnDownloadListener(mDownloadListener).start(false);
-		mDownloads.put(audio.getId(), d);
+		d.setOnDownloadListener(mDownloadListener);
+		if (down_count < DownLoadManager.DOWN_COUNT){
+			d.start(false);
+			down_count++;
+		}
+		mDownloads.add(d);
 	}
 	
 
@@ -207,6 +214,10 @@ public class DownloadService extends Service {
 					Toast.LENGTH_SHORT).show();
 			onDownloadComplete(audio.getId());
             audioDao.updateByDownLoadState(audio);
+			down_count--;
+			if (mDownloads.size() > down_count){
+				mDownloads.get(down_count).start(false);
+			}
 		}
 		
 		@Override
@@ -239,6 +250,10 @@ public class DownloadService extends Service {
 					mDownloads.get(audio.getId()).getLocalFileName() + "下载失败",
 					Toast.LENGTH_SHORT).show();
 			onDownloadComplete(audio.getId());
+            down_count--;
+            if (mDownloads.size() > down_count){
+                mDownloads.get(down_count).start(false);
+            }
 		}
 		
 		@Override
@@ -277,5 +292,14 @@ public class DownloadService extends Service {
 			}
 		}
 	}
+
+	public int getIndex(){
+        for (int i = 0; i < mDownloads.size(); i++) {
+            Download download = mDownloads.get(i);
+            if (download.isDown()){
+
+            }
+        }
+    }
 
 }

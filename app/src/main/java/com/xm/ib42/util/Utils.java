@@ -1,5 +1,6 @@
 package com.xm.ib42.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -11,6 +12,9 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.xm.ib42.constant.Constants;
@@ -36,8 +40,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.xm.ib42.app.MyApplication.context;
 
@@ -329,6 +331,7 @@ public class Utils {
         editor.putInt("columnNum", list.size());
         for (int i = 0; i < list.size(); i++) {
             Column column = list.get(i);
+            if (column == null)continue;
             editor.putInt("columnId"+i, column.getId());
             editor.putInt("columnCount"+i, column.getCount());
             editor.putString("columnTitle"+i, column.getTitle());
@@ -338,11 +341,17 @@ public class Utils {
             for (int j = 0; j < albumList.size(); j++) {
                 Album album = albumList.get(j);
                 editor.putInt(i+"albumId"+j, album.getId());
-                editor.putInt(i+"albumAudioId"+j, album.getAudioId());
                 editor.putInt(i+"albumAudioNum"+j, album.getAudioNum());
                 editor.putString(i+"albumTitle"+j, album.getTitle());
                 editor.putString(i+"albumImg"+j, album.getImageUrl());
-                editor.putString(i+"albumAudioName"+j, album.getAudioName());
+                editor.putInt(i+"albumYppx"+j, album.getYppx());
+                editor.putInt(i+"albumAudioIdDesc"+j, album.getAudioIdDesc());
+                editor.putString(i+"albumAudioNameDesc"+j, album.getAudioNameDesc());
+                editor.putInt(i+"albumAudioIdAsc"+j, album.getAudioIdAsc());
+                editor.putString(i+"albumAudioNameAsc"+j, album.getAudioNameAsc());
+                if (album.getYppx() == 0){
+                } else {
+                }
             }
         }
         editor.commit();
@@ -362,9 +371,15 @@ public class Utils {
             for (int j = 0; j < albumCount; j++) {
                 Album album = new Album();
                 album.setId(preferences.getInt(i+"albumId"+j, 0));
-                album.setAudioId(preferences.getInt(i+"albumAudioId"+j, 0));
                 album.setAudioNum(preferences.getInt(i+"albumAudioNum"+j, 0));
-                album.setAudioName(preferences.getString(i+"albumAudioName"+j, ""));
+                album.setYppx(preferences.getInt(i+"albumYppx"+j, 0));
+                album.setAudioIdDesc(preferences.getInt(i+"albumAudioIdDesc"+j, 0));
+                album.setAudioNameDesc(preferences.getString(i+"albumAudioNameDesc"+j, ""));
+                album.setAudioIdAsc(preferences.getInt(i+"albumAudioIdAsc"+j, 0));
+                album.setAudioNameAsc(preferences.getString(i+"albumAudioNameAsc"+j, ""));
+                if (album.getYppx() == 0){
+                } else {
+                }
                 album.setTitle(preferences.getString(i+"albumTitle"+j, ""));
                 album.setImageUrl(preferences.getString(i+"albumImg"+j, ""));
                 albumList.add(album);
@@ -422,18 +437,109 @@ public class Utils {
 
     public static String pressUrl(String path){
         String name = path.substring(path.lastIndexOf("/")+1, path.length());
-        Pattern p = Pattern.compile("[\\u4e00-\\u9fcc]+");
-        Matcher m = p.matcher(name);
-        while (m.find()) {
-            String n = m.group();
-            try {
-                String s = URLEncoder.encode(n, "UTF-8");
-                path = path.replace(n, s);
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+//        String[] names = name.split(" ");
+        try {
+//            Pattern p = Pattern.compile("[\\u4e00-\\u9fcc]+");
+//            for (int i = 0; i < names.length; i++) {
+////                Matcher m = p.matcher(name);
+////                while (m.find()) {
+////                    String n = m.group();
+////                }
+//                String n = names[i];
+//                if (isNotBlank(n)){
+//                    String s = URLEncoder.encode(n, "UTF-8");
+//                    path = path.replace(n, s);
+//                }
+//            }
+//            if (name.contains(" ")
+//                    || name.contains(" ")
+//                    || name.contains(" ")
+//                    || name.contains("　")){
+//            } else {
+                path = path.replace(name, URLEncoder.encode(name, "UTF-8").replaceAll("\\+","%20"));
+//            }
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
         return path;
+    }
+    public static View getContentView(Activity ac){
+        ViewGroup view = (ViewGroup)ac.getWindow().getDecorView();
+        FrameLayout content = (FrameLayout)view.findViewById(android.R.id.content);
+        return content.getChildAt(0);
+    }
+
+
+    public static void saveAudioList(SharedPreferences preferences, List<Audio> list, Album album){
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt("audioNum", list.size());
+        editor.putInt("albumId", album.getId());
+        editor.putInt("albumAudioNum", album.getAudioNum());
+        editor.putString("albumTitle", album.getTitle());
+        editor.putString("albumImg", album.getImageUrl());
+        editor.putInt("albumYppx", album.getYppx());
+        editor.putInt("albumAudioIdDesc", album.getAudioIdDesc());
+        editor.putString("albumAudioNameDesc", album.getAudioNameDesc());
+        editor.putInt("albumAudioIdAsc", album.getAudioIdAsc());
+        editor.putString("albumAudioNameAsc", album.getAudioNameAsc());
+        if (album.getYppx() == 0){
+        } else {
+        }
+        for (int i = 0; i < list.size(); i++) {
+            Audio audio = list.get(i);
+            editor.putInt(album.getId()+"_"+album.getYppx()+"audioId"+i, audio.getId());
+            editor.putString(album.getId()+"_"+album.getYppx()+"audioTitle"+i, audio.getTitle());
+            editor.putString(album.getId()+"_"+album.getYppx()+"audioDisplayName"+i, audio.getDisplayName());
+            editor.putString(album.getId()+"_"+album.getYppx()+"audioNetUrl"+i, audio.getNetUrl());
+            editor.putInt(album.getId()+"_"+album.getYppx()+"audioDurationTime"+i, audio.getDurationTime());
+            editor.putInt(album.getId()+"_"+album.getYppx()+"audioCurrDurationTime"+i, audio.getCurrDurationTime());
+            editor.putInt(album.getId()+"_"+album.getYppx()+"audioSize"+i, audio.getSize());
+            editor.putString(album.getId()+"_"+album.getYppx()+"audioFilePath"+i, audio.getFilePath());
+            editor.putString(album.getId()+"_"+album.getYppx()+"audioCachePath"+i, audio.getCachePath());
+            editor.putBoolean(album.getId()+"_"+album.getYppx()+"audioNet"+i, audio.isNet());
+            editor.putBoolean(album.getId()+"_"+album.getYppx()+"audioDownFinish"+i, audio.isDownFinish());
+            editor.putBoolean(album.getId()+"_"+album.getYppx()+"audioCacheFinish"+i, audio.isCacheFinish());
+            editor.putInt(album.getId()+"_"+album.getYppx()+"audioState"+i, audio.getState());
+        }
+        editor.commit();
+    }
+
+    public static List<Audio> getAudioList(SharedPreferences preferences, Album album){
+        List<Audio> list = new ArrayList<>();
+        int audioNum = preferences.getInt("audioNum", 0);
+        Album album1 = new Album();
+        album1.setId(preferences.getInt("albumId", 0));
+        album1.setAudioNum(preferences.getInt("albumAudioNum", 0));
+        album1.setYppx(preferences.getInt("albumYppx", 0));
+        album1.setAudioIdDesc(preferences.getInt("albumAudioIdDesc", 0));
+        album1.setAudioNameDesc(preferences.getString("albumAudioNameDesc", ""));
+        album1.setAudioIdAsc(preferences.getInt("albumAudioIdAsc", 0));
+        album1.setAudioNameAsc(preferences.getString("albumAudioNameAsc", ""));
+        if (album1.getYppx() == 0){
+        } else {
+        }
+        album1.setTitle(preferences.getString("albumTitle", ""));
+        album1.setImageUrl(preferences.getString("albumImg", ""));
+
+        for (int i = 0; i < audioNum; i++) {
+            Audio audio = new Audio();
+            audio.setId(preferences.getInt(album.getId()+"_"+album.getYppx()+"audioId"+i, 0));
+            audio.setTitle(preferences.getString(album.getId()+"_"+album.getYppx()+"audioTitle"+i, ""));
+            audio.setDisplayName(preferences.getString(album.getId()+"_"+album.getYppx()+"audioDisplayName"+i, ""));
+            audio.setNetUrl(preferences.getString(album.getId()+"_"+album.getYppx()+"audioNetUrl"+i, ""));
+            audio.setDurationTime(preferences.getInt(album.getId()+"_"+album.getYppx()+"audioDurationTime"+i, 0));
+            audio.setCurrDurationTime(preferences.getInt(album.getId()+"_"+album.getYppx()+"audioCurrDurationTime"+i, 0));
+            audio.setSize(preferences.getInt(album.getId()+"_"+album.getYppx()+"audioSize"+i, 0));
+            audio.setFilePath(preferences.getString(album.getId()+"_"+album.getYppx()+"audioFilePath"+i, ""));
+            audio.setCachePath(preferences.getString(album.getId()+"_"+album.getYppx()+"audioCachePath"+i, ""));
+            audio.setNet(preferences.getBoolean(album.getId()+"_"+album.getYppx()+"audioNet"+i, false));
+            audio.setDownFinish(preferences.getBoolean(album.getId()+"_"+album.getYppx()+"audioDownFinish"+i, false));
+            audio.setCacheFinish(preferences.getBoolean(album.getId()+"_"+album.getYppx()+"audioCacheFinish"+i, false));
+            audio.setState(preferences.getInt(album.getId()+"_"+album.getYppx()+"audioState"+i, 0));
+            audio.setAlbum(album1);
+            list.add(audio);
+        }
+        return list;
     }
 
 }

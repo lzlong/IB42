@@ -107,8 +107,13 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
             if (!albumMap.containsKey(audio.getAlbum().getId())){
 				albumMap.put(audio.getAlbum().getId(), audio.getAlbum());
 				Album album = albumDao.searchById(audio.getAlbum().getId());
-                album.setAudioName(audio.getTitle());
-                album.setAudioId(audio.getId());
+                if (album.getYppx() == 0){
+                    album.setAudioNameDesc(audio.getTitle());
+                    album.setAudioIdDesc(audio.getId());
+                } else {
+                    album.setAudioNameAsc(audio.getTitle());
+                    album.setAudioIdAsc(audio.getId());
+                }
 				albumList.add(album);
 			}
 		}
@@ -197,6 +202,6 @@ public class DownPageFragment extends Fragment implements OnClickListener, Adapt
                 deletePop.showAtLocation(convertView, Gravity.CENTER, 0, 0);
             }
         }
-		return false;
+		return true;
 	}
 }

@@ -123,7 +123,11 @@ public class Download implements Serializable {
         mDownLoadInfo.setId(downLoadInfoId);
 
 	}
-	
+
+	public int getDownloadId() {
+		return mDownloadId;
+	}
+
 	/**
 	 * 设置监听器
 	 * @param listener 设置下载监听器

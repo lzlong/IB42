@@ -15,7 +15,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.RequiresApi;
-import android.util.SparseArray;
 import android.widget.Toast;
 
 import com.xm.ib42.constant.Constants;
@@ -42,23 +41,31 @@ public class DownloadService extends Service {
 	private DownLoadInfoDao mDownLoadInfoDao;
 
 	public void start(Audio audio) {
-		Download d = mDownloads.get(audio.getId());
-		d.pause(false);
+		Download d = getDownload(audio.getId());
+		if (d != null){
+			d.pause(false);
+		}
 	}
 
 	public void delete(Audio audio) {
-		Download d = mDownloads.get(audio.getId());
-		d.cancel();
+		Download d = getDownload(audio.getId());
+		if (d != null){
+			d.cancel();
+		}
 	}
 
 	public void pause(Audio audio) {
-		Download d = mDownloads.get(audio.getId());
-		d.pause(true);
+		Download d = getDownload(audio.getId());
+		if (d != null){
+			d.pause(true);
+		}
 	}
 
 	public void stop(Audio audio) {
-		Download d = mDownloads.get(audio.getId());
-		d.cancel();
+		Download d = getDownload(audio.getId());
+		if (d != null){
+			d.cancel();
+		}
 	}
 
 	public class DownloadBinder extends Binder {
@@ -173,7 +180,14 @@ public class DownloadService extends Service {
 	
 
 	private void onDownloadComplete(int downloadId) {
-		mDownloads.remove(downloadId);
+		int index = 0;
+		for (int i = 0; i < mDownloads.size(); i++) {
+			Download download = mDownloads.get(i);
+			if (download.getDownloadId() == downloadId){
+				index = i;
+			}
+		}
+		mDownloads.remove(index);
 		if(mDownloads.size() == 0) {
 			stopForeground(true);
 			return;
@@ -210,21 +224,24 @@ public class DownloadService extends Service {
 		public void onSuccess(Audio audio) {
 			Utils.logD("download success");
 			Toast.makeText(DownloadService.this, 
-					mDownloads.get(audio.getId()).getLocalFileName() + "下载完成",
+					getDownload(audio.getId()).getLocalFileName() + "下载完成",
 					Toast.LENGTH_SHORT).show();
-			onDownloadComplete(audio.getId());
             audioDao.updateByDownLoadState(audio);
-			down_count--;
-			if (mDownloads.size() > down_count){
-				mDownloads.get(down_count).start(false);
-			}
-		}
+            down_count--;
+            if (mDownloads.size() > down_count){
+                Download d = getDownload(down_count);
+				if (d != null){
+					d.start(false);
+				}
+            }
+            onDownloadComplete(audio.getId());
+        }
 		
 		@Override
 		public void onStart(Audio audio, long fileSize) {
 			Utils.logD("download start");
 			Toast.makeText(DownloadService.this, "开始下载" +
-					mDownloads.get(audio.getId()).getLocalFileName(),
+					getDownload(audio.getId()).getLocalFileName(),
 					Toast.LENGTH_SHORT).show();
 		}
 		
@@ -247,14 +264,20 @@ public class DownloadService extends Service {
 		public void onError(Audio audio) {
 			Utils.logD("download error");
 			Toast.makeText(DownloadService.this, 
-					mDownloads.get(audio.getId()).getLocalFileName() + "下载失败",
+					getDownload(audio.getId()).getLocalFileName() + "下载失败",
 					Toast.LENGTH_SHORT).show();
-			onDownloadComplete(audio.getId());
             down_count--;
             if (mDownloads.size() > down_count){
-                mDownloads.get(down_count).start(false);
+                Download d = getDownload(down_count);
+				if (d != null){
+					d.start(false);
+				}
             }
-		}
+            if(mDownloads.size() == 0) {
+                stopForeground(true);
+                return;
+            }
+        }
 		
 		@Override
 		public void onCancel(Audio audio) {
@@ -271,20 +294,26 @@ public class DownloadService extends Service {
 			if (intent.getAction().equals(Constants.ACTION_DOWN_PAUSE)){
                 downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
                 if (downLoadInfo != null){
-                    Download d = mDownloads.get(downLoadInfo.getAudioId());
-                    d.pause(true);
+                    Download d = getDownload(downLoadInfo.getAudioId());
+					if (d != null){
+						d.pause(true);
+					}
                 }
 			} else if (intent.getAction().equals(Constants.ACTION_DOWN_DOWN)){
                 downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
                 if (downLoadInfo != null){
-                    Download d = mDownloads.get(downLoadInfo.getAudioId());
-                    d.pause(false);
+                    Download d = getDownload(downLoadInfo.getAudioId());
+					if (d != null){
+						d.pause(false);
+					}
                 }
 			} else if (intent.getAction().equals(Constants.ACTION_DOWN_DELETE)){
                 downLoadInfo = (DownLoadInfo) intent.getSerializableExtra("downLoadInfo");
                 if (downLoadInfo != null){
-                    Download d = mDownloads.get(downLoadInfo.getAudioId());
-                    d.cancel();
+                    Download d = getDownload(downLoadInfo.getAudioId());
+					if (d != null){
+						d.cancel();
+					}
                 }
             }
             if (downLoadInfo != null){
@@ -294,12 +323,24 @@ public class DownloadService extends Service {
 	}
 
 	public int getIndex(){
+		int index = 0;
         for (int i = 0; i < mDownloads.size(); i++) {
             Download download = mDownloads.get(i);
             if (download.isDown()){
 
             }
         }
+        return index;
+    }
+	public Download getDownload(int id){
+		Download index = null;
+        for (int i = 0; i < mDownloads.size(); i++) {
+            Download download = mDownloads.get(i);
+            if (download.getDownloadId() == id){
+                index = download;
+            }
+        }
+        return index;
     }
 
 }

@@ -42,11 +42,11 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/desc"
+            android:id="@+id/down"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="升序"
+            android:text="批量下载"
             android:textSize="17sp"
             android:layout_margin="8dp"
             android:gravity="center"/>
@@ -55,14 +55,15 @@
             android:layout_height="match_parent"
             android:background="@color/color_F0999999"/>
         <TextView
-            android:id="@+id/asc"
+            android:id="@+id/desc_asc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="降序"
             android:textSize="17sp"
             android:layout_margin="8dp"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:textColor="@color/color_FFFF5267"/>
 
     </LinearLayout>
 
@@ -72,7 +73,12 @@
         android:background="@color/color_F0999999"/>
 
     <com.handmark.pulltorefresh.library.PullToRefreshListView
-        android:id="@+id/audio_lv"
+        android:id="@+id/audio_lv_desc"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="8dp"/>
+    <com.handmark.pulltorefresh.library.PullToRefreshListView
+        android:id="@+id/audio_lv_asc"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_margin="8dp"/>

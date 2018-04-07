@@ -548,14 +548,14 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             if (resultCode == 0
                     && data != null){
                 changePlay();
-                showLoadDialog(true);
+//                showLoadDialog(true);
                 Intent intent = new Intent(Constants.ACTION_JUMP);
                 intent.putExtra("position", data.getIntExtra("position", position));
                 context.sendBroadcast(intent);
             } else if (resultCode == 1
                     && data != null){
                 changePlay();
-                showLoadDialog(true);
+//                showLoadDialog(true);
                 Intent intent = new Intent(Constants.ACTION_JUMP_MYPAGE);
                 intent.putExtra("title", data.getStringExtra("title"));
                 context.sendBroadcast(intent);

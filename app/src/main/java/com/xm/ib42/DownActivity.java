@@ -14,7 +14,7 @@ import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.xm.ib42.adapter.AudioListAdapter;
+import com.xm.ib42.adapter.DownAudioAdapter;
 import com.xm.ib42.constant.Constants;
 import com.xm.ib42.dao.AudioDao;
 import com.xm.ib42.entity.Album;
@@ -42,7 +42,7 @@ public class DownActivity extends Activity implements View.OnClickListener, Adap
     private ListView down_con_lv;
     private Album mAlbum;
     private AudioDao mAudioDao;
-    private AudioListAdapter mAudioListAdapter;
+    private DownAudioAdapter mAudioListAdapter;
     private Intent intent;
     private PopupWindow deletePop;
     private Button delete_true, delete_cancel;
@@ -84,7 +84,7 @@ public class DownActivity extends Activity implements View.OnClickListener, Adap
                     mAudioList.add(list.get(i));
                 }
             }
-            mAudioListAdapter = new AudioListAdapter(this, mAudioList);
+            mAudioListAdapter = new DownAudioAdapter(this, mAudioList);
             down_con_lv.setAdapter(mAudioListAdapter);
         }
     }

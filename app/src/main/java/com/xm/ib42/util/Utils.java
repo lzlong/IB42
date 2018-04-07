@@ -337,6 +337,9 @@ public class Utils {
             editor.putString("columnTitle"+i, column.getTitle());
             editor.putString("columnUrl"+i, column.getUrl());
             List<Album> albumList = column.getAlbumList();
+            if (albumList == null){
+                continue;
+            }
             editor.putInt("albumCount"+i, albumList.size());
             for (int j = 0; j < albumList.size(); j++) {
                 Album album = albumList.get(j);

@@ -73,8 +73,25 @@ public class LockActivity extends Activity implements View.OnClickListener {
             play.setImageResource(R.mipmap.zangt);
             isplaying = true;
             mMusicArtsit.setText(Constants.playAlbum.getTitle());
+            if (Constants.playAlbum.getYppx() == 0){
+                mMusicName.setText(Constants.playAlbum.getAudioNameDesc());
+            } else {
+                mMusicName.setText(Constants.playAlbum.getAudioNameAsc());
+            }
         } else {
-            finish();
+            play.setImageResource(R.mipmap.bof);
+//            finish();
+            if (Constants.playAlbum != null){
+                mMusicArtsit.setText(Constants.playAlbum.getTitle());
+                if (Constants.playAlbum.getYppx() == 0){
+                    mMusicName.setText(Constants.playAlbum.getAudioNameDesc());
+                } else {
+                    mMusicName.setText(Constants.playAlbum.getAudioNameAsc());
+                }
+            } else {
+                mMusicArtsit.setText("");
+                mMusicName.setText("");
+            }
         }
 
     }

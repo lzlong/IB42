@@ -18,7 +18,8 @@ public class Constants {
     public static final String SEARCHURL = "http://xm.ib42.com/?json=get_search_result&s=";
     public static final String UPDATEVERURL = "http://app.webfuwu.com/up.asp?appid=1696";
     public static final String APPDOWNURL = "http://app.webfuwu.com";
-    public static final String SHAREURL = "http://app.webfuwu.com/?appid=1696";
+//    public static final String SHAREURL = "http://app.webfuwu.com/?appid=1696";
+    public static final String SHAREURL = "  http://g1.124000.org/share/?id=";
     public static final String URLPAGE = "&page=";
     public static final String[] VALUES = {"json", "p", "page", "keyword", "lm_id", "pn", "yppx"};
     public static final String YPPXDESC = "desc";//升序

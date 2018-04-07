@@ -3,22 +3,35 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/color_F0434343"
+    android:background="@color/color_FFFFFFFF"
     >
 
     <LinearLayout
         android:id="@+id/down_ll"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
+        <Button
+            android:id="@+id/select_all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="5dp"
+            android:background="@drawable/updatebutton"
+            android:textColor="@color/color_FFFF5267"
+            android:text="全选"/>
+        <ImageView
+            android:layout_width="2px"
+            android:layout_height="match_parent"
+            android:background="@color/color_F0999999"/>
         <Button
             android:id="@+id/adtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_margin="10dp"
+            android:layout_margin="5dp"
             android:background="@drawable/updatebutton"
-            android:textColor="@color/color_FFFFFFFF"
+            android:textColor="@color/color_FFFF5267"
             android:text="下载"/>
     </LinearLayout>
 </LinearLayout>

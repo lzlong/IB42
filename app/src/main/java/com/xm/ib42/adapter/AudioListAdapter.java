@@ -7,6 +7,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.xm.ib42.AudioListActivity;
 import com.xm.ib42.R;
 import com.xm.ib42.entity.Audio;
 
@@ -20,10 +21,12 @@ public class AudioListAdapter extends BaseArrayListAdapter {
 
     private Context mContext;
     private boolean isDown;
+    private AudioListActivity mAudioListActivity;
 
-    public AudioListAdapter(Context context, List<Audio> list) {
+    public AudioListAdapter(Context context, List<Audio> list, AudioListActivity mAudioListActivity) {
         this.mContext = context;
         this.data = list;
+        this.mAudioListActivity = mAudioListActivity;
     }
 
     public void setDown(boolean down) {
@@ -69,7 +72,7 @@ public class AudioListAdapter extends BaseArrayListAdapter {
         audio_share.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                mAudioListActivity.showPop(audio);
             }
         });
         audio_name.setText(audio.getTitle());

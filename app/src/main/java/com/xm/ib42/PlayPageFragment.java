@@ -448,7 +448,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
-            aty.showLoadDialog(true);
+//            aty.showLoadDialog(true);
             if (audio != null){
                 audio.setCurrDurationTime(MyApplication.mediaPlayer.getCurrentPosition());
                 aty.audioDao.updateByDuration(audio.getId(), audio.getCurrDurationTime());
@@ -461,7 +461,8 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
             }
 
             broadcastIntent = new Intent();
-            aty.showLoadDialog(true);
+//            aty.showLoadDialog(true);
+            Utils.showToast(aty, "上一曲");
             play.setImageResource(R.mipmap.bof);
             isplaying = true;
             broadcastIntent.setAction(Constants.ACTION_PREVIOUS);
@@ -490,7 +491,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 Utils.showToast(aty, "播放列表为空");
                 return;
             }
-            aty.showLoadDialog(true);
+//            aty.showLoadDialog(true);
             if (audio != null){
                 audio.setCurrDurationTime(MyApplication.mediaPlayer.getCurrentPosition());
                 aty.audioDao.updateByDuration(audio.getId(), audio.getCurrDurationTime());
@@ -501,6 +502,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                     }
                 }
             }
+            Utils.showToast(aty, "下一曲");
             broadcastIntent = new Intent();
             play.setImageResource(R.mipmap.zangt);
             isplaying = true;
@@ -563,7 +565,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
         params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE, QQShare.SHARE_TO_QQ_TYPE_DEFAULT);
         params.putString(QQShare.SHARE_TO_QQ_TITLE, "印心讲堂");
         params.putString(QQShare.SHARE_TO_QQ_SUMMARY,  "");
-        params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  Constants.SHAREURL);
+        params.putString(QQShare.SHARE_TO_QQ_TARGET_URL,  Constants.SHAREURL+audio.getId());
         params.putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, "");
         params.putString(QQShare.SHARE_TO_QQ_APP_NAME,  "印心讲堂");
         aty.mTencent.shareToQQ(aty, params, new MainActivity.BaseUiListener());
@@ -572,7 +574,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     private static final int THUMB_SIZE = 150;
     private void shareApp(){
         WXWebpageObject webpage = new WXWebpageObject();
-        webpage.webpageUrl = Constants.SHAREURL;
+        webpage.webpageUrl = Constants.SHAREURL+audio.getId();
         WXMediaMessage msg = new WXMediaMessage(webpage);
         msg.title = "欢迎使用「印心讲堂」";
         msg.description = "";
@@ -641,7 +643,7 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Audio audio = (Audio) parent.getAdapter().getItem(position);
         if (audio != null){
-            aty.showLoadDialog(true);
+//            aty.showLoadDialog(true);
             if (Constants.playAlbum.getYppx() == 0){
                 Constants.playAlbum.setAudioIdDesc(audio.getId());
                 Constants.playAlbum.setAudioNameDesc(audio.getTitle());
@@ -735,9 +737,9 @@ public class PlayPageFragment extends Fragment implements OnClickListener, Adapt
                 play_bar.setMax(totalms);
                 play_alltime.setText(Utils.gettim(totalms));
                 play_name.setText(audio.getTitle());
+                aty.showLoadDialog(false);
                 if (MyApplication.mediaPlayer.isPlaying()) {
                     aty.isShow = false;
-                    aty.showLoadDialog(false);
                     play.setImageResource(R.mipmap.zangt);
                     isplaying = true;
                 } else {
